@@ -221,8 +221,23 @@ walks backwards on the headset, set `invertForward: true` on the
 Controller mapping uses `meta-touch-controls` (Quest). For Pico or WMR, swap in
 `laser-controls` on `#handLeft`.
 
+## Loaded models
+
+The second sofa (`assets/koltuk-sofa.obj`, 896 vertices) is the first real 3D
+asset in the scene, facing the primitive sofa across the coffee table. It proves
+the roadmap claim that the customisation functions survive the
+primitive-to-model swap: `setSofaColor` drives both sofas from the same palette,
+telling the model's parts apart by mesh name (`Cylinder*` runner rails get the
+dark frame finish, everything else is fabric).
+
+Caveats: the OBJ ships without UVs, so no texture — procedural skins included —
+can map onto it; it stays flat colour. And it is a downloaded asset of unknown
+license — verify redistribution rights before the repo or the deploy goes
+public-facing.
+
 ## Roadmap
 
 - Guided sales mode (scripted viewpoints and prompts)
-- Real glTF furniture — the mutator functions stay the same, only selectors change
+- More glTF/OBJ furniture — pattern proven with the second sofa; prefer glTF
+  with UVs so skins and textures apply
 - A second room, and saveable/shareable configuration links

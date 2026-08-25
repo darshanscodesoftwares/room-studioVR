@@ -136,7 +136,9 @@
 
   <!-- Drop downloaded texture files into assets/ and preload them here so
        surfaces do not pop in one by one while a customer is standing there. -->
-  <a-assets timeout="10000"></a-assets>
+  <a-assets timeout="10000">
+    <a-asset-item id="koltukObj" src="assets/koltuk-sofa.obj"></a-asset-item>
+  </a-assets>
 
   <!-- ============ lighting ============ -->
   <a-entity id="ambientLight"
@@ -228,6 +230,16 @@
     <a-cylinder radius="0.035" height="0.2" position="-0.95 0.1 -0.35" material="color: #3d3129; roughness: 0.42; metalness: 0.55"></a-cylinder>
     <a-cylinder radius="0.035" height="0.2" position=" 0.95 0.1 -0.35" material="color: #3d3129; roughness: 0.42; metalness: 0.55"></a-cylinder>
   </a-entity>
+
+  <!-- Second sofa: the first real 3D asset in the scene, an OBJ loaded
+       as-is (already metre-scaled, Y-up). It ships without UVs, so no
+       texture — procedural skins included — can map onto it; it stays flat
+       colour, but that colour is driven by the same sofa-fabric palette,
+       which is the roadmap's whole claim: customisation functions survive
+       the primitive-to-model swap. Parts are told apart by mesh name in
+       skinSofa2(): the Cylinder runner rails get the dark frame finish. -->
+  <a-entity id="sofa2" obj-model="obj: #koltukObj"
+            position="0 0.17 1.0" rotation="0 180 0"></a-entity>
 
   <!-- coffee table -->
   <a-entity id="table" position="0 0 -0.85">
@@ -1190,6 +1202,7 @@ function setSofaColor(id) {
   document.querySelectorAll('#sofa .fabric').forEach(function (el) {
     applyFinish(el, entry, SURFACE.sofa);
   });
+  skinSofa2();
   state.package = null;
   logEvent('finish', { kind: 'sofa', id: id });
 }
@@ -1975,6 +1988,31 @@ function buildBlossoms() {
   }
 }
 
+/* The loaded sofa follows the sofa-fabric palette without UVs to carry a
+   skin: colour only. Runner rails keep the dark frame finish every other
+   leg in the room uses. Safe to call before the model arrives — traversing
+   an empty group is a no-op. */
+function skinSofa2() {
+  const el = document.querySelector('#sofa2');
+  if (!el) { return; }
+  const entry = entryOf('sofa', state.sofa);
+  el.object3D.traverse(function (n) {
+    if (!n.isMesh) { return; }
+    if (!n.material || !n.material.isMeshStandardMaterial) {
+      n.material = new THREE.MeshStandardMaterial();
+    }
+    if (n.name.indexOf('Cylinder') !== -1) {
+      n.material.color.set('#3d3129');
+      n.material.roughness = 0.42;
+      n.material.metalness = 0.55;
+    } else {
+      n.material.color.set(entry.hex);
+      n.material.roughness = 0.92;
+      n.material.metalness = 0;
+    }
+  });
+}
+
 function setupShadows() {
   setShadowFlags('#room', false, true);
   setShadowFlags('#rug', false, true);
@@ -2234,6 +2272,15 @@ function boot() {
   buildBlossoms();
   skinFixtures();
   setupShadows();
+
+  // the OBJ may arrive after boot; skin and shadow it whenever it lands
+  const sofa2 = document.querySelector('#sofa2');
+  if (sofa2) {
+    sofa2.addEventListener('model-loaded', function () {
+      skinSofa2();
+      setShadowFlags('#sofa2', true, true);
+    });
+  }
   // dynamically appended blossoms initialise on the next tick, so the
   // shadow flags get a second pass once their meshes exist
   setTimeout(setupShadows, 0);
