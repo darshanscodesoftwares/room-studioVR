@@ -295,11 +295,16 @@ specified he turns toward wherever he is heading next, so leaving reads as
 intentional. Over a cycle he spends 65 seconds standing and 9 walking, which is
 roughly how people actually occupy a room.
 
-The pack ships a walk clip and no idle, so standing is built in two parts.
-First the pose: at load the component samples the clip, poses the skeleton at
-each sample and measures the real distance between the foot bones, then holds
-the frame where they are closest — measured rather than hardcoded, so it
-survives swapping in another model.
+The pack ships a walk clip and no idle, so standing is built in three parts.
+
+First the pose. Every frame of a walk is mid-step, including the one where the
+feet are closest — one knee is bent and the weight is on a single foot, which
+is exactly how it looked. But the model's *bind* pose is a real standing stance
+from the waist down: legs straight to within 2.5 degrees, feet 21cm apart. So
+on stopping, everything below the shoulders is returned to the bind pose and he
+settles onto both feet. The arms are deliberately left on the animated frame,
+because the bind pose puts those in a T — arms hanging mid-swing read as
+standing, a T-pose does not.
 
 Then the motion, because a held pose is a statue. While standing the mixer
 stops running entirely — it would stamp the frozen pose back over everything

@@ -2538,6 +2538,7 @@ AFRAME.registerComponent('gltf-animation', {
       return;
     }
     this.model = model;
+    this.captureRestPose(model);
     this.mixer = new THREE.AnimationMixer(model);
     this.action = this.mixer.clipAction(clips[this.data.clip] || clips[0]);
     this.action.setLoop(THREE.LoopRepeat, Infinity);
@@ -2593,13 +2594,49 @@ AFRAME.registerComponent('gltf-animation', {
     this.action.paused = true;
     this.frozen = true;
     this.idleT = 0;
+    this.settle();
     this.captureIdleBones();
+  },
+
+  /* Even the walk's most upright frame is mid-step: one knee bent, weight on
+     one foot. Nobody stands like that.
+
+     The bind pose has the legs straight and level, so from the waist down the
+     skeleton is returned to it and he settles onto both feet. The arms are
+     left on the animated frame, because the bind pose puts those in a T —
+     hanging mid-swing looks like standing, a T-pose does not. */
+  settle: function () {
+    if (!this.restPose || !this.model) { return; }
+    const rest = this.restPose;
+    const ARMS = /clavicle|shoulder_(l|r)$|arm|hand|thumb|index|middle|ring|pinky|finger/i;
+    this.model.traverse(function (n) {
+      if (!n.name || ARMS.test(n.name)) { return; }
+      const r = rest[n.uuid];
+      if (!r) { return; }
+      n.quaternion.copy(r.q);
+      n.position.copy(r.p);
+    });
+  },
+
+  /* The bind pose, recorded before any animation runs. For this rig it is a
+     proper standing stance from the waist down — legs straight to within
+     2.5 degrees, feet 21cm apart — but a T-pose from the shoulders out. */
+  captureRestPose: function (model) {
+    const rest = {};
+    model.traverse(function (n) {
+      if (!n.name) { return; }
+      rest[n.uuid] = { q: n.quaternion.clone(), p: n.position.clone() };
+    });
+    this.restPose = rest;
   },
 
   /* Grab the bones the idle moves, and the standing pose as their baseline.
      Matched by name suffix, so any similarly-named rig works. */
   captureIdleBones: function () {
-    if (this.idleBones || !this.model) { return; }
+    // recaptured on every stop: the baseline is the settled pose, and that
+    // is only correct once settle() has run
+    this.idleBones = null;
+    if (!this.model) { return; }
     const want = [
       { re: /spine_01$/i, key: 'spine1' },
       { re: /spine_02$/i, key: 'spine2' },
