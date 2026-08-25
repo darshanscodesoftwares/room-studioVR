@@ -221,6 +221,25 @@ walks backwards on the headset, set `invertForward: true` on the
 Controller mapping uses `meta-touch-controls` (Quest). For Pico or WMR, swap in
 `laser-controls` on `#handLeft`.
 
+## The cat
+
+A primitive-built cat patrols a hardcoded waypoint loop that threads the
+clear floor lanes: along the west wall, through the gap between sofa and
+coffee table, up the window side, and back across the entrance. The path is
+collision-checked against every furniture footprint. `cat-walk` drives a
+diagonal-gait leg swing, body bob, tail sway, and dwell pauses at three
+corners where the cat sits, looks around, and turns toward its next leg
+before setting off. Everything runs off elapsed time with no randomness, so
+the cat is deterministic. The Cat decor toggle hides it (patrol suspends
+while hidden).
+
+Why primitives: the downloaded `.skp` cat could not be used — no browser
+loader exists for SketchUp files, and SketchUp has no skeletal animation, so
+the file holds a statue. To upgrade later: source an *animated* GLB (check
+the Sketchfab "Animated" filter and licence), keep the `cat-walk` path
+logic, and drive `THREE.AnimationMixer` from the model's walk clip instead
+of the procedural leg swing.
+
 ## Loaded models
 
 The second sofa (`assets/koltuk-sofa.obj`, 896 vertices) is the first real 3D

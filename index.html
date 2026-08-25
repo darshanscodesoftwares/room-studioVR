@@ -394,6 +394,68 @@
             position="2.45 0 1.75" rotation="0 -25 0"
             scale="0.016 0.016 0.016"></a-entity>
 
+  <!-- Cat on a hardcoded patrol. The downloaded .skp could not be used:
+       no browser loader exists for SketchUp files, and SketchUp has no
+       skeletal animation, so that file holds a static cat. The walk is
+       simulated instead: a waypoint loop with a diagonal-gait leg swing in
+       cat-walk. To upgrade later, drop in an animated GLB, keep this path
+       logic, and drive THREE.AnimationMixer instead of the leg swing.
+       Local frame: nose points +z; the component yaws the root. -->
+  <a-entity id="cat" cat-walk position="-2.3 0 1.8">
+    <a-entity id="catBody">
+      <a-entity class="cat-fur"
+                geometry="primitive: rounded-box; width: 0.13; height: 0.15; depth: 0.34; radius: 0.05"
+                position="0 0.22 0"
+                material="color: #c98d5a; roughness: 0.9; metalness: 0"></a-entity>
+      <!-- head -->
+      <a-entity id="catHead" position="0 0.32 0.2">
+        <a-entity class="cat-fur"
+                  geometry="primitive: rounded-box; width: 0.11; height: 0.1; depth: 0.11; radius: 0.035"
+                  material="color: #c98d5a; roughness: 0.9; metalness: 0"></a-entity>
+        <a-cone radius-bottom="0.025" radius-top="0.002" height="0.05"
+                position="-0.035 0.065 -0.01" rotation="-12 0 12"
+                material="color: #b57946; roughness: 0.9; metalness: 0"></a-cone>
+        <a-cone radius-bottom="0.025" radius-top="0.002" height="0.05"
+                position="0.035 0.065 -0.01" rotation="-12 0 -12"
+                material="color: #b57946; roughness: 0.9; metalness: 0"></a-cone>
+        <a-sphere radius="0.009" position="-0.028 0.012 0.054"
+                  material="color: #2a2a2e; roughness: 0.3; metalness: 0"></a-sphere>
+        <a-sphere radius="0.009" position="0.028 0.012 0.054"
+                  material="color: #2a2a2e; roughness: 0.3; metalness: 0"></a-sphere>
+        <a-cone radius-bottom="0.012" radius-top="0.004" height="0.014"
+                position="0 -0.012 0.058" rotation="90 0 0"
+                material="color: #c96f6f; roughness: 0.6; metalness: 0"></a-cone>
+      </a-entity>
+      <!-- tail: three segments curling up behind -->
+      <a-entity id="catTail" position="0 0.27 -0.17">
+        <a-cylinder radius="0.014" height="0.1" rotation="-35 0 0" position="0 0.03 -0.03"
+                    material="color: #c98d5a; roughness: 0.9; metalness: 0"></a-cylinder>
+        <a-cylinder radius="0.011" height="0.09" rotation="-10 0 0" position="0 0.1 -0.06"
+                    material="color: #c98d5a; roughness: 0.9; metalness: 0"></a-cylinder>
+        <a-cone radius-bottom="0.009" radius-top="0.003" height="0.07" rotation="12 0 0"
+                position="0 0.17 -0.055"
+                material="color: #b57946; roughness: 0.9; metalness: 0"></a-cone>
+      </a-entity>
+    </a-entity>
+    <!-- legs pivot at the hip: entity sits at the joint, cylinder hangs below -->
+    <a-entity class="cat-leg" position="-0.045 0.16 0.13">
+      <a-cylinder radius="0.016" height="0.16" position="0 -0.08 0"
+                  material="color: #b57946; roughness: 0.9; metalness: 0"></a-cylinder>
+    </a-entity>
+    <a-entity class="cat-leg" position="0.045 0.16 0.13">
+      <a-cylinder radius="0.016" height="0.16" position="0 -0.08 0"
+                  material="color: #b57946; roughness: 0.9; metalness: 0"></a-cylinder>
+    </a-entity>
+    <a-entity class="cat-leg" position="-0.045 0.16 -0.13">
+      <a-cylinder radius="0.016" height="0.16" position="0 -0.08 0"
+                  material="color: #b57946; roughness: 0.9; metalness: 0"></a-cylinder>
+    </a-entity>
+    <a-entity class="cat-leg" position="0.045 0.16 -0.13">
+      <a-cylinder radius="0.016" height="0.16" position="0 -0.08 0"
+                  material="color: #b57946; roughness: 0.9; metalness: 0"></a-cylinder>
+    </a-entity>
+  </a-entity>
+
   <!-- framed wall art, west wall -->
   <a-entity id="art" position="-2.96 1.75 -1.4" rotation="0 90 0">
     <a-box width="1.1" height="0.8" depth="0.04" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-box>
@@ -512,19 +574,19 @@ const PACKAGES = {
     name: 'Studio',
     wall: 'chalk', floor: 'oak', sofa: 'steel',
     chairFabric: 'rust', rugColor: 'mistrug', tableWood: 'walnuttop',
-    chair: 'modern', rug: true, plant: true, art: true
+    chair: 'modern', rug: true, plant: true, art: true, cat: true
   },
   warmOak: {
     name: 'Warm Oak',
     wall: 'sand', floor: 'walnut', sofa: 'terra',
     chairFabric: 'leather', rugColor: 'wool', tableWood: 'oaktop',
-    chair: 'armchair', rug: true, plant: true, art: true
+    chair: 'armchair', rug: true, plant: true, art: true, cat: true
   },
   coolMinimal: {
     name: 'Cool Minimal',
     wall: 'mist', floor: 'concrete', sofa: 'charcoal',
     chairFabric: 'slateup', rugColor: 'graphite', tableWood: 'marble',
-    chair: 'modern', rug: false, plant: false, art: true
+    chair: 'modern', rug: false, plant: false, art: true, cat: true
   }
 };
 
@@ -1255,7 +1317,7 @@ function setChairStyle(style) {
 
 function setDecor(key, on) {
   state[key] = on;
-  const ids = { rug: '#rug', plant: '#plant, #plant2', art: '#art' };
+  const ids = { rug: '#rug', plant: '#plant, #plant2', art: '#art', cat: '#cat' };
   document.querySelectorAll(ids[key]).forEach(function (el) {
     el.setAttribute('visible', on);
   });
@@ -1324,6 +1386,7 @@ function applyPackage(pkgId, silent) {
   setDecor('rug', p.rug);
   setDecor('plant', p.plant);
   setDecor('art', p.art);
+  setDecor('cat', p.cat);
   logging = wasLogging;
 
   state.package = pkgId;   // set last: the setters above clear it
@@ -1414,7 +1477,8 @@ function buildOverlay() {
 
   // decor toggles
   const decorBtns = document.querySelector('#decorBtns');
-  [['rug', 'Rug'], ['plant', 'Plant'], ['art', 'Wall art']].forEach(function (d) {
+  [['rug', 'Rug'], ['plant', 'Plant'], ['art', 'Wall art'],
+   ['cat', 'Cat']].forEach(function (d) {
     const b = document.createElement('button');
     b.textContent = d[1];
     b.dataset.decor = d[0];
@@ -1634,15 +1698,16 @@ function buildVrPanel() {
     { kind: 'chair', value: 'armchair', label: 'Armchair' },
     { kind: 'decor', value: 'rug',      label: 'Rug' },
     { kind: 'decor', value: 'plant',    label: 'Plant' },
-    { kind: 'decor', value: 'art',      label: 'Art' }
+    { kind: 'decor', value: 'art',      label: 'Art' },
+    { kind: 'decor', value: 'cat',      label: 'Cat' }
   ];
   toggles.forEach(function (t, i) {
-    const x = -0.6 + i * 0.4;
+    const x = -0.68 + i * 0.34;
     const bg = mkPlane(panel, {
-      w: 0.36, h: 0.18, x: x, y: -0.62, z: 0.01,
+      w: 0.31, h: 0.18, x: x, y: -0.62, z: 0.01,
       color: '#2b3242', clickable: true
     });
-    mkText(panel, t.label, { x: x, y: -0.62, z: 0.022, width: 1.35 });
+    mkText(panel, t.label, { x: x, y: -0.62, z: 0.022, width: 1.2 });
     bg.addEventListener('click', function () {
       if (t.kind === 'chair') {
         setChairStyle(state.chair === 'armchair' ? 'modern' : 'armchair');
@@ -1894,7 +1959,8 @@ function skinFixtures() {
     ['#potSoil',      'soil',       [3, 3]],
     ['.bonsai-wood',  'bark',       [3, 2]],
     ['.bonsai-leaf',  'foliage',    [3, 2]],
-    ['#lampShade',    'weave',      [6, 2]]
+    ['#lampShade',    'weave',      [6, 2]],
+    ['.cat-fur',      'pile',       [2, 2]]
   ].forEach(function (f) {
     document.querySelectorAll(f[0]).forEach(function (el) {
       applySkin(el, f[1], f[2]);
@@ -2149,12 +2215,111 @@ function whenModelReady(el, fn) {
 function setupShadows() {
   setShadowFlags('#room', false, true);
   setShadowFlags('#rug', false, true);
-  ['#sofa', '#table', '#chair', '#lamp', '#plant', '#art'].forEach(function (s) {
+  ['#sofa', '#table', '#chair', '#lamp', '#plant', '#art', '#cat'].forEach(function (s) {
     setShadowFlags(s, true, true);
   });
   setShadowFlags('#windowGlass', false, false);
   setShadowFlags('#vrPanel', false, false);
 }
+
+/* Waypoint patrol with a procedural diagonal gait.
+
+   The path is hardcoded to thread the clear floor lanes of this room —
+   along the west wall, through the gap between sofa and coffee table, up
+   the window side past the chair, and back across the entrance. Dwell
+   times make the cat pause and look around at three corners, and while it
+   waits it turns toward the next leg, so it never pivots on the spot.
+
+   Everything is driven from elapsed time — no randomness — so the cat is
+   in the same place doing the same thing for every visitor at the same
+   session moment. */
+AFRAME.registerComponent('cat-walk', {
+  schema: {
+    speed: { default: 0.32 }        // m/s: an unhurried indoor cat
+  },
+
+  init: function () {
+    // [x, z] waypoints; dwell[i] = seconds to sit after arriving at point i
+    this.path = [
+      [-2.3, 1.8], [-2.4, -1.0], [-1.5, -1.55], [1.2, -1.5],
+      [2.5, -0.7], [2.6, 0.75], [1.65, 1.5], [1.5, 2.3], [-0.5, 2.3]
+    ];
+    this.dwell = [0, 3, 0, 0, 4, 0, 0, 0, 3];
+    this.seg = 0;
+    this.t = 0;
+    this.wait = 0;
+    this.phase = 0;
+    this.yaw = Math.PI / 2;
+
+    this.body = this.el.querySelector('#catBody');
+    this.head = this.el.querySelector('#catHead');
+    this.tail = this.el.querySelector('#catTail');
+    this.legs = Array.prototype.slice.call(
+      this.el.querySelectorAll('.cat-leg'));
+  },
+
+  tick: function (time, delta) {
+    if (!delta) { return; }
+    const dt = Math.min(delta / 1000, 0.1);
+    const obj = this.el.object3D;
+    if (!obj.visible) { return; }
+
+    const n = this.path.length;
+    const a = this.path[this.seg];
+    const b = this.path[(this.seg + 1) % n];
+    const dx = b[0] - a[0], dz = b[1] - a[1];
+    const segLen = Math.sqrt(dx * dx + dz * dz);
+
+    const walking = this.wait <= 0;
+    if (walking) {
+      this.t += this.data.speed * dt;
+      this.phase += dt * this.data.speed * 22;   // step frequency
+      if (this.t >= segLen) {
+        this.seg = (this.seg + 1) % n;
+        this.t = 0;
+        this.wait = this.dwell[this.seg];
+      }
+    } else {
+      this.wait -= dt;
+    }
+
+    const f = segLen > 0 ? this.t / segLen : 0;
+    obj.position.x = a[0] + dx * f;
+    obj.position.z = a[1] + dz * f;
+
+    // face along the segment; while sitting, this is already the NEXT
+    // segment's direction, so the cat turns during the pause
+    const target = Math.atan2(dx, dz);
+    let diff = target - this.yaw;
+    while (diff > Math.PI) { diff -= Math.PI * 2; }
+    while (diff < -Math.PI) { diff += Math.PI * 2; }
+    this.yaw += diff * Math.min(1, dt * 4);
+    obj.rotation.y = this.yaw;
+
+    /* gait: diagonal pairs swing in opposite phase */
+    const swing = walking ? Math.sin(this.phase) * 0.55 : 0;
+    if (this.legs.length === 4) {
+      this.legs[0].object3D.rotation.x = swing;    // front-left
+      this.legs[3].object3D.rotation.x = swing;    // rear-right
+      this.legs[1].object3D.rotation.x = -swing;   // front-right
+      this.legs[2].object3D.rotation.x = -swing;   // rear-left
+    }
+
+    /* body bob while walking; idle head-look and tail sway while sitting */
+    if (this.body) {
+      this.body.object3D.position.y =
+        walking ? Math.abs(Math.sin(this.phase)) * 0.008 : 0;
+    }
+    if (this.head) {
+      this.head.object3D.rotation.y =
+        walking ? 0 : Math.sin(time * 0.0012) * 0.5;
+    }
+    if (this.tail) {
+      this.tail.object3D.rotation.z =
+        Math.sin(time * 0.002) * 0.12 + (walking ? Math.sin(this.phase) * 0.08 : 0);
+    }
+  }
+});
 
 /* =========================================================================
    Locomotion components (dependency-free)
