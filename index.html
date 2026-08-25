@@ -292,53 +292,82 @@
               position="0 1.5 0"></a-entity>
   </a-entity>
 
-  <!-- Flowering bonsai in a terracotta pot.
-       Fired clay outside, dark earth inside, a tapered trunk built from three
-       segments that lean against each other, and flat layered canopies rather
-       than one green ball. Blossoms are scattered onto the canopies in JS. -->
+  <!-- Flowering bonsai.
+       NOTE: a-cylinder silently ignores radius-top/radius-bottom (that is
+       a-cone API) and falls back to the 1m default radius, which is why the
+       first pot rendered as a 2m disc. The tapered clay body is therefore a
+       truncated a-cone, which honours both radii.
+       Blossoms, fallen petals and moss are scattered in JS from a fixed
+       seed, so the tree looks identical to every visitor. -->
   <a-entity id="plant" position="2.35 0 -2.4">
-    <a-cylinder id="potBody" radius-bottom="0.135" radius-top="0.175" height="0.22"
-                position="0 0.11 0"
-                material="color: #b5613c; roughness: 0.72; metalness: 0.02"></a-cylinder>
+    <!-- drip saucer -->
+    <a-cylinder id="potSaucer" radius="0.2" height="0.016" position="0 0.008 0"
+                material="color: #9c4f30; roughness: 0.78; metalness: 0.02"></a-cylinder>
+
+    <!-- tapered fired-clay body -->
+    <a-cone id="potBody" radius-bottom="0.135" radius-top="0.175" height="0.22"
+            segments-radial="24" position="0 0.125 0"
+            material="color: #b5613c; roughness: 0.72; metalness: 0.02"></a-cone>
     <a-torus id="potRim" radius="0.176" radius-tubular="0.016"
              segments-radial="10" segments-tubular="28"
-             position="0 0.218 0" rotation="-90 0 0"
+             position="0 0.235 0" rotation="-90 0 0"
              material="color: #a95734; roughness: 0.7; metalness: 0.02"></a-torus>
-    <a-cylinder id="potSoil" radius="0.168" height="0.04" position="0 0.2 0"
-                material="color: #6b5844; roughness: 1; metalness: 0"></a-cylinder>
 
-    <!-- trunk: three tapered segments with alternating lean -->
-    <a-cone class="bonsai-wood" radius-bottom="0.032" radius-top="0.026" height="0.16"
-            position="0 0.30 0" rotation="0 0 9"
+    <!-- earth mounded above the rim, the way a root ball actually sits -->
+    <a-sphere id="potSoil" radius="0.16" scale="1 0.3 1" position="0 0.21 0"
+              segments-width="20" segments-height="12"
+              material="color: #6b5844; roughness: 1; metalness: 0"></a-sphere>
+
+    <!-- nebari: surface roots flaring from the trunk base -->
+    <a-cone class="bonsai-wood" radius-bottom="0.014" radius-top="0.004" height="0.09"
+            position="-0.05 0.255 0.02" rotation="18 0 108"
+            material="color: #5b4636; roughness: 0.9; metalness: 0"></a-cone>
+    <a-cone class="bonsai-wood" radius-bottom="0.013" radius-top="0.004" height="0.08"
+            position="0.05 0.255 0.03" rotation="15 0 -105"
+            material="color: #5b4636; roughness: 0.9; metalness: 0"></a-cone>
+    <a-cone class="bonsai-wood" radius-bottom="0.012" radius-top="0.004" height="0.08"
+            position="0.01 0.252 -0.05" rotation="-102 0 6"
+            material="color: #5b4636; roughness: 0.9; metalness: 0"></a-cone>
+
+    <!-- trunk: three tapered segments, S-curved -->
+    <a-cone class="bonsai-wood" radius-bottom="0.04" radius-top="0.028" height="0.17"
+            position="0 0.32 0" rotation="0 0 8"
             material="color: #5b4636; roughness: 0.85; metalness: 0"></a-cone>
-    <a-cone class="bonsai-wood" radius-bottom="0.026" radius-top="0.02" height="0.14"
-            position="0.035 0.43 0.005" rotation="0 0 -16"
+    <a-cone class="bonsai-wood" radius-bottom="0.028" radius-top="0.02" height="0.15"
+            position="0.045 0.45 0.01" rotation="0 0 -18"
             material="color: #5b4636; roughness: 0.85; metalness: 0"></a-cone>
-    <a-cone class="bonsai-wood" radius-bottom="0.02" radius-top="0.013" height="0.12"
-            position="0.02 0.55 0" rotation="0 0 11"
+    <a-cone class="bonsai-wood" radius-bottom="0.02" radius-top="0.012" height="0.13"
+            position="0.02 0.575 0" rotation="0 0 14"
             material="color: #5b4636; roughness: 0.85; metalness: 0"></a-cone>
 
-    <!-- side branches carrying the outer canopies -->
-    <a-cone class="bonsai-wood" radius-bottom="0.014" radius-top="0.007" height="0.2"
-            position="-0.08 0.45 0.02" rotation="0 0 74"
+    <!-- branches carrying the outer canopies, one leaning back for depth -->
+    <a-cone class="bonsai-wood" radius-bottom="0.013" radius-top="0.006" height="0.22"
+            position="-0.10 0.47 0.02" rotation="0 0 72"
             material="color: #5b4636; roughness: 0.85; metalness: 0"></a-cone>
-    <a-cone class="bonsai-wood" radius-bottom="0.013" radius-top="0.006" height="0.17"
-            position="0.11 0.52 -0.03" rotation="0 0 -70"
+    <a-cone class="bonsai-wood" radius-bottom="0.012" radius-top="0.005" height="0.18"
+            position="0.13 0.55 -0.03" rotation="0 0 -68"
+            material="color: #5b4636; roughness: 0.85; metalness: 0"></a-cone>
+    <a-cone class="bonsai-wood" radius-bottom="0.01" radius-top="0.005" height="0.15"
+            position="0 0.52 -0.08" rotation="-62 0 0"
             material="color: #5b4636; roughness: 0.85; metalness: 0"></a-cone>
 
-    <!-- flattened canopy pads: the layered silhouette that says bonsai -->
-    <a-sphere class="bonsai-leaf" radius="0.14" position="-0.16 0.5 0.02"
-              scale="1 0.42 1"
-              material="color: #4c8f4f; roughness: 0.7; metalness: 0"></a-sphere>
-    <a-sphere class="bonsai-leaf" radius="0.115" position="0.18 0.56 -0.03"
-              scale="1 0.44 1"
-              material="color: #3f7d43; roughness: 0.7; metalness: 0"></a-sphere>
-    <a-sphere class="bonsai-leaf" radius="0.145" position="0.03 0.68 0"
+    <!-- flattened canopy pads: the layered silhouette that says bonsai.
+         Spread runs about twice the pot width, the classic proportion. -->
+    <a-sphere class="bonsai-leaf" radius="0.15" position="-0.20 0.52 0.03"
               scale="1 0.4 1"
+              material="color: #4c8f4f; roughness: 0.7; metalness: 0"></a-sphere>
+    <a-sphere class="bonsai-leaf" radius="0.12" position="0.21 0.60 -0.04"
+              scale="1 0.42 1"
+              material="color: #3f7d43; roughness: 0.7; metalness: 0"></a-sphere>
+    <a-sphere class="bonsai-leaf" radius="0.16" position="0.03 0.72 -0.01"
+              scale="1 0.38 1"
               material="color: #4a8a48; roughness: 0.7; metalness: 0"></a-sphere>
-    <a-sphere class="bonsai-leaf" radius="0.075" position="-0.06 0.60 -0.09"
-              scale="1 0.5 1"
+    <a-sphere class="bonsai-leaf" radius="0.09" position="-0.05 0.63 -0.13"
+              scale="1 0.48 1"
               material="color: #3d7a41; roughness: 0.7; metalness: 0"></a-sphere>
+    <a-sphere class="bonsai-leaf" radius="0.08" position="0.09 0.66 0.10"
+              scale="1 0.5 1"
+              material="color: #55954e; roughness: 0.7; metalness: 0"></a-sphere>
 
     <a-entity id="blossoms"></a-entity>
   </a-entity>
@@ -1835,6 +1864,7 @@ function setShadowFlags(selector, cast, receive) {
 function skinFixtures() {
   [
     ['#potBody',      'terracotta', [4, 1]],
+    ['#potSaucer',    'terracotta', [5, 1]],
     ['#potRim',       'terracotta', [6, 1]],
     ['#potSoil',      'soil',       [3, 3]],
     ['.bonsai-wood',  'bark',       [3, 2]],
@@ -1847,8 +1877,10 @@ function skinFixtures() {
   });
 }
 
-/* Blossoms are scattered rather than hand-placed, from a fixed seed so the
-   tree looks the same to every visitor and in every screenshot. */
+/* Blossoms, fallen petals and moss are scattered rather than hand-placed,
+   from a fixed seed so the tree looks the same to every visitor and in
+   every screenshot. Each speck is its own draw call, so counts are kept
+   modest — about sixty total for the whole tree. */
 function buildBlossoms() {
   const host = document.querySelector('#blossoms');
   if (!host) { return; }
@@ -1859,30 +1891,88 @@ function buildBlossoms() {
     return seed / 4294967296;
   }
 
+  function petalColor() {
+    const r = rnd();
+    return r < 0.55 ? '#e9a7c0' : (r < 0.85 ? '#f6dce6' : '#d98bb0');
+  }
+
+  /* blossom clusters riding the top surface of each canopy pad */
   document.querySelectorAll('#plant .bonsai-leaf').forEach(function (pad) {
     const p = pad.getAttribute('position');
     const r = parseFloat(pad.getAttribute('radius'));
     const sc = pad.getAttribute('scale');
-    const n = Math.max(3, Math.round(r * 48));
+    const n = Math.max(4, Math.round(r * 60));
 
     for (let i = 0; i < n; i++) {
       const a = rnd() * Math.PI * 2;
-      const t = 0.7 + rnd() * 0.32;          // sit out near the canopy edge
+      const t = 0.35 + rnd() * 0.6;
+      // sit the blossom on the squashed-sphere surface, not floating above it
+      const surfaceY = Math.sqrt(Math.max(0, 1 - t * t)) * r * sc.y;
       const el = document.createElement('a-sphere');
-      el.setAttribute('radius', 0.012 + rnd() * 0.008);
-      el.setAttribute('segments-width', 8);
-      el.setAttribute('segments-height', 6);
+      el.setAttribute('radius', 0.009 + rnd() * 0.007);
+      el.setAttribute('segments-width', 6);
+      el.setAttribute('segments-height', 4);
       el.setAttribute('position', {
         x: p.x + Math.cos(a) * r * t,
-        y: p.y + (0.2 + rnd() * 0.7) * r * sc.y,
+        y: p.y + surfaceY * (0.85 + rnd() * 0.3),
         z: p.z + Math.sin(a) * r * t
       });
       el.setAttribute('material',
-        'color: ' + (rnd() < 0.25 ? '#f6dce6' : '#e9a7c0') +
-        '; roughness: 0.85; metalness: 0');
+        'color: ' + petalColor() + '; roughness: 0.85; metalness: 0');
       host.appendChild(el);
     }
   });
+
+  /* fallen petals ringing the pot — the detail that implies time passing */
+  for (let i = 0; i < 12; i++) {
+    const a = rnd() * Math.PI * 2;
+    const d = 0.21 + rnd() * 0.14;
+    const el = document.createElement('a-circle');
+    el.setAttribute('radius', 0.008 + rnd() * 0.006);
+    el.setAttribute('segments', 8);
+    el.setAttribute('position', {
+      x: Math.cos(a) * d, y: 0.003 + rnd() * 0.003, z: Math.sin(a) * d
+    });
+    el.setAttribute('rotation', {
+      x: -90 + (rnd() - 0.5) * 14, y: rnd() * 360, z: 0
+    });
+    el.setAttribute('material', 'color: ' + petalColor() +
+      '; roughness: 0.9; metalness: 0; side: double');
+    host.appendChild(el);
+  }
+
+  /* a few on the soil mound itself */
+  for (let i = 0; i < 4; i++) {
+    const a = rnd() * Math.PI * 2;
+    const d = 0.05 + rnd() * 0.08;
+    const el = document.createElement('a-circle');
+    el.setAttribute('radius', 0.009 + rnd() * 0.005);
+    el.setAttribute('segments', 8);
+    el.setAttribute('position', {
+      x: Math.cos(a) * d, y: 0.252 - d * 0.14, z: Math.sin(a) * d
+    });
+    el.setAttribute('rotation', { x: -90, y: rnd() * 360, z: 0 });
+    el.setAttribute('material', 'color: ' + petalColor() +
+      '; roughness: 0.9; metalness: 0; side: double');
+    host.appendChild(el);
+  }
+
+  /* moss patches on the earth */
+  for (let i = 0; i < 4; i++) {
+    const a = rnd() * Math.PI * 2;
+    const d = 0.06 + rnd() * 0.07;
+    const el = document.createElement('a-circle');
+    el.setAttribute('radius', 0.02 + rnd() * 0.016);
+    el.setAttribute('segments', 10);
+    el.setAttribute('position', {
+      x: Math.cos(a) * d, y: 0.2525 - d * 0.16, z: Math.sin(a) * d
+    });
+    el.setAttribute('rotation', { x: -90, y: rnd() * 360, z: 0 });
+    el.setAttribute('material',
+      'color: ' + (rnd() < 0.5 ? '#5f7a3d' : '#6c8a45') +
+      '; roughness: 1; metalness: 0; side: double');
+    host.appendChild(el);
+  }
 }
 
 function setupShadows() {

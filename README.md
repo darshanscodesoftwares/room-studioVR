@@ -113,11 +113,18 @@ counts explicitly — a cylinder's circumference and its height are very differe
 lengths under the same 0..1 UV, and letting the bounding box decide stretches the
 grain.
 
-The plant is a flowering bonsai: terracotta pot with a torus lip and visible
-earth inside, a trunk of three tapered segments with alternating lean, two side
-branches, and four flattened canopy pads for the layered bonsai silhouette.
-Blossoms are scattered onto the pads from a fixed seed, so the tree looks the
-same to every visitor and in every screenshot.
+The plant is a flowering bonsai: tapered terracotta pot on a drip saucer, torus
+lip, earth mounded above the rim with surface roots flaring from the trunk base,
+a three-segment S-curved trunk, and five flattened canopy pads whose spread runs
+about twice the pot width — the classic proportion. Blossoms sit on the pad
+surfaces, fallen petals ring the pot, and moss patches the soil, all scattered
+from a fixed seed so the tree looks the same to every visitor and in every
+screenshot.
+
+One API landmine worth recording: `<a-cylinder>` silently ignores
+`radius-top`/`radius-bottom` (that is `<a-cone>` API) and falls back to the 1m
+default radius — the original pot rendered as a 2m disc because of exactly this.
+Tapered cylinders must be truncated cones.
 
 Six palettes now drive the room — walls, flooring, rug, sofa, chair fabric and
 table top. In VR they are split across **Room** and **Furniture** tabs, because
