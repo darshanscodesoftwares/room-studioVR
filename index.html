@@ -2537,10 +2537,57 @@ AFRAME.registerComponent('gltf-animation', {
       console.warn('[gltf-animation] model carries no clips');
       return;
     }
+    this.model = model;
     this.mixer = new THREE.AnimationMixer(model);
-    const action = this.mixer.clipAction(clips[this.data.clip] || clips[0]);
-    action.setLoop(THREE.LoopRepeat, Infinity);
-    action.play();
+    this.action = this.mixer.clipAction(clips[this.data.clip] || clips[0]);
+    this.action.setLoop(THREE.LoopRepeat, Infinity);
+    this.action.play();
+    this.standTime = this.findStandPose(clips[this.data.clip] || clips[0]);
+  },
+
+  /* This pack ships a walk clip and nothing else, so "standing still" has to
+     be borrowed from it. Freezing on an arbitrary frame leaves the figure
+     mid-stride like a mannequin; the frame where the two feet are closest
+     together reads as standing.
+
+     Rather than hardcode a frame number, sample the clip, pose the skeleton
+     at each sample and measure the actual distance between the foot bones.
+     That survives swapping in a different model or clip. */
+  findStandPose: function (clip) {
+    const feet = [];
+    this.model.traverse(function (n) {
+      if (/foot_(l|r)$/i.test(n.name || '')) { feet.push(n); }
+    });
+    if (feet.length !== 2) { return 0; }
+
+    const a = new THREE.Vector3(), b = new THREE.Vector3();
+    let best = 0, bestGap = Infinity;
+    const samples = 48;
+    for (let i = 0; i < samples; i++) {
+      const t = (i / samples) * clip.duration;
+      this.mixer.setTime(t);
+      this.model.updateMatrixWorld(true);
+      feet[0].getWorldPosition(a);
+      feet[1].getWorldPosition(b);
+      const gap = a.distanceTo(b);
+      if (gap < bestGap) { bestGap = gap; best = t; }
+    }
+    this.mixer.setTime(0);
+    return best;
+  },
+
+  /* resume the cycle */
+  walk: function (timeScale) {
+    if (!this.action) { return; }
+    this.action.paused = false;
+    this.el.setAttribute('gltf-animation', 'timeScale', timeScale);
+  },
+
+  /* hold the standing pose */
+  stand: function () {
+    if (!this.action || !this.mixer) { return; }
+    this.mixer.setTime(this.standTime);
+    this.action.paused = true;
   },
 
   tick: function (time, delta) {
@@ -2605,32 +2652,46 @@ function setupShadows() {
   setShadowFlags('#vrPanel', false, false);
 }
 
-/* Moves an entity along a waypoint loop, letting its own animation clip
-   supply the gait.
+/* Walks an entity between a handful of places, waiting at each one.
 
-   Travel speed and clip playback are locked together: a walk clip has a
-   native ground speed, and if the entity travels at any other rate the feet
-   skate. So the component scales the sibling gltf-animation by
-   speed / clipSpeed, and the two can never drift out of agreement. */
+   A continuous loop reads as a mannequin on a track — the giveaway is that
+   he never stops. Real occupancy is mostly standing: cross the room, stand
+   somewhere for a while, look at something, move on. So each stop carries
+   its own dwell time and something to face while waiting, including one
+   stop beside the standing figure that turns him toward her.
+
+   Travel speed and clip playback stay locked: a walk clip has a native
+   ground speed, and travelling at any other rate makes the feet skate, so
+   the clip is scaled by speed / clipSpeed. While dwelling the clip freezes
+   on its most upright frame instead of walking on the spot. */
 AFRAME.registerComponent('path-walk', {
   schema: {
     speed: { default: 0.83 },       // m/s over the ground
     clipSpeed: { default: 1.282 },  // m/s the clip itself walks at
-    turnRate: { default: 2.6 }      // rad/s
+    turnRate: { default: 2.4 }      // rad/s
   },
 
   init: function () {
-    this.path = [
-      [-0.6, 1.9], [1.2, 1.8], [1.15, 0.55],
-      [0.6, -0.05], [-0.5, 0.15], [-0.75, 1.3]
+    // x, z, seconds to wait, and what to look at while waiting
+    this.stops = [
+      { x: -0.80, z:  1.15, dwell: 18, face: [-1.5, 1.0] },  // beside her
+      { x:  1.15, z:  0.55, dwell: 15, face: [ 3.0, 0.0] },  // at the window
+      { x:  0.35, z: -0.10, dwell: 20, face: [ 0.0, -2.4] }, // facing the sofa
+      { x:  1.00, z:  1.90, dwell: 12, face: null }          // open floor
     ];
-    this.seg = 0;
-    this.t = 0;
+    this.i = 0;
+    this.wait = this.stops[0].dwell;
+    this.state = 'dwell';
     this.yaw = 0;
-    this.el.object3D.position.set(this.path[0][0], 0, this.path[0][1]);
-    // keep the clip in step with the ground speed
-    this.el.setAttribute('gltf-animation', 'timeScale',
-      this.data.speed / this.data.clipSpeed);
+
+    const first = this.stops[0];
+    this.el.object3D.position.set(first.x, 0, first.z);
+    this.anim = this.el.components['gltf-animation'];
+  },
+
+  anims: function () {
+    if (!this.anim) { this.anim = this.el.components['gltf-animation']; }
+    return this.anim;
   },
 
   tick: function (time, delta) {
@@ -2638,25 +2699,49 @@ AFRAME.registerComponent('path-walk', {
     const obj = this.el.object3D;
     if (!obj.visible) { return; }
     const dt = Math.min(delta / 1000, 0.1);
+    const anim = this.anims();
 
-    const n = this.path.length;
-    const a = this.path[this.seg];
-    const b = this.path[(this.seg + 1) % n];
-    const dx = b[0] - a[0], dz = b[1] - a[1];
-    const len = Math.sqrt(dx * dx + dz * dz);
+    const here = this.stops[this.i];
+    const next = this.stops[(this.i + 1) % this.stops.length];
 
-    this.t += this.data.speed * dt;
-    if (this.t >= len) { this.t -= len; this.seg = (this.seg + 1) % n; return; }
+    let aimX, aimZ;
 
-    const f = len > 0 ? this.t / len : 0;
-    obj.position.x = a[0] + dx * f;
-    obj.position.z = a[1] + dz * f;
+    if (this.state === 'dwell') {
+      if (anim && anim.action && !anim.action.paused) { anim.stand(); }
+      this.wait -= dt;
+      // face whatever this stop looks at; with nothing to look at, turn
+      // toward wherever he is going next so leaving reads as intentional
+      const f = here.face || [next.x, next.z];
+      aimX = f[0] - obj.position.x;
+      aimZ = f[1] - obj.position.z;
+      if (this.wait <= 0) {
+        this.state = 'walk';
+        if (anim) { anim.walk(this.data.speed / this.data.clipSpeed); }
+      }
+    } else {
+      const dx = next.x - obj.position.x;
+      const dz = next.z - obj.position.z;
+      const dist = Math.sqrt(dx * dx + dz * dz);
+      if (dist < 0.05) {
+        this.i = (this.i + 1) % this.stops.length;
+        this.wait = this.stops[this.i].dwell;
+        this.state = 'dwell';
+        return;
+      }
+      const step = Math.min(this.data.speed * dt, dist);
+      obj.position.x += (dx / dist) * step;
+      obj.position.z += (dz / dist) * step;
+      aimX = dx;
+      aimZ = dz;
+    }
 
-    let diff = Math.atan2(dx, dz) - this.yaw;
-    while (diff > Math.PI) { diff -= Math.PI * 2; }
-    while (diff < -Math.PI) { diff += Math.PI * 2; }
-    this.yaw += diff * Math.min(1, dt * this.data.turnRate);
-    obj.rotation.y = this.yaw;
+    if (aimX !== undefined && (aimX !== 0 || aimZ !== 0)) {
+      let diff = Math.atan2(aimX, aimZ) - this.yaw;
+      while (diff > Math.PI) { diff -= Math.PI * 2; }
+      while (diff < -Math.PI) { diff += Math.PI * 2; }
+      this.yaw += diff * Math.min(1, dt * this.data.turnRate);
+      obj.rotation.y = this.yaw;
+    }
   }
 });
 

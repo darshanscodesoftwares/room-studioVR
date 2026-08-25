@@ -286,8 +286,20 @@ inside it, because the originals are 15MB and 4MB and downsizing them
 separately keeps the model file small. Gloss was inverted to roughness at build
 time, since glTF has no gloss channel.
 
-A second figure — a 1.86m man — walks a six-point loop through the open floor,
-his own walk clip supplying the gait. **People** is a model slot with three
+A second figure — a 1.86m man — moves between four places and waits at each,
+his own walk clip supplying the gait. A continuous loop reads as a mannequin on
+a track; the giveaway is that he never stops. So each stop carries its own dwell
+(12–20s) and something to look at while waiting: he stands beside the woman and
+turns toward her, looks out of the window, faces the sofa. With nothing
+specified he turns toward wherever he is heading next, so leaving reads as
+intentional. Over a cycle he spends 65 seconds standing and 9 walking, which is
+roughly how people actually occupy a room.
+
+The pack ships a walk clip and no idle, so "standing" is borrowed from it: at
+load the component samples the clip, poses the skeleton at each sample and
+measures the real distance between the foot bones, then freezes on the frame
+where they are closest. That reads as standing rather than mid-stride, and it
+is measured rather than hardcoded, so it survives swapping in another model. **People** is a model slot with three
 choices: Woman, Man, or **Both**, from the dropdown on desktop or the Models tab
 in VR. It is the first variant that maps to more than one entity, which the slot
 mechanism now supports generally.
