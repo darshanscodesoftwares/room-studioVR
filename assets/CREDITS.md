@@ -89,6 +89,28 @@ Processing applied (originals not redistributed here):
 The `mask01`/`mask02` maps were not used. 47MB of source became 1.8MB of web
 assets.
 
+---
+
+## nathan.gltf + nathan-*.jpg — Nathan Animated 003 Walking
+
+- **Author / vendor:** Renderpeople — **same RESTRICTED terms as Sophia above.**
+  Redistributing the 3D data is prohibited; a public URL is redistribution.
+- **Source pack:** `55-rp_nathan_animated_003_walking_fbx`
+- 10,000 polygons, 88-joint skin, one 2.25s walk cycle
+
+Processing applied (originals not redistributed here):
+
+| Output | From | Notes |
+| --- | --- | --- |
+| `nathan.gltf` + `nathan-buffer.bin` | `.fbx` | via FBX2glTF 0.9.7; metres, Y-up, feet at y=0 |
+| `nathan-dif.jpg` | `tex/*_dif.jpg` | 5.3MB → 202KB at 1024px |
+| `nathan-norm.jpg` | `tex/*_norm.jpg` | 11.7MB → 309KB at 1024px |
+| `nathan-rough.jpg` | `tex/*_gloss.jpg` | 13.3MB → 108KB, **inverted** from gloss |
+
+**Root motion stripped.** The clip walks the figure 2.884m forward over 2.25s
+— a native ground speed of 1.282 m/s — and snaps back on every loop. That
+channel was removed at build time so `path-walk` can drive the travel instead.
+
 ## Replacing these
 
 Prefer glTF/GLB with an explicit licence. [Poly Haven](https://polyhaven.com)

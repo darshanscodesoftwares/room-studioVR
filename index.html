@@ -530,6 +530,16 @@
             gltf-model="url(assets/sophia.gltf)"
             gltf-animation></a-entity>
 
+  <!-- Walking figure. His clip carries baked root motion — 2.884m of travel
+       in 2.25s, so 1.282 m/s native — which was stripped at build time: left
+       in, he would walk 2.9m then snap back on every loop. path-walk drives
+       the travel instead and scales the clip to match the chosen speed, so
+       the feet never slide. -->
+  <a-entity id="human2" visible="false"
+            gltf-model="url(assets/nathan.gltf)"
+            gltf-animation
+            path-walk="speed: 0.83; clipSpeed: 1.282"></a-entity>
+
   <!-- framed wall art, west wall -->
   <a-entity id="art" position="-2.96 1.75 -1.4" rotation="0 90 0">
     <a-box width="1.1" height="0.8" depth="0.04" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-box>
@@ -689,6 +699,15 @@ const MODELS = {
       { id: 'house',     name: 'House Plant',      el: '#plant2' }
     ]
   },
+  people: {
+    label: 'People',
+    variants: [
+      { id: 'woman', name: 'Woman', el: '#human' },
+      { id: 'man',   name: 'Man',   el: '#human2' },
+      // a variant may name more than one entity; the slot shows them all
+      { id: 'both',  name: 'Both',  el: '#human, #human2' }
+    ]
+  },
   cat: {
     label: 'Cat',
     variants: [
@@ -742,7 +761,8 @@ const DEFAULT_STATE = Object.assign({}, PACKAGES.studio, {
   // the figure is a scale reference rather than decor, so finish packages
   // deliberately leave it alone; only the toggle and reset touch it
   human: true,
-  models: { sofa: 'primitive', plant: 'bonsai', cat: 'realistic' }
+  models: { sofa: 'primitive', plant: 'bonsai', cat: 'realistic',
+            people: 'woman' }
 });
 delete DEFAULT_STATE.name;
 
@@ -1469,11 +1489,13 @@ function setChairStyle(style) {
 
 function setDecor(key, on) {
   state[key] = on;
-  if (key === 'plant') {
-    // the slot decides which plant; this only decides whether any shows
-    applyModelSlot('plant');
+  // a toggle that gates a slot defers to it, so switching variants can never
+  // resurrect something the visitor turned off
+  const gated = { plant: 'plant', human: 'people' };
+  if (gated[key]) {
+    applyModelSlot(gated[key]);
   } else {
-    const ids = { rug: '#rug', art: '#art', cat: '#cat', human: '#human' };
+    const ids = { rug: '#rug', art: '#art', cat: '#cat' };
     document.querySelectorAll(ids[key]).forEach(function (el) {
       el.setAttribute('visible', on);
     });
@@ -1490,17 +1512,28 @@ function setModel(slot, variantId) {
   logEvent('model', { slot: slot, id: variantId });
 }
 
+/* Slots whose visibility a decor toggle also governs: the toggle decides
+   whether anything shows, the slot decides which. */
+const SLOT_GATE = { plant: 'plant', people: 'human' };
+
 function applyModelSlot(slot) {
   const def = MODELS[slot];
   if (!def) { return; }
+  const gate = SLOT_GATE[slot];
+  const slotVisible = gate ? !!state[gate] : true;
   const chosen = state.models[slot];
-  // decor toggles own visibility for the plant slot, so a hidden slot must
-  // stay hidden when its variant changes
-  const slotVisible = (slot !== 'plant') || !!state.plant;
+  const variant = def.variants.filter(function (v) { return v.id === chosen; })[0]
+                  || def.variants[0];
+
+  // a variant can name several entities, so collect the slot's full cast
+  // first and then light up only the ones this variant asks for
+  const shown = [];
+  document.querySelectorAll(variant.el).forEach(function (el) { shown.push(el); });
 
   def.variants.forEach(function (v) {
-    const el = document.querySelector(v.el);
-    if (el) { el.setAttribute('visible', slotVisible && v.id === chosen); }
+    document.querySelectorAll(v.el).forEach(function (el) {
+      el.setAttribute('visible', slotVisible && shown.indexOf(el) !== -1);
+    });
   });
 }
 
@@ -1684,7 +1717,7 @@ function buildOverlay() {
   // decor toggles
   const decorBtns = document.querySelector('#decorBtns');
   [['rug', 'Rug'], ['plant', 'Plant'], ['art', 'Wall art'],
-   ['cat', 'Cat'], ['human', 'Person']].forEach(function (d) {
+   ['cat', 'Cat'], ['human', 'People']].forEach(function (d) {
     const b = document.createElement('button');
     b.textContent = d[1];
     b.dataset.decor = d[0];
@@ -1909,18 +1942,21 @@ function buildVrPanel() {
   panel.appendChild(mGroup);
   vrTabs.models = mGroup;
 
+  // four slots will not fit on the three swatch rows, so the models tab uses
+  // its own tighter spacing
+  const MODEL_ROW_Y = [0.40, 0.17, -0.06, -0.29];
   Object.keys(MODELS).forEach(function (slot, r) {
-    const y = ROW_Y[r];
+    const y = MODEL_ROW_Y[r];
     const vars = MODELS[slot].variants;
     mkText(mGroup, MODELS[slot].label,
-      { x: 0, y: y + 0.13, width: 2.4, color: '#9aa0ad' });
+      { x: 0, y: y + 0.105, width: 2.6, color: '#9aa0ad' });
 
     const w = Math.min(0.8, 1.68 / vars.length - 0.06);
     const step = w + 0.06;
     vars.forEach(function (v, i) {
       const x = -(step * (vars.length - 1)) / 2 + i * step;
       const bg = mkPlane(mGroup, {
-        w: w, h: 0.18, x: x, y: y, z: 0.01,
+        w: w, h: 0.155, x: x, y: y, z: 0.01,
         color: '#2b3242', clickable: true
       });
       mkText(mGroup, v.name, { x: x, y: y, z: 0.022, width: 1.45 });
@@ -1937,7 +1973,7 @@ function buildVrPanel() {
     { kind: 'decor', value: 'plant',    label: 'Plant' },
     { kind: 'decor', value: 'art',      label: 'Art' },
     { kind: 'decor', value: 'cat',      label: 'Cat' },
-    { kind: 'decor', value: 'human',    label: 'Person' }
+    { kind: 'decor', value: 'human',    label: 'People' }
   ];
   toggles.forEach(function (t, i) {
     const x = -0.7 + i * 0.28;
@@ -2522,8 +2558,8 @@ AFRAME.registerComponent('gltf-animation', {
    inside it: the pack's originals are 15MB and 4MB, and downsizing them
    separately keeps the model file small. Gloss was inverted to roughness at
    build time, since glTF has no gloss channel. */
-function skinHuman() {
-  const el = document.querySelector('#human');
+function skinHuman(selector, prefix) {
+  const el = document.querySelector(selector);
   if (!el) { return; }
 
   const load = new THREE.TextureLoader();
@@ -2536,8 +2572,8 @@ function skinHuman() {
     t.anisotropy = 4;
     return t;
   }
-  const normalMap = tex('assets/sophia-norm.jpg', false);
-  const roughnessMap = tex('assets/sophia-rough.jpg', false);
+  const normalMap = tex('assets/' + prefix + '-norm.jpg', false);
+  const roughnessMap = tex('assets/' + prefix + '-rough.jpg', false);
 
   el.object3D.traverse(function (n) {
     if (!n.isMesh || !n.material) { return; }
@@ -2568,6 +2604,61 @@ function setupShadows() {
   setShadowFlags('#windowGlass', false, false);
   setShadowFlags('#vrPanel', false, false);
 }
+
+/* Moves an entity along a waypoint loop, letting its own animation clip
+   supply the gait.
+
+   Travel speed and clip playback are locked together: a walk clip has a
+   native ground speed, and if the entity travels at any other rate the feet
+   skate. So the component scales the sibling gltf-animation by
+   speed / clipSpeed, and the two can never drift out of agreement. */
+AFRAME.registerComponent('path-walk', {
+  schema: {
+    speed: { default: 0.83 },       // m/s over the ground
+    clipSpeed: { default: 1.282 },  // m/s the clip itself walks at
+    turnRate: { default: 2.6 }      // rad/s
+  },
+
+  init: function () {
+    this.path = [
+      [-0.6, 1.9], [1.2, 1.8], [1.15, 0.55],
+      [0.6, -0.05], [-0.5, 0.15], [-0.75, 1.3]
+    ];
+    this.seg = 0;
+    this.t = 0;
+    this.yaw = 0;
+    this.el.object3D.position.set(this.path[0][0], 0, this.path[0][1]);
+    // keep the clip in step with the ground speed
+    this.el.setAttribute('gltf-animation', 'timeScale',
+      this.data.speed / this.data.clipSpeed);
+  },
+
+  tick: function (time, delta) {
+    if (!delta) { return; }
+    const obj = this.el.object3D;
+    if (!obj.visible) { return; }
+    const dt = Math.min(delta / 1000, 0.1);
+
+    const n = this.path.length;
+    const a = this.path[this.seg];
+    const b = this.path[(this.seg + 1) % n];
+    const dx = b[0] - a[0], dz = b[1] - a[1];
+    const len = Math.sqrt(dx * dx + dz * dz);
+
+    this.t += this.data.speed * dt;
+    if (this.t >= len) { this.t -= len; this.seg = (this.seg + 1) % n; return; }
+
+    const f = len > 0 ? this.t / len : 0;
+    obj.position.x = a[0] + dx * f;
+    obj.position.z = a[1] + dz * f;
+
+    let diff = Math.atan2(dx, dz) - this.yaw;
+    while (diff > Math.PI) { diff -= Math.PI * 2; }
+    while (diff < -Math.PI) { diff += Math.PI * 2; }
+    this.yaw += diff * Math.min(1, dt * this.data.turnRate);
+    obj.rotation.y = this.yaw;
+  }
+});
 
 /* Waypoint patrol with a procedural diagonal gait.
 
@@ -2949,8 +3040,13 @@ function boot() {
   });
 
   whenModelReady(document.querySelector('#human'), function () {
-    skinHuman();
+    skinHuman('#human', 'sophia');
     setShadowFlags('#human', true, true);
+  });
+
+  whenModelReady(document.querySelector('#human2'), function () {
+    skinHuman('#human2', 'nathan');
+    setShadowFlags('#human2', true, true);
   });
   // dynamically appended blossoms initialise on the next tick, so the
   // shadow flags get a second pass once their meshes exist

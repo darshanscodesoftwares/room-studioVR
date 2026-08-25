@@ -286,8 +286,21 @@ inside it, because the originals are 15MB and 4MB and downsizing them
 separately keeps the model file small. Gloss was inverted to roughness at build
 time, since glTF has no gloss channel.
 
-The **Person** toggle hides it. Finish packages deliberately leave it alone: it
-is a scale reference, not decor.
+A second figure — a 1.86m man — walks a six-point loop through the open floor,
+his own walk clip supplying the gait. **People** is a model slot with three
+choices: Woman, Man, or **Both**, from the dropdown on desktop or the Models tab
+in VR. It is the first variant that maps to more than one entity, which the slot
+mechanism now supports generally.
+
+His clip carries baked root motion — 2.884m of travel in 2.25s, a native ground
+speed of 1.282 m/s — which was stripped at build time; left in, he walks 2.9m
+and snaps back on every loop. `path-walk` drives the travel instead and scales
+the clip by `speed / clipSpeed`, so travel and gait can never drift apart and
+the feet never skate. His route is verified clear of all furniture and of the
+standing figure.
+
+The **People** toggle hides both. Finish packages deliberately leave them alone:
+they are scale references, not decor.
 
 > **Licence blocks public deploy.** Renderpeople prohibits redistributing the
 > 3D data, and serving the glTF from a public URL is redistribution. See
