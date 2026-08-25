@@ -48,6 +48,19 @@ uncleared until its origin is established.
 
 ---
 
+---
+
+## cat-realistic.obj + cat-diffuse.jpg / cat-bump.jpg — Cat v1 L3
+
+- **Licence: unknown.** The pack shipped no licence file.
+- **Source pack:** `Cat_v1_L3.123cb1b1943a-...`, exported from 3ds Max, 2011
+- 35,290 verts / 35,288 faces, real UVs, diffuse + bump at 1024px
+- Authored Z-up with the head at -Y; corrected with a single -90 X rotation
+- **No rig or animation** — it glides along the patrol path; the walk cycle
+  belongs to the stylised variant
+
+Treat as uncleared until its origin is established.
+
 ## Replacing these
 
 Prefer glTF/GLB with an explicit licence. [Poly Haven](https://polyhaven.com)

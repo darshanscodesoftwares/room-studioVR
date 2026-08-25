@@ -150,6 +150,7 @@
   <a-assets timeout="10000">
     <a-asset-item id="koltukObj" src="assets/koltuk-sofa.obj"></a-asset-item>
     <a-asset-item id="plantObj" src="assets/eb-house-plant.obj"></a-asset-item>
+    <a-asset-item id="catObj" src="assets/cat-realistic.obj"></a-asset-item>
   </a-assets>
 
   <!-- ============ lighting ============ -->
@@ -415,95 +416,109 @@
        logic, and drive THREE.AnimationMixer instead of the leg swing.
        Local frame: nose points +z; the component yaws the root. -->
   <a-entity id="cat" cat-walk position="-2.3 0 1.8">
-    <a-entity id="catBody">
-      <!-- torso from overlapping ellipsoids only: boxes read as luggage,
-           spheres read as flesh. Hindquarters ride slightly higher. -->
-      <a-sphere class="cat-fur" radius="0.085" scale="0.8 0.75 1.75" position="0 0.195 -0.005"
-                material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
-      <a-sphere class="cat-fur" radius="0.06" scale="0.95 1 1" position="0 0.205 0.09"
-                material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
-      <a-sphere class="cat-fur" radius="0.065" scale="1 1.05 1" position="0 0.21 -0.105"
-                material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
-      <!-- white bib, narrower than the chest so it never bleeds sideways -->
-      <a-sphere class="cat-fur" radius="0.05" scale="0.7 0.9 0.7" position="0 0.185 0.145"
-                material="color: #ece8e2; roughness: 0.9; metalness: 0"></a-sphere>
-      <!-- diagonal neck: the head hangs forward off it, never perches -->
-      <a-cylinder class="cat-fur" radius="0.032" height="0.09" rotation="-38 0 0"
-                  position="0 0.26 0.155"
-                  material="color: #66625f; roughness: 0.9; metalness: 0"></a-cylinder>
-
-      <a-entity id="catHead" position="0 0.315 0.215">
-        <a-sphere class="cat-fur" radius="0.055" scale="0.9 0.82 0.95"
+    <!-- variant A: built from primitives -->
+    <a-entity id="catPrimitive">
+      <a-entity id="catBody">
+        <!-- torso from overlapping ellipsoids only: boxes read as luggage,
+             spheres read as flesh. Hindquarters ride slightly higher. -->
+        <a-sphere class="cat-fur" radius="0.085" scale="0.8 0.75 1.75" position="0 0.195 -0.005"
                   material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
-        <a-sphere class="cat-fur" radius="0.032" scale="1.1 0.7 0.85" position="0 -0.02 0.038"
+        <a-sphere class="cat-fur" radius="0.06" scale="0.95 1 1" position="0 0.205 0.09"
+                  material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
+        <a-sphere class="cat-fur" radius="0.065" scale="1 1.05 1" position="0 0.21 -0.105"
+                  material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
+        <!-- white bib, narrower than the chest so it never bleeds sideways -->
+        <a-sphere class="cat-fur" radius="0.05" scale="0.7 0.9 0.7" position="0 0.185 0.145"
                   material="color: #ece8e2; roughness: 0.9; metalness: 0"></a-sphere>
-        <a-cone radius-bottom="0.026" radius-top="0.003" height="0.05"
-                position="-0.036 0.05 -0.006" rotation="-8 0 16"
-                material="color: #66625f; roughness: 0.9; metalness: 0"></a-cone>
-        <a-cone radius-bottom="0.026" radius-top="0.003" height="0.05"
-                position="0.036 0.05 -0.006" rotation="-8 0 -16"
-                material="color: #66625f; roughness: 0.9; metalness: 0"></a-cone>
-        <a-cone radius-bottom="0.013" radius-top="0.002" height="0.028"
-                position="-0.034 0.046 0.004" rotation="-8 0 16"
-                material="color: #d9a3a8; roughness: 0.9; metalness: 0"></a-cone>
-        <a-cone radius-bottom="0.013" radius-top="0.002" height="0.028"
-                position="0.034 0.046 0.004" rotation="-8 0 -16"
-                material="color: #d9a3a8; roughness: 0.9; metalness: 0"></a-cone>
-        <a-sphere radius="0.010" scale="1 1.2 0.5" position="-0.024 0.012 0.043"
-                  material="color: #8fae4f; roughness: 0.25; metalness: 0"></a-sphere>
-        <a-sphere radius="0.010" scale="1 1.2 0.5" position="0.024 0.012 0.043"
-                  material="color: #8fae4f; roughness: 0.25; metalness: 0"></a-sphere>
-        <a-cone radius-bottom="0.009" radius-top="0.003" height="0.01"
-                position="0 -0.012 0.062" rotation="90 0 0"
-                material="color: #cf8b8b; roughness: 0.6; metalness: 0"></a-cone>
+        <!-- diagonal neck: the head hangs forward off it, never perches -->
+        <a-cylinder class="cat-fur" radius="0.032" height="0.09" rotation="-38 0 0"
+                    position="0 0.26 0.155"
+                    material="color: #66625f; roughness: 0.9; metalness: 0"></a-cylinder>
+
+        <a-entity id="catHead" position="0 0.315 0.215">
+          <a-sphere class="cat-fur" radius="0.055" scale="0.9 0.82 0.95"
+                    material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
+          <a-sphere class="cat-fur" radius="0.032" scale="1.1 0.7 0.85" position="0 -0.02 0.038"
+                    material="color: #ece8e2; roughness: 0.9; metalness: 0"></a-sphere>
+          <a-cone radius-bottom="0.026" radius-top="0.003" height="0.05"
+                  position="-0.036 0.05 -0.006" rotation="-8 0 16"
+                  material="color: #66625f; roughness: 0.9; metalness: 0"></a-cone>
+          <a-cone radius-bottom="0.026" radius-top="0.003" height="0.05"
+                  position="0.036 0.05 -0.006" rotation="-8 0 -16"
+                  material="color: #66625f; roughness: 0.9; metalness: 0"></a-cone>
+          <a-cone radius-bottom="0.013" radius-top="0.002" height="0.028"
+                  position="-0.034 0.046 0.004" rotation="-8 0 16"
+                  material="color: #d9a3a8; roughness: 0.9; metalness: 0"></a-cone>
+          <a-cone radius-bottom="0.013" radius-top="0.002" height="0.028"
+                  position="0.034 0.046 0.004" rotation="-8 0 -16"
+                  material="color: #d9a3a8; roughness: 0.9; metalness: 0"></a-cone>
+          <a-sphere radius="0.010" scale="1 1.2 0.5" position="-0.024 0.012 0.043"
+                    material="color: #8fae4f; roughness: 0.25; metalness: 0"></a-sphere>
+          <a-sphere radius="0.010" scale="1 1.2 0.5" position="0.024 0.012 0.043"
+                    material="color: #8fae4f; roughness: 0.25; metalness: 0"></a-sphere>
+          <a-cone radius-bottom="0.009" radius-top="0.003" height="0.01"
+                  position="0 -0.012 0.062" rotation="90 0 0"
+                  material="color: #cf8b8b; roughness: 0.6; metalness: 0"></a-cone>
+        </a-entity>
+
+        <a-entity id="catTail" position="0 0.245 -0.16">
+          <a-cylinder radius="0.014" height="0.09" rotation="-50 0 0" position="0 0.02 -0.032"
+                      material="color: #66625f; roughness: 0.9; metalness: 0"></a-cylinder>
+          <a-cylinder radius="0.011" height="0.09" rotation="-20 0 0" position="0 0.09 -0.062"
+                      material="color: #66625f; roughness: 0.9; metalness: 0"></a-cylinder>
+          <a-cylinder radius="0.009" height="0.08" rotation="6 0 0" position="0 0.165 -0.068"
+                      material="color: #66625f; roughness: 0.9; metalness: 0"></a-cylinder>
+          <a-cone radius-bottom="0.008" radius-top="0.002" height="0.06" rotation="20 0 0"
+                  position="0 0.225 -0.056"
+                  material="color: #5b5754; roughness: 0.9; metalness: 0"></a-cone>
+        </a-entity>
       </a-entity>
 
-      <a-entity id="catTail" position="0 0.245 -0.16">
-        <a-cylinder radius="0.014" height="0.09" rotation="-50 0 0" position="0 0.02 -0.032"
-                    material="color: #66625f; roughness: 0.9; metalness: 0"></a-cylinder>
-        <a-cylinder radius="0.011" height="0.09" rotation="-20 0 0" position="0 0.09 -0.062"
-                    material="color: #66625f; roughness: 0.9; metalness: 0"></a-cylinder>
-        <a-cylinder radius="0.009" height="0.08" rotation="6 0 0" position="0 0.165 -0.068"
-                    material="color: #66625f; roughness: 0.9; metalness: 0"></a-cylinder>
-        <a-cone radius-bottom="0.008" radius-top="0.002" height="0.06" rotation="20 0 0"
-                position="0 0.225 -0.056"
-                material="color: #5b5754; roughness: 0.9; metalness: 0"></a-cone>
+      <!-- legs: thigh mass at the pivot, limb tapering to a white paw.
+           The thigh lives inside the leg entity, so it swings with it. -->
+      <a-entity class="cat-leg" position="-0.040 0.155 0.10">
+        <a-sphere class="cat-fur" radius="0.028" scale="0.6 1.1 0.9" position="0 -0.005 0"
+                  material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
+        <a-cone class="cat-fur" radius-bottom="0.010" radius-top="0.015" height="0.125" position="0 -0.075 0"
+                material="color: #66625f; roughness: 0.9; metalness: 0"></a-cone>
+        <a-sphere class="cat-fur" radius="0.016" scale="1 0.75 1.2" position="0 -0.142 0.005"
+                  material="color: #ece8e2; roughness: 0.9; metalness: 0"></a-sphere>
+      </a-entity>
+      <a-entity class="cat-leg" position="0.040 0.155 0.10">
+        <a-sphere class="cat-fur" radius="0.028" scale="0.6 1.1 0.9" position="0 -0.005 0"
+                  material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
+        <a-cone class="cat-fur" radius-bottom="0.010" radius-top="0.015" height="0.125" position="0 -0.075 0"
+                material="color: #66625f; roughness: 0.9; metalness: 0"></a-cone>
+        <a-sphere class="cat-fur" radius="0.016" scale="1 0.75 1.2" position="0 -0.142 0.005"
+                  material="color: #ece8e2; roughness: 0.9; metalness: 0"></a-sphere>
+      </a-entity>
+      <a-entity class="cat-leg" position="-0.048 0.155 -0.105">
+        <a-sphere class="cat-fur" radius="0.042" scale="0.55 1.15 1" position="0 0.005 0"
+                  material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
+        <a-cone class="cat-fur" radius-bottom="0.011" radius-top="0.017" height="0.125" position="0 -0.075 0"
+                material="color: #66625f; roughness: 0.9; metalness: 0"></a-cone>
+        <a-sphere class="cat-fur" radius="0.017" scale="1 0.75 1.2" position="0 -0.142 0.005"
+                  material="color: #ece8e2; roughness: 0.9; metalness: 0"></a-sphere>
+      </a-entity>
+      <a-entity class="cat-leg" position="0.048 0.155 -0.105">
+        <a-sphere class="cat-fur" radius="0.042" scale="0.55 1.15 1" position="0 0.005 0"
+                  material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
+        <a-cone class="cat-fur" radius-bottom="0.011" radius-top="0.017" height="0.125" position="0 -0.075 0"
+                material="color: #66625f; roughness: 0.9; metalness: 0"></a-cone>
+        <a-sphere class="cat-fur" radius="0.017" scale="1 0.75 1.2" position="0 -0.142 0.005"
+                  material="color: #ece8e2; roughness: 0.9; metalness: 0"></a-sphere>
       </a-entity>
     </a-entity>
 
-    <!-- legs: thigh mass at the pivot, limb tapering to a white paw.
-         The thigh lives inside the leg entity, so it swings with it. -->
-    <a-entity class="cat-leg" position="-0.040 0.155 0.10">
-      <a-sphere class="cat-fur" radius="0.028" scale="0.6 1.1 0.9" position="0 -0.005 0"
-                material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
-      <a-cone class="cat-fur" radius-bottom="0.010" radius-top="0.015" height="0.125" position="0 -0.075 0"
-              material="color: #66625f; roughness: 0.9; metalness: 0"></a-cone>
-      <a-sphere class="cat-fur" radius="0.016" scale="1 0.75 1.2" position="0 -0.142 0.005"
-                material="color: #ece8e2; roughness: 0.9; metalness: 0"></a-sphere>
-    </a-entity>
-    <a-entity class="cat-leg" position="0.040 0.155 0.10">
-      <a-sphere class="cat-fur" radius="0.028" scale="0.6 1.1 0.9" position="0 -0.005 0"
-                material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
-      <a-cone class="cat-fur" radius-bottom="0.010" radius-top="0.015" height="0.125" position="0 -0.075 0"
-              material="color: #66625f; roughness: 0.9; metalness: 0"></a-cone>
-      <a-sphere class="cat-fur" radius="0.016" scale="1 0.75 1.2" position="0 -0.142 0.005"
-                material="color: #ece8e2; roughness: 0.9; metalness: 0"></a-sphere>
-    </a-entity>
-    <a-entity class="cat-leg" position="-0.048 0.155 -0.105">
-      <a-sphere class="cat-fur" radius="0.042" scale="0.55 1.15 1" position="0 0.005 0"
-                material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
-      <a-cone class="cat-fur" radius-bottom="0.011" radius-top="0.017" height="0.125" position="0 -0.075 0"
-              material="color: #66625f; roughness: 0.9; metalness: 0"></a-cone>
-      <a-sphere class="cat-fur" radius="0.017" scale="1 0.75 1.2" position="0 -0.142 0.005"
-                material="color: #ece8e2; roughness: 0.9; metalness: 0"></a-sphere>
-    </a-entity>
-    <a-entity class="cat-leg" position="0.048 0.155 -0.105">
-      <a-sphere class="cat-fur" radius="0.042" scale="0.55 1.15 1" position="0 0.005 0"
-                material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
-      <a-cone class="cat-fur" radius-bottom="0.011" radius-top="0.017" height="0.125" position="0 -0.075 0"
-              material="color: #66625f; roughness: 0.9; metalness: 0"></a-cone>
-      <a-sphere class="cat-fur" radius="0.017" scale="1 0.75 1.2" position="0 -0.142 0.005"
-                material="color: #ece8e2; roughness: 0.9; metalness: 0"></a-sphere>
+    <!-- variant B: 35k-tri scanned cat, diffuse + bump.
+         Authored Z-up in 3ds Max with the head at -Y, so one -90 X
+         rotation lands it upright and nose-forward on +Z, which is
+         the heading cat-walk already drives. Units are centimetres.
+         It carries no rig, so it glides: the gait belongs to the
+         primitive variant only. -->
+    <a-entity id="catModel" visible="false">
+      <a-entity obj-model="obj: #catObj"
+                rotation="-90 0 0" scale="0.0095 0.0095 0.0095"></a-entity>
     </a-entity>
   </a-entity>
 
@@ -665,6 +680,13 @@ const MODELS = {
       { id: 'bonsai',    name: 'Flowering Bonsai', el: '#plant' },
       { id: 'house',     name: 'House Plant',      el: '#plant2' }
     ]
+  },
+  cat: {
+    label: 'Cat',
+    variants: [
+      { id: 'realistic', name: 'Scanned',  el: '#catModel' },
+      { id: 'stylised',  name: 'Stylised', el: '#catPrimitive' }
+    ]
   }
 };
 
@@ -709,7 +731,7 @@ const DEFAULT_STATE = Object.assign({}, PACKAGES.studio, {
   package: 'studio',
   lighting: 'day',
   lamp: true,
-  models: { sofa: 'primitive', plant: 'bonsai' }
+  models: { sofa: 'primitive', plant: 'bonsai', cat: 'realistic' }
 });
 delete DEFAULT_STATE.name;
 
@@ -2409,6 +2431,37 @@ function skinPlant2() {
   });
 }
 
+/* The scanned cat carries real UVs and a diffuse plus a bump map, so its
+   material is wired straight from the pack — bumpMap takes the greyscale
+   height image directly, no normal conversion needed. */
+function skinCatModel() {
+  const el = document.querySelector('#catModel');
+  if (!el) { return; }
+
+  const load = new THREE.TextureLoader();
+  function tex(path) {
+    return load.load(path, undefined, undefined, function () {
+      console.warn('[cat] texture failed to load: ' + path);
+    });
+  }
+  const map = tex('assets/cat-diffuse.jpg');
+  const bumpMap = tex('assets/cat-bump.jpg');
+  if (THREE.SRGBColorSpace) { map.colorSpace = THREE.SRGBColorSpace; }
+  map.anisotropy = 4;
+  bumpMap.anisotropy = 4;
+
+  el.object3D.traverse(function (n) {
+    if (!n.isMesh) { return; }
+    n.material = new THREE.MeshStandardMaterial({
+      map: map,
+      bumpMap: bumpMap,
+      bumpScale: 0.6,
+      roughness: 0.95,
+      metalness: 0
+    });
+  });
+}
+
 /* Runs fn once the entity's model exists, whether it arrived before or after
    this call. Preloaded assets almost always land first, which is the case a
    bare addEventListener silently misses. */
@@ -2421,7 +2474,8 @@ function whenModelReady(el, fn) {
 function setupShadows() {
   setShadowFlags('#room', false, true);
   setShadowFlags('#rug', false, true);
-  ['#sofa', '#table', '#chair', '#lamp', '#plant', '#art', '#cat'].forEach(function (s) {
+  ['#sofa', '#table', '#chair', '#lamp', '#plant', '#art',
+   '#catPrimitive'].forEach(function (s) {
     setShadowFlags(s, true, true);
   });
   setShadowFlags('#windowGlass', false, false);
@@ -2458,6 +2512,7 @@ AFRAME.registerComponent('cat-walk', {
     this.yaw = Math.PI / 2;
 
     this.body = this.el.querySelector('#catBody');
+    this.model = this.el.querySelector('#catModel');
     this.head = this.el.querySelector('#catHead');
     this.tail = this.el.querySelector('#catTail');
     this.legs = Array.prototype.slice.call(
@@ -2516,6 +2571,14 @@ AFRAME.registerComponent('cat-walk', {
       this.body.object3D.position.y =
         walking ? Math.abs(Math.sin(this.phase)) * 0.006 : 0;
       this.body.object3D.rotation.z = walking ? Math.sin(this.phase) * 0.045 : 0;
+    }
+    /* The scanned variant has no rig, so it would otherwise slide along
+       perfectly rigid. A bob and roll on the same stride phase will not pass
+       for a walk cycle, but it stops it reading as a prop on rails. */
+    if (this.model) {
+      this.model.object3D.position.y =
+        walking ? Math.abs(Math.sin(this.phase)) * 0.012 : 0;
+      this.model.object3D.rotation.z = walking ? Math.sin(this.phase) * 0.05 : 0;
     }
     if (this.head) {
       this.head.object3D.rotation.y =
@@ -2791,6 +2854,11 @@ function boot() {
   whenModelReady(document.querySelector('#plant2'), function (el) {
     skinPlant2();
     setShadowFlags('#plant2', true, true);
+  });
+
+  whenModelReady(document.querySelector('#catModel'), function () {
+    skinCatModel();
+    setShadowFlags('#catModel', true, true);
   });
   // dynamically appended blossoms initialise on the next tick, so the
   // shadow flags get a second pass once their meshes exist

@@ -223,7 +223,13 @@ Controller mapping uses `meta-touch-controls` (Quest). For Pico or WMR, swap in
 
 ## The cat
 
-Fur is a normal-only strand map: relief in the lighting, colour left clean.
+The cat slot switches between the built one and a 35k-triangle scanned model
+with diffuse and bump maps. The scanned one carries no rig, so it glides —
+a bob and roll on the stride phase keeps it from reading as a prop on rails,
+but the actual gait belongs to the stylised variant. That is the trade the
+slot makes visible: shape fidelity against motion fidelity.
+
+Fur on the stylised variant is a normal-only strand map: relief in the lighting, colour left clean.
 Two things were tried and reverted, both worth recording. A greyscale colour
 map at cat scale reads as grime, not fur. And shell rendering — concentric
 alpha-masked copies, the textbook fluff technique — needs strand tips far
@@ -250,7 +256,7 @@ of the procedural leg swing.
 
 ## Model variants
 
-Sofa and plant are **slots**, not fixed objects: each holds interchangeable
+Sofa, plant and cat are **slots**, not fixed objects: each holds interchangeable
 models of the same piece of furniture, chosen from a dropdown in the desktop
 panel or a **Models** tab in VR. Variants share an anchor, so switching swaps in
 place instead of moving furniture across the room.
