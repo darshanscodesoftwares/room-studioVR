@@ -205,18 +205,24 @@
 
   <!-- sofa, against the north wall -->
   <a-entity id="sofa" position="0 0 -2.25">
-    <a-box class="fabric" width="2.2" height="0.32" depth="0.9" position="0 0.36 0"
-           material="color: #6b7a8f; roughness: 0.92; metalness: 0"></a-box>
-    <a-box class="fabric" width="2.2" height="0.62" depth="0.22" position="0 0.71 -0.34"
-           material="color: #6b7a8f; roughness: 0.92; metalness: 0"></a-box>
-    <a-box class="fabric" width="0.22" height="0.5" depth="0.9" position="-1.0 0.5 0"
-           material="color: #6b7a8f; roughness: 0.92; metalness: 0"></a-box>
-    <a-box class="fabric" width="0.22" height="0.5" depth="0.9" position=" 1.0 0.5 0"
-           material="color: #6b7a8f; roughness: 0.92; metalness: 0"></a-box>
-    <a-box class="fabric" width="0.82" height="0.14" depth="0.82" position="-0.44 0.59 0.02"
-           material="color: #6b7a8f; roughness: 0.92; metalness: 0"></a-box>
-    <a-box class="fabric" width="0.82" height="0.14" depth="0.82" position=" 0.44 0.59 0.02"
-           material="color: #6b7a8f; roughness: 0.92; metalness: 0"></a-box>
+    <a-entity class="fabric"
+              geometry="primitive: rounded-box; width: 2.2; height: 0.32; depth: 0.9; radius: 0.07" position="0 0.36 0"
+           material="color: #6b7a8f; roughness: 0.92; metalness: 0"></a-entity>
+    <a-entity class="fabric"
+              geometry="primitive: rounded-box; width: 2.2; height: 0.62; depth: 0.22; radius: 0.06" position="0 0.71 -0.34"
+           material="color: #6b7a8f; roughness: 0.92; metalness: 0"></a-entity>
+    <a-entity class="fabric"
+              geometry="primitive: rounded-box; width: 0.22; height: 0.5; depth: 0.9; radius: 0.08" position="-1.0 0.5 0"
+           material="color: #6b7a8f; roughness: 0.92; metalness: 0"></a-entity>
+    <a-entity class="fabric"
+              geometry="primitive: rounded-box; width: 0.22; height: 0.5; depth: 0.9; radius: 0.08" position=" 1.0 0.5 0"
+           material="color: #6b7a8f; roughness: 0.92; metalness: 0"></a-entity>
+    <a-entity class="fabric"
+              geometry="primitive: rounded-box; width: 0.82; height: 0.14; depth: 0.82; radius: 0.05" position="-0.44 0.59 0.02"
+           material="color: #6b7a8f; roughness: 0.92; metalness: 0"></a-entity>
+    <a-entity class="fabric"
+              geometry="primitive: rounded-box; width: 0.82; height: 0.14; depth: 0.82; radius: 0.05" position=" 0.44 0.59 0.02"
+           material="color: #6b7a8f; roughness: 0.92; metalness: 0"></a-entity>
     <a-cylinder radius="0.035" height="0.2" position="-0.95 0.1  0.35" material="color: #3d3129; roughness: 0.42; metalness: 0.55"></a-cylinder>
     <a-cylinder radius="0.035" height="0.2" position=" 0.95 0.1  0.35" material="color: #3d3129; roughness: 0.42; metalness: 0.55"></a-cylinder>
     <a-cylinder radius="0.035" height="0.2" position="-0.95 0.1 -0.35" material="color: #3d3129; roughness: 0.42; metalness: 0.55"></a-cylinder>
@@ -227,8 +233,9 @@
   <a-entity id="table" position="0 0 -0.85">
     <!-- lacquered top: the glossiest thing in the room, so it carries the
          window reflection and reads as a real surface -->
-    <a-box class="table-top" width="1.25" height="0.07" depth="0.65" position="0 0.43 0"
-           material="color: #6f4e37; roughness: 0.28; metalness: 0.04"></a-box>
+    <a-entity class="table-top"
+              geometry="primitive: rounded-box; width: 1.25; height: 0.07; depth: 0.65; radius: 0.014" position="0 0.43 0"
+           material="color: #6f4e37; roughness: 0.28; metalness: 0.04"></a-entity>
     <a-box width="0.06" height="0.4" depth="0.06" position="-0.55 0.2  0.26" material="color: #3d3129; roughness: 0.42; metalness: 0.55"></a-box>
     <a-box width="0.06" height="0.4" depth="0.06" position=" 0.55 0.2  0.26" material="color: #3d3129; roughness: 0.42; metalness: 0.55"></a-box>
     <a-box width="0.06" height="0.4" depth="0.06" position="-0.55 0.2 -0.26" material="color: #3d3129; roughness: 0.42; metalness: 0.55"></a-box>
@@ -240,26 +247,33 @@
   <!-- accent chair: two switchable styles, same footprint -->
   <a-entity id="chair" position="1.95 0 0.35" rotation="0 -125 0">
     <a-entity id="chairModern">
-      <a-box class="chair-fabric" width="0.62" height="0.09" depth="0.6" position="0 0.44 0"
-             material="color: #c2703f; roughness: 0.85; metalness: 0.02"></a-box>
-      <a-box class="chair-fabric" width="0.62" height="0.62" depth="0.09" position="0 0.75 -0.26"
-             rotation="-8 0 0" material="color: #c2703f; roughness: 0.85; metalness: 0.02"></a-box>
+      <a-entity class="chair-fabric"
+                geometry="primitive: rounded-box; width: 0.62; height: 0.09; depth: 0.6; radius: 0.03" position="0 0.44 0"
+             material="color: #c2703f; roughness: 0.85; metalness: 0.02"></a-entity>
+      <a-entity class="chair-fabric"
+                geometry="primitive: rounded-box; width: 0.62; height: 0.62; depth: 0.09; radius: 0.03" position="0 0.75 -0.26"
+             rotation="-8 0 0" material="color: #c2703f; roughness: 0.85; metalness: 0.02"></a-entity>
       <a-cylinder radius="0.025" height="0.44" position="-0.26 0.22  0.25" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-cylinder>
       <a-cylinder radius="0.025" height="0.44" position=" 0.26 0.22  0.25" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-cylinder>
       <a-cylinder radius="0.025" height="0.44" position="-0.26 0.22 -0.25" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-cylinder>
       <a-cylinder radius="0.025" height="0.44" position=" 0.26 0.22 -0.25" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-cylinder>
     </a-entity>
     <a-entity id="chairArm" visible="false">
-      <a-box class="chair-fabric" width="0.78" height="0.34" depth="0.72" position="0 0.32 0"
-             material="color: #a8564a; roughness: 0.9; metalness: 0"></a-box>
-      <a-box class="chair-fabric" width="0.78" height="0.72" depth="0.2" position="0 0.72 -0.3"
-             material="color: #a8564a; roughness: 0.9; metalness: 0"></a-box>
-      <a-box class="chair-fabric" width="0.16" height="0.28" depth="0.72" position="-0.31 0.62 0"
-             material="color: #a8564a; roughness: 0.9; metalness: 0"></a-box>
-      <a-box class="chair-fabric" width="0.16" height="0.28" depth="0.72" position=" 0.31 0.62 0"
-             material="color: #a8564a; roughness: 0.9; metalness: 0"></a-box>
-      <a-box class="chair-fabric" width="0.72" height="0.12" depth="0.66" position="0 0.55 0.02"
-             material="color: #b96256; roughness: 0.9; metalness: 0"></a-box>
+      <a-entity class="chair-fabric"
+                geometry="primitive: rounded-box; width: 0.78; height: 0.34; depth: 0.72; radius: 0.07" position="0 0.32 0"
+             material="color: #a8564a; roughness: 0.9; metalness: 0"></a-entity>
+      <a-entity class="chair-fabric"
+                geometry="primitive: rounded-box; width: 0.78; height: 0.72; depth: 0.2; radius: 0.06" position="0 0.72 -0.3"
+             material="color: #a8564a; roughness: 0.9; metalness: 0"></a-entity>
+      <a-entity class="chair-fabric"
+                geometry="primitive: rounded-box; width: 0.16; height: 0.28; depth: 0.72; radius: 0.06" position="-0.31 0.62 0"
+             material="color: #a8564a; roughness: 0.9; metalness: 0"></a-entity>
+      <a-entity class="chair-fabric"
+                geometry="primitive: rounded-box; width: 0.16; height: 0.28; depth: 0.72; radius: 0.06" position=" 0.31 0.62 0"
+             material="color: #a8564a; roughness: 0.9; metalness: 0"></a-entity>
+      <a-entity class="chair-fabric"
+                geometry="primitive: rounded-box; width: 0.72; height: 0.12; depth: 0.66; radius: 0.05" position="0 0.55 0.02"
+             material="color: #b96256; roughness: 0.9; metalness: 0"></a-entity>
       <a-cylinder radius="0.04" height="0.15" position="-0.3 0.07  0.28" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-cylinder>
       <a-cylinder radius="0.04" height="0.15" position=" 0.3 0.07  0.28" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-cylinder>
       <a-cylinder radius="0.04" height="0.15" position="-0.3 0.07 -0.28" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-cylinder>
@@ -554,6 +568,67 @@ function entryOf(kind, id) {
 }
 
 /* =========================================================================
+   Rounded box geometry
+
+   Upholstery has no sharp arrises — a sofa arm with a knife edge reads as a
+   crate no matter how good the fabric on it is. This builds a rounded rect
+   and extrudes it with a matching bevel, so all twelve edges are radiused
+   and catch a soft highlight along their length.
+
+   ExtrudeGeometry emits UVs in object units rather than 0..1 per face, which
+   is flagged on the geometry so the skin layer tiles it by metres instead of
+   by face. That is also why texel density stays consistent across parts of
+   very different sizes.
+   ========================================================================= */
+AFRAME.registerGeometry('rounded-box', {
+  schema: {
+    width:    { default: 1, min: 0 },
+    height:   { default: 1, min: 0 },
+    depth:    { default: 1, min: 0 },
+    radius:   { default: 0.05, min: 0 },
+    segments: { default: 3, min: 1, max: 8 }
+  },
+
+  init: function (data) {
+    // the bevel eats `radius` from every side, so the extruded core is
+    // inset by that much and the finished box lands on the asked-for size
+    const r = Math.min(data.radius,
+                       data.width / 2.05, data.height / 2.05, data.depth / 2.05);
+    const w = Math.max(0.001, data.width - r * 2);
+    const h = Math.max(0.001, data.height - r * 2);
+    const d = Math.max(0.001, data.depth - r * 2);
+
+    const shape = new THREE.Shape();
+    const x = -w / 2, y = -h / 2;
+    const rr = Math.min(r, w / 2.05, h / 2.05);
+    shape.moveTo(x + rr, y);
+    shape.lineTo(x + w - rr, y);
+    shape.quadraticCurveTo(x + w, y, x + w, y + rr);
+    shape.lineTo(x + w, y + h - rr);
+    shape.quadraticCurveTo(x + w, y + h, x + w - rr, y + h);
+    shape.lineTo(x + rr, y + h);
+    shape.quadraticCurveTo(x, y + h, x, y + h - rr);
+    shape.lineTo(x, y + rr);
+    shape.quadraticCurveTo(x, y, x + rr, y);
+
+    const geo = new THREE.ExtrudeGeometry(shape, {
+      depth: d,
+      bevelEnabled: true,
+      bevelThickness: r,
+      bevelSize: r,
+      bevelOffset: 0,
+      bevelSegments: data.segments,
+      curveSegments: data.segments
+    });
+    geo.center();
+    geo.computeVertexNormals();
+    geo.userData.worldUV = true;   // read by repeatFor()
+
+    this.geometry = geo;
+  }
+});
+
+/* =========================================================================
    Procedural skins
 
    Material detail drawn on a canvas at runtime rather than downloaded:
@@ -574,9 +649,22 @@ const ProcTex = {
   canvases: {},
   textures: {},
 
-  // repeats per metre, chosen so texel density reads right at arm's length
+  /* Tile repeats per metre. Fabric was invisible at the first setting: a
+     weave tiling every few centimetres falls below a pixel at normal viewing
+     distance and mipmaps average it straight back to flat colour. These are
+     tuned so the smallest feature stays around 4-6mm, which survives. */
   density: {
-    plaster: 1.2, plank: 0.55, tile: 0.9, weave: 3.2, pile: 2.2, grain: 1.4
+    plaster: 1.2, plank: 0.55, tile: 0.9, weave: 6.5, pile: 4, grain: 1.4
+  },
+
+  // how hard the derived normal map pushes, per material
+  normalScale: {
+    plaster: 0.35, plank: 0.6, tile: 0.9, weave: 1.3, pile: 1.0, grain: 0.5
+  },
+
+  // Sobel gain when deriving that normal map
+  relief: {
+    plaster: 6, plank: 10, tile: 12, weave: 18, pile: 14, grain: 8
   },
 
   canvas: function (kind) {
@@ -649,33 +737,77 @@ const ProcTex = {
     }
   },
 
-  /* Over-under weave on a 4px cell — the thing that separates fabric from
-     flat colour when a customer leans in. */
+  /* Linen: over-under threads with a round-shaded highlight across each
+     thread, per-thread yarn tone so it does not read as a printed grid, and
+     occasional slubs. The cross-thread shading is what the Sobel pass turns
+     into ridges, and the ridges are what make it look woven rather than
+     patterned. */
   draw_weave: function (g, s) {
-    const cell = 4;
-    for (let y = 0; y < s; y += cell) {
-      for (let x = 0; x < s; x += cell) {
-        const over = ((x / cell) + (y / cell)) % 2 === 0;
-        const v = over ? 244 : 214;
+    const cell = 8, n = s / cell;
+    const warp = [], weft = [];
+    for (let i = 0; i < n; i++) {
+      warp.push(0.86 + Math.random() * 0.14);
+      weft.push(0.84 + Math.random() * 0.14);
+    }
+
+    for (let y = 0; y < n; y++) {
+      for (let x = 0; x < n; x++) {
+        const over = (x + y) % 2 === 0;
+        const tone = over ? warp[x] : weft[y] * 0.9;
+        const v = Math.round(255 * tone);
         g.fillStyle = 'rgb(' + v + ',' + v + ',' + v + ')';
-        g.fillRect(x, y, cell, cell);
-        const n = (Math.random() - 0.5) * 14;
-        g.fillStyle = 'rgba(128,128,128,' + Math.abs(n) / 90 + ')';
-        g.fillRect(x, y, cell, cell);
+        g.fillRect(x * cell, y * cell, cell, cell);
+
+        // shade across the thread, not along it, so it reads as round
+        const grad = over
+          ? g.createLinearGradient(x * cell, 0, x * cell + cell, 0)
+          : g.createLinearGradient(0, y * cell, 0, y * cell + cell);
+        grad.addColorStop(0.00, 'rgba(0,0,0,0.26)');
+        grad.addColorStop(0.45, 'rgba(255,255,255,0.22)');
+        grad.addColorStop(1.00, 'rgba(0,0,0,0.26)');
+        g.fillStyle = grad;
+        g.fillRect(x * cell, y * cell, cell, cell);
       }
+    }
+
+    // slubs: the thick irregular threads that stop linen looking machined
+    for (let i = 0; i < 9; i++) {
+      const vertical = Math.random() < 0.5;
+      const at = Math.floor(Math.random() * n) * cell;
+      const thick = cell * (1 + Math.random());
+      g.fillStyle = 'rgba(90,90,90,0.16)';
+      if (vertical) { g.fillRect(at, 0, thick, s); }
+      else { g.fillRect(0, at, s, thick); }
     }
   },
 
-  /* Cut pile: clumped, directionless, coarser than weave. */
+  /* Cut pile: coarse tufts with clumping. Fine strokes averaged away to
+     flat colour, so the tufts here are deliberately chunky. */
   draw_pile: function (g, s) {
-    g.fillStyle = 'rgb(236,236,236)';
+    g.fillStyle = 'rgb(232,232,232)';
     g.fillRect(0, 0, s, s);
-    for (let i = 0; i < 5200; i++) {
+
+    // soft clumps first, so the tufts sit on an uneven bed
+    for (let i = 0; i < 26; i++) {
       const x = Math.random() * s, y = Math.random() * s;
-      const v = 196 + Math.random() * 56;
-      g.strokeStyle = 'rgba(' + v + ',' + v + ',' + v + ',0.6)';
-      g.lineWidth = 1.2;
-      const a = Math.random() * Math.PI * 2, len = 1.5 + Math.random() * 2.5;
+      const r = 12 + Math.random() * 26;
+      const blob = g.createRadialGradient(x, y, 0, x, y, r);
+      const dark = Math.random() < 0.5;
+      blob.addColorStop(0, dark ? 'rgba(150,150,150,0.32)'
+                                : 'rgba(255,255,255,0.32)');
+      blob.addColorStop(1, 'rgba(128,128,128,0)');
+      g.fillStyle = blob;
+      g.fillRect(x - r, y - r, r * 2, r * 2);
+    }
+
+    for (let i = 0; i < 2400; i++) {
+      const x = Math.random() * s, y = Math.random() * s;
+      const v = 172 + Math.random() * 84;
+      g.strokeStyle = 'rgba(' + v + ',' + v + ',' + v + ',0.7)';
+      g.lineWidth = 1.8 + Math.random() * 2.2;
+      g.lineCap = 'round';
+      const a = Math.random() * Math.PI * 2;
+      const len = 4 + Math.random() * 7;
       g.beginPath();
       g.moveTo(x, y);
       g.lineTo(x + Math.cos(a) * len, y + Math.sin(a) * len);
@@ -738,11 +870,14 @@ const ProcTex = {
   /* Textures are cached per (kind, repeat) so the handful of distinct tile
      counts in the room share GPU uploads instead of one clone per mesh. */
   get: function (kind, rx, ry) {
+    rx = Math.round(rx * 10) / 10;
+    ry = Math.round(ry * 10) / 10;
     const key = kind + '|' + rx + 'x' + ry;
     if (this.textures[key]) { return this.textures[key]; }
 
     const map = new THREE.CanvasTexture(this.canvas(kind));
-    const nrm = new THREE.CanvasTexture(this.normalCanvas(kind, 12));
+    const nrm = new THREE.CanvasTexture(
+      this.normalCanvas(kind, this.relief[kind] || 10));
     [map, nrm].forEach(function (t) {
       t.wrapS = t.wrapT = THREE.RepeatWrapping;
       t.repeat.set(rx, ry);
@@ -762,6 +897,8 @@ const ProcTex = {
 function repeatFor(mesh, density) {
   const g = mesh.geometry;
   if (!g) { return [1, 1]; }
+  // rounded-box UVs are already in metres, so repeats-per-metre applies as-is
+  if (g.userData && g.userData.worldUV) { return [density, density]; }
   if (!g.boundingBox) { g.computeBoundingBox(); }
   const b = g.boundingBox;
   const dims = [b.max.x - b.min.x, b.max.y - b.min.y, b.max.z - b.min.z]
@@ -787,7 +924,9 @@ function applySkin(el, kind) {
     const t = ProcTex.get(kind, r[0], r[1]);
     n.material.map = t.map;
     n.material.normalMap = t.normalMap;
-    if (n.material.normalScale) { n.material.normalScale.set(0.55, 0.55); }
+    const ns = ProcTex.normalScale[kind] === undefined
+      ? 0.6 : ProcTex.normalScale[kind];
+    if (n.material.normalScale) { n.material.normalScale.set(ns, ns); }
     n.material.needsUpdate = true;
   });
 }

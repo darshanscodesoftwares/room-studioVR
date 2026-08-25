@@ -78,6 +78,18 @@ catches the environment, matte plaster at 0.94, fabric at 0.92, a lacquered
 table top at 0.28 to carry the window reflection, dark metal legs at 0.4 with
 metalness 0.6.
 
+### Rounded upholstery
+
+Sofa cushions, arms, chair upholstery and the table top use a `rounded-box`
+geometry rather than `<a-box>`. Furniture has no sharp arrises — a sofa arm with
+a knife edge reads as a crate no matter how good the fabric on it is. The
+component builds a rounded rectangle and extrudes it with a matching bevel, so
+all twelve edges are radiused and catch a soft highlight along their length.
+
+`ExtrudeGeometry` emits UVs in object units rather than 0..1 per face; that is
+flagged on the geometry so the skin layer tiles by metres, which also keeps
+texel density consistent across parts of very different sizes.
+
 ### Procedural skins
 
 Every finish carries a material skin generated at runtime on a canvas — no
