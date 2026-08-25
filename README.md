@@ -105,6 +105,20 @@ Tile counts are computed per mesh from its own bounding box, so a 6m floor and a
 20cm chair leg do not end up at the same texel density, and textures are cached
 per (kind, repeat) rather than cloned per mesh.
 
+Four more generators skin the fixed props: fired-clay **terracotta** with
+throwing rings, potting **soil**, **bark** with vertical fissures, and **foliage**
+built from overlapping leaf blades so a smooth sphere reads as a canopy rather
+than a green ball. Those are applied once in `skinFixtures()`, which states tile
+counts explicitly — a cylinder's circumference and its height are very different
+lengths under the same 0..1 UV, and letting the bounding box decide stretches the
+grain.
+
+The plant is a flowering bonsai: terracotta pot with a torus lip and visible
+earth inside, a trunk of three tapered segments with alternating lean, two side
+branches, and four flattened canopy pads for the layered bonsai silhouette.
+Blossoms are scattered onto the pads from a fixed seed, so the tree looks the
+same to every visitor and in every screenshot.
+
 Six palettes now drive the room — walls, flooring, rug, sofa, chair fabric and
 table top. In VR they are split across **Room** and **Furniture** tabs, because
 a tile too small to hit reliably with a laser is worse than a second tab.

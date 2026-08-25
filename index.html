@@ -292,14 +292,55 @@
               position="0 1.5 0"></a-entity>
   </a-entity>
 
-  <!-- potted plant -->
+  <!-- Flowering bonsai in a terracotta pot.
+       Fired clay outside, dark earth inside, a tapered trunk built from three
+       segments that lean against each other, and flat layered canopies rather
+       than one green ball. Blossoms are scattered onto the canopies in JS. -->
   <a-entity id="plant" position="2.35 0 -2.4">
-    <a-cylinder radius-bottom="0.16" radius-top="0.21" height="0.34" position="0 0.17 0"
-                material="color: #b5613c; roughness: 0.75; metalness: 0.02"></a-cylinder>
-    <a-cylinder radius="0.03" height="0.5" position="0 0.55 0" material="color: #4f6b3a; roughness: 0.8; metalness: 0"></a-cylinder>
-    <a-sphere radius="0.3" position="0 0.92 0" material="color: #3f7d43; roughness: 0.72; metalness: 0"></a-sphere>
-    <a-sphere radius="0.19" position="0.2 0.75 0.12" material="color: #4c8f4f; roughness: 0.72; metalness: 0"></a-sphere>
-    <a-sphere radius="0.17" position="-0.18 0.8 -0.1" material="color: #356b3a; roughness: 0.72; metalness: 0"></a-sphere>
+    <a-cylinder id="potBody" radius-bottom="0.135" radius-top="0.175" height="0.22"
+                position="0 0.11 0"
+                material="color: #b5613c; roughness: 0.72; metalness: 0.02"></a-cylinder>
+    <a-torus id="potRim" radius="0.176" radius-tubular="0.016"
+             segments-radial="10" segments-tubular="28"
+             position="0 0.218 0" rotation="-90 0 0"
+             material="color: #a95734; roughness: 0.7; metalness: 0.02"></a-torus>
+    <a-cylinder id="potSoil" radius="0.168" height="0.04" position="0 0.2 0"
+                material="color: #6b5844; roughness: 1; metalness: 0"></a-cylinder>
+
+    <!-- trunk: three tapered segments with alternating lean -->
+    <a-cone class="bonsai-wood" radius-bottom="0.032" radius-top="0.026" height="0.16"
+            position="0 0.30 0" rotation="0 0 9"
+            material="color: #5b4636; roughness: 0.85; metalness: 0"></a-cone>
+    <a-cone class="bonsai-wood" radius-bottom="0.026" radius-top="0.02" height="0.14"
+            position="0.035 0.43 0.005" rotation="0 0 -16"
+            material="color: #5b4636; roughness: 0.85; metalness: 0"></a-cone>
+    <a-cone class="bonsai-wood" radius-bottom="0.02" radius-top="0.013" height="0.12"
+            position="0.02 0.55 0" rotation="0 0 11"
+            material="color: #5b4636; roughness: 0.85; metalness: 0"></a-cone>
+
+    <!-- side branches carrying the outer canopies -->
+    <a-cone class="bonsai-wood" radius-bottom="0.014" radius-top="0.007" height="0.2"
+            position="-0.08 0.45 0.02" rotation="0 0 74"
+            material="color: #5b4636; roughness: 0.85; metalness: 0"></a-cone>
+    <a-cone class="bonsai-wood" radius-bottom="0.013" radius-top="0.006" height="0.17"
+            position="0.11 0.52 -0.03" rotation="0 0 -70"
+            material="color: #5b4636; roughness: 0.85; metalness: 0"></a-cone>
+
+    <!-- flattened canopy pads: the layered silhouette that says bonsai -->
+    <a-sphere class="bonsai-leaf" radius="0.14" position="-0.16 0.5 0.02"
+              scale="1 0.42 1"
+              material="color: #4c8f4f; roughness: 0.7; metalness: 0"></a-sphere>
+    <a-sphere class="bonsai-leaf" radius="0.115" position="0.18 0.56 -0.03"
+              scale="1 0.44 1"
+              material="color: #3f7d43; roughness: 0.7; metalness: 0"></a-sphere>
+    <a-sphere class="bonsai-leaf" radius="0.145" position="0.03 0.68 0"
+              scale="1 0.4 1"
+              material="color: #4a8a48; roughness: 0.7; metalness: 0"></a-sphere>
+    <a-sphere class="bonsai-leaf" radius="0.075" position="-0.06 0.60 -0.09"
+              scale="1 0.5 1"
+              material="color: #3d7a41; roughness: 0.7; metalness: 0"></a-sphere>
+
+    <a-entity id="blossoms"></a-entity>
   </a-entity>
 
   <!-- framed wall art, west wall -->
@@ -654,17 +695,20 @@ const ProcTex = {
      distance and mipmaps average it straight back to flat colour. These are
      tuned so the smallest feature stays around 4-6mm, which survives. */
   density: {
-    plaster: 1.2, plank: 0.55, tile: 0.9, weave: 6.5, pile: 4, grain: 1.4
+    plaster: 1.2, plank: 0.55, tile: 0.9, weave: 6.5, pile: 4, grain: 1.4,
+    terracotta: 4, soil: 8, bark: 12, foliage: 6
   },
 
   // how hard the derived normal map pushes, per material
   normalScale: {
-    plaster: 0.35, plank: 0.6, tile: 0.9, weave: 1.3, pile: 1.0, grain: 0.5
+    plaster: 0.35, plank: 0.6, tile: 0.9, weave: 1.3, pile: 1.0, grain: 0.5,
+    terracotta: 0.5, soil: 1.4, bark: 1.2, foliage: 0.9
   },
 
   // Sobel gain when deriving that normal map
   relief: {
-    plaster: 6, plank: 10, tile: 12, weave: 18, pile: 14, grain: 8
+    plaster: 6, plank: 10, tile: 12, weave: 18, pile: 14, grain: 8,
+    terracotta: 8, soil: 18, bark: 16, foliage: 10
   },
 
   canvas: function (kind) {
@@ -815,6 +859,115 @@ const ProcTex = {
     }
   },
 
+  /* Fired clay: throwing rings from the wheel, blotchy firing, and grit.
+     Rings must run around the pot, so they are horizontal here — that is the
+     direction a cylinder's UV wraps. */
+  draw_terracotta: function (g, s) {
+    g.fillStyle = 'rgb(240,240,240)';
+    g.fillRect(0, 0, s, s);
+
+    for (let y = 0; y < s; y += 3 + Math.random() * 4) {
+      const v = 206 + Math.random() * 42;
+      g.fillStyle = 'rgba(' + v + ',' + v + ',' + v + ',0.55)';
+      g.fillRect(0, y, s, 1 + Math.random() * 1.6);
+    }
+
+    for (let i = 0; i < 34; i++) {
+      const x = Math.random() * s, y = Math.random() * s;
+      const r = 10 + Math.random() * 30;
+      const blob = g.createRadialGradient(x, y, 0, x, y, r);
+      blob.addColorStop(0, Math.random() < 0.5 ? 'rgba(170,170,170,0.22)'
+                                               : 'rgba(255,255,255,0.22)');
+      blob.addColorStop(1, 'rgba(128,128,128,0)');
+      g.fillStyle = blob;
+      g.fillRect(x - r, y - r, r * 2, r * 2);
+    }
+
+    for (let i = 0; i < s * s * 0.14; i++) {
+      const v = 150 + Math.random() * 100;
+      g.fillStyle = 'rgba(' + v + ',' + v + ',' + v + ',0.5)';
+      g.fillRect(Math.random() * s, Math.random() * s, 1, 1);
+    }
+  },
+
+  /* Potting soil: clods over grit. High contrast on purpose — earth that is
+     too smooth reads as brown plastic. */
+  draw_soil: function (g, s) {
+    g.fillStyle = 'rgb(148,148,148)';
+    g.fillRect(0, 0, s, s);
+
+    for (let i = 0; i < 850; i++) {
+      const x = Math.random() * s, y = Math.random() * s;
+      const r = 2 + Math.random() * 7;
+      const v = 84 + Math.random() * 150;
+      g.fillStyle = 'rgba(' + v + ',' + v + ',' + v + ',0.85)';
+      g.beginPath();
+      g.ellipse(x, y, r, r * (0.6 + Math.random() * 0.6),
+                Math.random() * Math.PI, 0, Math.PI * 2);
+      g.fill();
+    }
+
+    for (let i = 0; i < s * s * 0.45; i++) {
+      const v = 70 + Math.random() * 170;
+      g.fillStyle = 'rgba(' + v + ',' + v + ',' + v + ',0.6)';
+      g.fillRect(Math.random() * s, Math.random() * s, 1, 1);
+    }
+  },
+
+  /* Bark: vertical fissures with occasional cross-cracks. */
+  draw_bark: function (g, s) {
+    g.fillStyle = 'rgb(226,226,226)';
+    g.fillRect(0, 0, s, s);
+
+    for (let i = 0; i < 64; i++) {
+      const x = Math.random() * s;
+      const v = 120 + Math.random() * 90;
+      g.strokeStyle = 'rgba(' + v + ',' + v + ',' + v + ',0.75)';
+      g.lineWidth = 1 + Math.random() * 3.5;
+      g.beginPath();
+      for (let y = 0; y <= s; y += 8) {
+        const xx = x + Math.sin(y * 0.03 + i) * 3.5 + Math.sin(y * 0.11) * 1.2;
+        if (y === 0) { g.moveTo(xx, y); } else { g.lineTo(xx, y); }
+      }
+      g.stroke();
+    }
+    for (let i = 0; i < 26; i++) {
+      const y = Math.random() * s;
+      g.strokeStyle = 'rgba(150,150,150,0.4)';
+      g.lineWidth = 0.8 + Math.random();
+      g.beginPath();
+      g.moveTo(Math.random() * s, y);
+      g.lineTo(Math.random() * s, y + (Math.random() - 0.5) * 10);
+      g.stroke();
+    }
+  },
+
+  /* Leaf mass: overlapping blades with dark gaps between them, so a smooth
+     sphere reads as a canopy rather than a green ball. */
+  draw_foliage: function (g, s) {
+    g.fillStyle = 'rgb(150,150,150)';
+    g.fillRect(0, 0, s, s);
+
+    for (let i = 0; i < 620; i++) {
+      const x = Math.random() * s, y = Math.random() * s;
+      const len = 5 + Math.random() * 12;
+      const v = 150 + Math.random() * 105;
+      g.fillStyle = 'rgba(' + v + ',' + v + ',' + v + ',0.9)';
+      g.beginPath();
+      g.ellipse(x, y, len, len * (0.3 + Math.random() * 0.25),
+                Math.random() * Math.PI, 0, Math.PI * 2);
+      g.fill();
+    }
+    for (let i = 0; i < 120; i++) {
+      const x = Math.random() * s, y = Math.random() * s;
+      const r = 3 + Math.random() * 8;
+      g.fillStyle = 'rgba(95,95,95,0.28)';
+      g.beginPath();
+      g.arc(x, y, r, 0, Math.PI * 2);
+      g.fill();
+    }
+  },
+
   /* Grid with recessed grout. */
   draw_tile: function (g, s) {
     const n = 2, t = s / n, grout = 4;
@@ -909,7 +1062,7 @@ function repeatFor(mesh, density) {
   ];
 }
 
-function applySkin(el, kind) {
+function applySkin(el, kind, repeatOverride) {
   el.object3D.traverse(function (n) {
     if (!n.isMesh || !n.material) { return; }
     if (!kind) {
@@ -920,7 +1073,9 @@ function applySkin(el, kind) {
       }
       return;
     }
-    const r = repeatFor(n, ProcTex.density[kind] || 1);
+    // curved surfaces need the tile count stated: a cylinder's circumference
+    // and its height are wildly different lengths under the same 0..1 UV
+    const r = repeatOverride || repeatFor(n, ProcTex.density[kind] || 1);
     const t = ProcTex.get(kind, r[0], r[1]);
     n.material.map = t.map;
     n.material.normalMap = t.normalMap;
@@ -1673,6 +1828,63 @@ function setShadowFlags(selector, cast, receive) {
   });
 }
 
+/* Fixed props are not palette-driven, so their skins are applied once here.
+   Curved surfaces state their tile counts explicitly — a cylinder's
+   circumference and its height are very different lengths under the same
+   0..1 UV, and letting the bounding box decide stretches the grain. */
+function skinFixtures() {
+  [
+    ['#potBody',      'terracotta', [4, 1]],
+    ['#potRim',       'terracotta', [6, 1]],
+    ['#potSoil',      'soil',       [3, 3]],
+    ['.bonsai-wood',  'bark',       [3, 2]],
+    ['.bonsai-leaf',  'foliage',    [3, 2]],
+    ['#lampShade',    'weave',      [6, 2]]
+  ].forEach(function (f) {
+    document.querySelectorAll(f[0]).forEach(function (el) {
+      applySkin(el, f[1], f[2]);
+    });
+  });
+}
+
+/* Blossoms are scattered rather than hand-placed, from a fixed seed so the
+   tree looks the same to every visitor and in every screenshot. */
+function buildBlossoms() {
+  const host = document.querySelector('#blossoms');
+  if (!host) { return; }
+
+  let seed = 20250825;
+  function rnd() {
+    seed = (seed * 1664525 + 1013904223) % 4294967296;
+    return seed / 4294967296;
+  }
+
+  document.querySelectorAll('#plant .bonsai-leaf').forEach(function (pad) {
+    const p = pad.getAttribute('position');
+    const r = parseFloat(pad.getAttribute('radius'));
+    const sc = pad.getAttribute('scale');
+    const n = Math.max(3, Math.round(r * 48));
+
+    for (let i = 0; i < n; i++) {
+      const a = rnd() * Math.PI * 2;
+      const t = 0.7 + rnd() * 0.32;          // sit out near the canopy edge
+      const el = document.createElement('a-sphere');
+      el.setAttribute('radius', 0.012 + rnd() * 0.008);
+      el.setAttribute('segments-width', 8);
+      el.setAttribute('segments-height', 6);
+      el.setAttribute('position', {
+        x: p.x + Math.cos(a) * r * t,
+        y: p.y + (0.2 + rnd() * 0.7) * r * sc.y,
+        z: p.z + Math.sin(a) * r * t
+      });
+      el.setAttribute('material',
+        'color: ' + (rnd() < 0.25 ? '#f6dce6' : '#e9a7c0') +
+        '; roughness: 0.85; metalness: 0');
+      host.appendChild(el);
+    }
+  });
+}
+
 function setupShadows() {
   setShadowFlags('#room', false, true);
   setShadowFlags('#rug', false, true);
@@ -1929,7 +2141,12 @@ function boot() {
   buildOverlay();
   buildVrPanel();
   setVrTab('room');
+  buildBlossoms();
+  skinFixtures();
   setupShadows();
+  // dynamically appended blossoms initialise on the next tick, so the
+  // shadow flags get a second pass once their meshes exist
+  setTimeout(setupShadows, 0);
 
   // opening state is not a visitor choice, so it is not logged
   const wasLogging = logging;
