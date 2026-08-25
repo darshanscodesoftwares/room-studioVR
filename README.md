@@ -295,11 +295,24 @@ specified he turns toward wherever he is heading next, so leaving reads as
 intentional. Over a cycle he spends 65 seconds standing and 9 walking, which is
 roughly how people actually occupy a room.
 
-The pack ships a walk clip and no idle, so "standing" is borrowed from it: at
-load the component samples the clip, poses the skeleton at each sample and
-measures the real distance between the foot bones, then freezes on the frame
-where they are closest. That reads as standing rather than mid-stride, and it
-is measured rather than hardcoded, so it survives swapping in another model. **People** is a model slot with three
+The pack ships a walk clip and no idle, so standing is built in two parts.
+First the pose: at load the component samples the clip, poses the skeleton at
+each sample and measures the real distance between the foot bones, then holds
+the frame where they are closest — measured rather than hardcoded, so it
+survives swapping in another model.
+
+Then the motion, because a held pose is a statue. While standing the mixer
+stops running entirely — it would stamp the frozen pose back over everything
+each frame — and a procedural idle drives the bones directly: breathing on the
+spine at roughly one breath per 4.3s, a slow weight shift between the feet over
+13s, and the head drifting on two unrelated periods. Everything is a few
+degrees at most and layered on the standing pose. The periods share no common
+factor, so the loop takes about nine minutes to repeat and never reads as
+mechanical.
+
+The woman's idle was the obvious source to borrow instead, and was rejected:
+her clip is a distinctly feminine stance and retargeting it would have him
+posing like her. **People** is a model slot with three
 choices: Woman, Man, or **Both**, from the dropdown on desktop or the Models tab
 in VR. It is the first variant that maps to more than one entity, which the slot
 mechanism now supports generally.

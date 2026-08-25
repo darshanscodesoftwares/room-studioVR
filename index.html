@@ -2579,19 +2579,94 @@ AFRAME.registerComponent('gltf-animation', {
   /* resume the cycle */
   walk: function (timeScale) {
     if (!this.action) { return; }
+    this.frozen = false;
     this.action.paused = false;
     this.el.setAttribute('gltf-animation', 'timeScale', timeScale);
   },
 
-  /* hold the standing pose */
+  /* Hold the standing pose — but a held pose is a statue, so the mixer stops
+     updating and a small procedural idle drives the bones instead. */
   stand: function () {
     if (!this.action || !this.mixer) { return; }
     this.mixer.setTime(this.standTime);
+    this.mixer.update(0);          // flush the pose onto the skeleton
     this.action.paused = true;
+    this.frozen = true;
+    this.idleT = 0;
+    this.captureIdleBones();
+  },
+
+  /* Grab the bones the idle moves, and the standing pose as their baseline.
+     Matched by name suffix, so any similarly-named rig works. */
+  captureIdleBones: function () {
+    if (this.idleBones || !this.model) { return; }
+    const want = [
+      { re: /spine_01$/i, key: 'spine1' },
+      { re: /spine_02$/i, key: 'spine2' },
+      { re: /spine_03$/i, key: 'spine3' },
+      { re: /head$/i,     key: 'head' },
+      { re: /upperarm_l$/i, key: 'armL' },
+      { re: /upperarm_r$/i, key: 'armR' }
+    ];
+    const found = {};
+    this.model.traverse(function (n) {
+      if (!n.isBone && !n.isObject3D) { return; }
+      want.forEach(function (w) {
+        if (!found[w.key] && w.re.test(n.name || '')) {
+          found[w.key] = { node: n, base: n.quaternion.clone() };
+        }
+      });
+    });
+    this.idleBones = found;
+    this.q = new THREE.Quaternion();
+    this.e = new THREE.Euler();
+  },
+
+  /* Standing still is not stillness: breathing, a slow weight shift, and the
+     head drifting are what separate a person from a mannequin. All of it is
+     small — a few degrees at most — and layered on the standing pose rather
+     than replacing it. Periods are deliberately unrelated so the loop never
+     lines up and starts to look mechanical. */
+  applyIdle: function (dt) {
+    const b = this.idleBones;
+    if (!b) { return; }
+    this.idleT += dt;
+    const t = this.idleT;
+    const self = this;
+
+    function set(bone, rx, ry, rz) {
+      if (!bone) { return; }
+      self.e.set(rx, ry, rz);
+      self.q.setFromEuler(self.e);
+      bone.node.quaternion.copy(bone.base).multiply(self.q);
+    }
+
+    // breathing, ~4.3s per breath, strongest at the lower chest
+    const breath = Math.sin(t * (Math.PI * 2 / 4.3));
+    // weight shifting between the feet, much slower
+    const shift = Math.sin(t * (Math.PI * 2 / 13.0));
+
+    set(b.spine1, breath * 0.006, shift * 0.030, shift * 0.022);
+    set(b.spine2, breath * 0.009, shift * 0.014, shift * 0.010);
+    set(b.spine3, breath * 0.010, 0, 0);
+    set(b.head,
+        Math.sin(t * (Math.PI * 2 / 9.1)) * 0.045 - breath * 0.010,
+        Math.sin(t * (Math.PI * 2 / 11.7)) * 0.13 + Math.sin(t * (Math.PI * 2 / 6.3)) * 0.05,
+        0);
+    // arms hang and sway a little with the weight shift
+    set(b.armL, 0, 0, shift * 0.030 + breath * 0.006);
+    set(b.armR, 0, 0, -shift * 0.030 - breath * 0.006);
   },
 
   tick: function (time, delta) {
-    if (this.mixer && delta) {
+    if (!delta) { return; }
+    if (this.frozen) {
+      // the mixer would stamp the frozen pose back over the idle every
+      // frame, so while standing it stops running entirely
+      this.applyIdle(delta / 1000);
+      return;
+    }
+    if (this.mixer) {
       this.mixer.update((delta / 1000) * this.data.timeScale);
     }
   },
