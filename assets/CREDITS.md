@@ -48,8 +48,6 @@ uncleared until its origin is established.
 
 ---
 
----
-
 ## cat-realistic.obj + cat-diffuse.jpg / cat-bump.jpg — Cat v1 L3
 
 - **Licence: unknown.** The pack shipped no licence file.
