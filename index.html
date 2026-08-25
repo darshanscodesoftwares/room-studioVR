@@ -554,9 +554,14 @@
             obj-model="obj: #tvMiObj"
             position="0 1.62 -2.88" scale="0.625 0.625 0.625"></a-entity>
 
-  <!-- authored on its side with the stand at -X, so it rolls upright -->
+  <!-- This one hid behind the wall at first. Its mesh accessor bounds read
+       as portrait, but the glTF's mesh NODE carries a 180-degree rotation
+       that swaps X and Y, and a 1.02m offset on Z. Read the accessor alone
+       and you conclude it needs rolling upright and you place it a metre
+       adrift; with the node transform applied it is already landscape and
+       already facing into the room, and only the offset has to be undone. -->
   <a-entity id="tvSmart" visible="false"
-            position="0 1.41 -2.94" rotation="0 0 90" scale="0.712 0.712 0.712"
+            position="0 1.62 -2.21" scale="0.712 0.712 0.712"
             gltf-model="url(assets/tv-smart.gltf)"></a-entity>
 
   <!-- framed wall art, west wall -->
