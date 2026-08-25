@@ -1959,8 +1959,8 @@ function skinFixtures() {
     ['#potSoil',      'soil',       [3, 3]],
     ['.bonsai-wood',  'bark',       [3, 2]],
     ['.bonsai-leaf',  'foliage',    [3, 2]],
-    ['#lampShade',    'weave',      [6, 2]],
-    ['.cat-fur',      'pile',       [2, 2]]
+    ['#lampShade',    'weave',      [6, 2]]
+    // cat fur stays flat colour: at cat scale the pile skin read as crust
   ].forEach(function (f) {
     document.querySelectorAll(f[0]).forEach(function (el) {
       applySkin(el, f[1], f[2]);
