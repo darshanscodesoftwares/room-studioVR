@@ -403,56 +403,85 @@
        Local frame: nose points +z; the component yaws the root. -->
   <a-entity id="cat" cat-walk position="-2.3 0 1.8">
     <a-entity id="catBody">
+      <!-- torso, chest and haunches: three masses, not one loaf -->
       <a-entity class="cat-fur"
-                geometry="primitive: rounded-box; width: 0.13; height: 0.15; depth: 0.34; radius: 0.05"
-                position="0 0.22 0"
-                material="color: #c98d5a; roughness: 0.9; metalness: 0"></a-entity>
-      <!-- head -->
-      <a-entity id="catHead" position="0 0.32 0.2">
-        <a-entity class="cat-fur"
-                  geometry="primitive: rounded-box; width: 0.11; height: 0.1; depth: 0.11; radius: 0.035"
-                  material="color: #c98d5a; roughness: 0.9; metalness: 0"></a-entity>
-        <a-cone radius-bottom="0.025" radius-top="0.002" height="0.05"
-                position="-0.035 0.065 -0.01" rotation="-12 0 12"
-                material="color: #b57946; roughness: 0.9; metalness: 0"></a-cone>
-        <a-cone radius-bottom="0.025" radius-top="0.002" height="0.05"
-                position="0.035 0.065 -0.01" rotation="-12 0 -12"
-                material="color: #b57946; roughness: 0.9; metalness: 0"></a-cone>
-        <a-sphere radius="0.009" position="-0.028 0.012 0.054"
-                  material="color: #2a2a2e; roughness: 0.3; metalness: 0"></a-sphere>
-        <a-sphere radius="0.009" position="0.028 0.012 0.054"
-                  material="color: #2a2a2e; roughness: 0.3; metalness: 0"></a-sphere>
-        <a-cone radius-bottom="0.012" radius-top="0.004" height="0.014"
-                position="0 -0.012 0.058" rotation="90 0 0"
-                material="color: #c96f6f; roughness: 0.6; metalness: 0"></a-cone>
+                geometry="primitive: rounded-box; width: 0.125; height: 0.135; depth: 0.30; radius: 0.055"
+                position="0 0.205 0"
+                material="color: #66625f; roughness: 0.9; metalness: 0"></a-entity>
+      <a-sphere radius="0.072" scale="0.85 1 0.9" position="0 0.215 0.115"
+                material="color: #ece8e2; roughness: 0.9; metalness: 0"></a-sphere>
+      <a-sphere radius="0.075" scale="0.55 1 1" position="-0.044 0.195 -0.105"
+                material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
+      <a-sphere radius="0.075" scale="0.55 1 1" position="0.044 0.195 -0.105"
+                material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
+
+      <a-entity id="catHead" position="0 0.315 0.185">
+        <a-sphere radius="0.062" scale="0.95 0.9 0.95"
+                  material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
+        <!-- white muzzle and cheeks, like the reference -->
+        <a-sphere radius="0.036" scale="1.15 0.78 0.9" position="0 -0.022 0.042"
+                  material="color: #ece8e2; roughness: 0.9; metalness: 0"></a-sphere>
+        <!-- ears: outer grey, inner pink -->
+        <a-cone radius-bottom="0.03" radius-top="0.003" height="0.06"
+                position="-0.042 0.058 -0.004" rotation="-10 0 18"
+                material="color: #5b5754; roughness: 0.9; metalness: 0"></a-cone>
+        <a-cone radius-bottom="0.03" radius-top="0.003" height="0.06"
+                position="0.042 0.058 -0.004" rotation="-10 0 -18"
+                material="color: #5b5754; roughness: 0.9; metalness: 0"></a-cone>
+        <a-cone radius-bottom="0.016" radius-top="0.002" height="0.034"
+                position="-0.04 0.052 0.008" rotation="-10 0 18"
+                material="color: #d9a3a8; roughness: 0.9; metalness: 0"></a-cone>
+        <a-cone radius-bottom="0.016" radius-top="0.002" height="0.034"
+                position="0.04 0.052 0.008" rotation="-10 0 -18"
+                material="color: #d9a3a8; roughness: 0.9; metalness: 0"></a-cone>
+        <!-- green almond eyes -->
+        <a-sphere radius="0.011" scale="1 1.15 0.55" position="-0.027 0.014 0.05"
+                  material="color: #8fae4f; roughness: 0.25; metalness: 0"></a-sphere>
+        <a-sphere radius="0.011" scale="1 1.15 0.55" position="0.027 0.014 0.05"
+                  material="color: #8fae4f; roughness: 0.25; metalness: 0"></a-sphere>
+        <a-cone radius-bottom="0.011" radius-top="0.004" height="0.012"
+                position="0 -0.014 0.075" rotation="90 0 0"
+                material="color: #cf8b8b; roughness: 0.6; metalness: 0"></a-cone>
       </a-entity>
-      <!-- tail: three segments curling up behind -->
-      <a-entity id="catTail" position="0 0.27 -0.17">
-        <a-cylinder radius="0.014" height="0.1" rotation="-35 0 0" position="0 0.03 -0.03"
-                    material="color: #c98d5a; roughness: 0.9; metalness: 0"></a-cylinder>
-        <a-cylinder radius="0.011" height="0.09" rotation="-10 0 0" position="0 0.1 -0.06"
-                    material="color: #c98d5a; roughness: 0.9; metalness: 0"></a-cylinder>
-        <a-cone radius-bottom="0.009" radius-top="0.003" height="0.07" rotation="12 0 0"
-                position="0 0.17 -0.055"
-                material="color: #b57946; roughness: 0.9; metalness: 0"></a-cone>
+
+      <!-- tail: four segments in an upward S, the reference silhouette -->
+      <a-entity id="catTail" position="0 0.245 -0.15">
+        <a-cylinder radius="0.013" height="0.09" rotation="-42 0 0" position="0 0.025 -0.028"
+                    material="color: #66625f; roughness: 0.9; metalness: 0"></a-cylinder>
+        <a-cylinder radius="0.011" height="0.09" rotation="-18 0 0" position="0 0.095 -0.058"
+                    material="color: #66625f; roughness: 0.9; metalness: 0"></a-cylinder>
+        <a-cylinder radius="0.009" height="0.08" rotation="8 0 0" position="0 0.17 -0.062"
+                    material="color: #5b5754; roughness: 0.9; metalness: 0"></a-cylinder>
+        <a-cone radius-bottom="0.008" radius-top="0.002" height="0.06" rotation="22 0 0"
+                position="0 0.23 -0.048"
+                material="color: #5b5754; roughness: 0.9; metalness: 0"></a-cone>
       </a-entity>
     </a-entity>
-    <!-- legs pivot at the hip: entity sits at the joint, cylinder hangs below -->
-    <a-entity class="cat-leg" position="-0.045 0.16 0.13">
-      <a-cylinder radius="0.016" height="0.16" position="0 -0.08 0"
-                  material="color: #b57946; roughness: 0.9; metalness: 0"></a-cylinder>
+
+    <!-- legs pivot at the hip; grey limb, white sock paw like the reference -->
+    <a-entity class="cat-leg" position="-0.042 0.16 0.115">
+      <a-cylinder radius="0.014" height="0.12" position="0 -0.06 0"
+                  material="color: #66625f; roughness: 0.9; metalness: 0"></a-cylinder>
+      <a-sphere radius="0.018" scale="1 0.8 1.15" position="0 -0.135 0.006"
+                material="color: #ece8e2; roughness: 0.9; metalness: 0"></a-sphere>
     </a-entity>
-    <a-entity class="cat-leg" position="0.045 0.16 0.13">
-      <a-cylinder radius="0.016" height="0.16" position="0 -0.08 0"
-                  material="color: #b57946; roughness: 0.9; metalness: 0"></a-cylinder>
+    <a-entity class="cat-leg" position="0.042 0.16 0.115">
+      <a-cylinder radius="0.014" height="0.12" position="0 -0.06 0"
+                  material="color: #66625f; roughness: 0.9; metalness: 0"></a-cylinder>
+      <a-sphere radius="0.018" scale="1 0.8 1.15" position="0 -0.135 0.006"
+                material="color: #ece8e2; roughness: 0.9; metalness: 0"></a-sphere>
     </a-entity>
-    <a-entity class="cat-leg" position="-0.045 0.16 -0.13">
-      <a-cylinder radius="0.016" height="0.16" position="0 -0.08 0"
-                  material="color: #b57946; roughness: 0.9; metalness: 0"></a-cylinder>
+    <a-entity class="cat-leg" position="-0.046 0.16 -0.115">
+      <a-cylinder radius="0.017" height="0.12" position="0 -0.06 0"
+                  material="color: #66625f; roughness: 0.9; metalness: 0"></a-cylinder>
+      <a-sphere radius="0.019" scale="1 0.8 1.15" position="0 -0.135 0.006"
+                material="color: #ece8e2; roughness: 0.9; metalness: 0"></a-sphere>
     </a-entity>
-    <a-entity class="cat-leg" position="0.045 0.16 -0.13">
-      <a-cylinder radius="0.016" height="0.16" position="0 -0.08 0"
-                  material="color: #b57946; roughness: 0.9; metalness: 0"></a-cylinder>
+    <a-entity class="cat-leg" position="0.046 0.16 -0.115">
+      <a-cylinder radius="0.017" height="0.12" position="0 -0.06 0"
+                  material="color: #66625f; roughness: 0.9; metalness: 0"></a-cylinder>
+      <a-sphere radius="0.019" scale="1 0.8 1.15" position="0 -0.135 0.006"
+                material="color: #ece8e2; roughness: 0.9; metalness: 0"></a-sphere>
     </a-entity>
   </a-entity>
 
