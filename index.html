@@ -138,6 +138,7 @@
        surfaces do not pop in one by one while a customer is standing there. -->
   <a-assets timeout="10000">
     <a-asset-item id="koltukObj" src="assets/koltuk-sofa.obj"></a-asset-item>
+    <a-asset-item id="plantObj" src="assets/eb-house-plant.obj"></a-asset-item>
   </a-assets>
 
   <!-- ============ lighting ============ -->
@@ -383,6 +384,15 @@
 
     <a-entity id="blossoms"></a-entity>
   </a-entity>
+
+  <!-- Second plant: a fully textured OBJ (602 tris) by the window, where a
+       real houseplant would be put. Model units are centimetres, hence the
+       0.01 scale. Its textures are converted from the pack's 2048px TGAs —
+       browsers cannot load TGA — and the maps are applied in JS.
+       LICENCE: marked NOT FOR COMMERCIAL USE. See assets/CREDITS.md. -->
+  <a-entity id="plant2" obj-model="obj: #plantObj"
+            position="2.4 0 1.5" rotation="0 -25 0"
+            scale="0.01 0.01 0.01"></a-entity>
 
   <!-- framed wall art, west wall -->
   <a-entity id="art" position="-2.96 1.75 -1.4" rotation="0 90 0">
@@ -1245,8 +1255,10 @@ function setChairStyle(style) {
 
 function setDecor(key, on) {
   state[key] = on;
-  const ids = { rug: '#rug', plant: '#plant', art: '#art' };
-  document.querySelector(ids[key]).setAttribute('visible', on);
+  const ids = { rug: '#rug', plant: '#plant, #plant2', art: '#art' };
+  document.querySelectorAll(ids[key]).forEach(function (el) {
+    el.setAttribute('visible', on);
+  });
   state.package = null;
   logEvent('decor', { id: key, on: on });
 }
@@ -2072,6 +2084,53 @@ function skinSofa2() {
   });
 }
 
+/* The house plant arrives with real UVs and a full PBR set, so unlike the
+   sofa it needs no projection — just the maps wired up.
+
+   Two details the pack's READ_ME dictates. Its roughness, metal and opacity
+   are packed into one image's R, G and B channels, split out at build time
+   (metal was empty, as expected for a plant). And it was authored for
+   Unreal, which uses DirectX-convention normals with green pointing down;
+   three.js expects OpenGL green-up, so the green channel was inverted
+   during conversion. Skip that and every leaf lights from the wrong side. */
+function skinPlant2() {
+  const el = document.querySelector('#plant2');
+  if (!el) { return; }
+
+  const load = new THREE.TextureLoader();
+  const map = load.load('assets/plant-c.jpg');
+  const normalMap = load.load('assets/plant-n.jpg');
+  const roughnessMap = load.load('assets/plant-rough.jpg');
+  const alphaMap = load.load('assets/plant-alpha.jpg');
+  if (THREE.SRGBColorSpace) { map.colorSpace = THREE.SRGBColorSpace; }
+  [map, normalMap, roughnessMap, alphaMap].forEach(function (t) {
+    t.anisotropy = 4;
+  });
+
+  el.object3D.traverse(function (n) {
+    if (!n.isMesh) { return; }
+
+    n.material = new THREE.MeshStandardMaterial({
+      map: map,
+      normalMap: normalMap,
+      roughnessMap: roughnessMap,
+      alphaMap: alphaMap,
+      alphaTest: 0.5,          // cutout, not blending: cheaper and sorts right
+      side: THREE.DoubleSide,  // leaves are single-sided cards
+      metalness: 0,
+      roughness: 1
+    });
+
+    // Without this the shadow pass ignores the alpha mask and every leaf
+    // card throws a solid rectangle onto the floor.
+    n.customDepthMaterial = new THREE.MeshDepthMaterial({
+      depthPacking: THREE.RGBADepthPacking,
+      alphaMap: alphaMap,
+      alphaTest: 0.5
+    });
+  });
+}
+
 function setupShadows() {
   setShadowFlags('#room', false, true);
   setShadowFlags('#rug', false, true);
@@ -2339,6 +2398,14 @@ function boot() {
       boxProjectUVs(sofa2.object3D);   // must run before the skin is applied
       skinSofa2();
       setShadowFlags('#sofa2', true, true);
+    });
+  }
+
+  const plant2 = document.querySelector('#plant2');
+  if (plant2) {
+    plant2.addEventListener('model-loaded', function () {
+      skinPlant2();
+      setShadowFlags('#plant2', true, true);
     });
   }
   // dynamically appended blossoms initialise on the next tick, so the

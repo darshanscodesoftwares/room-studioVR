@@ -246,8 +246,20 @@ unwraps a `.blend` headless and exports GLB. It needs Blender installed
 (`sudo snap install blender --classic`) and is untested — Blender is not on this
 machine.
 
-Licence caveat: this is a downloaded asset of unknown licence. Verify
-redistribution rights before the repo or the deploy goes public-facing.
+A second loaded model, `assets/eb-house-plant.obj` (602 tris), stands by the
+window. Unlike the sofa it ships with real UVs and a full PBR set, so it needs
+no projection — just the maps wired up. Two details its pack dictates:
+roughness, metal and opacity were packed into one image's R, G and B channels
+and are split at build time (metal measured zero and was dropped), and it was
+authored for Unreal, so the normal map's green channel is inverted to convert
+DirectX green-down to the OpenGL green-up three.js expects. Leaves are
+alpha-cutout with a matching `customDepthMaterial`, without which every leaf
+card throws a solid rectangular shadow.
+
+> **Licences are not cleared.** The house plant is marked **NOT FOR COMMERCIAL
+> USE** by its author, and the sofa shipped with no licence at all. This POC is
+> deployed to a public URL, which is redistribution. See
+> [assets/CREDITS.md](assets/CREDITS.md) before any buyer demo or public deploy.
 
 ## Roadmap
 
