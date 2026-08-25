@@ -73,6 +73,15 @@
   <h2>Sofa fabric</h2>
   <div class="swatches" id="sofaSw"></div>
 
+  <h2>Rug</h2>
+  <div class="swatches" id="rugColorSw"></div>
+
+  <h2>Chair fabric</h2>
+  <div class="swatches" id="chairFabricSw"></div>
+
+  <h2>Table top</h2>
+  <div class="swatches" id="tableWoodSw"></div>
+
   <h2>Accent chair</h2>
   <div class="btns" id="chairBtns"></div>
 
@@ -218,7 +227,7 @@
   <a-entity id="table" position="0 0 -0.85">
     <!-- lacquered top: the glossiest thing in the room, so it carries the
          window reflection and reads as a real surface -->
-    <a-box width="1.25" height="0.07" depth="0.65" position="0 0.43 0"
+    <a-box class="table-top" width="1.25" height="0.07" depth="0.65" position="0 0.43 0"
            material="color: #6f4e37; roughness: 0.28; metalness: 0.04"></a-box>
     <a-box width="0.06" height="0.4" depth="0.06" position="-0.55 0.2  0.26" material="color: #3d3129; roughness: 0.42; metalness: 0.55"></a-box>
     <a-box width="0.06" height="0.4" depth="0.06" position=" 0.55 0.2  0.26" material="color: #3d3129; roughness: 0.42; metalness: 0.55"></a-box>
@@ -231,9 +240,9 @@
   <!-- accent chair: two switchable styles, same footprint -->
   <a-entity id="chair" position="1.95 0 0.35" rotation="0 -125 0">
     <a-entity id="chairModern">
-      <a-box width="0.62" height="0.09" depth="0.6" position="0 0.44 0"
+      <a-box class="chair-fabric" width="0.62" height="0.09" depth="0.6" position="0 0.44 0"
              material="color: #c2703f; roughness: 0.85; metalness: 0.02"></a-box>
-      <a-box width="0.62" height="0.62" depth="0.09" position="0 0.75 -0.26"
+      <a-box class="chair-fabric" width="0.62" height="0.62" depth="0.09" position="0 0.75 -0.26"
              rotation="-8 0 0" material="color: #c2703f; roughness: 0.85; metalness: 0.02"></a-box>
       <a-cylinder radius="0.025" height="0.44" position="-0.26 0.22  0.25" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-cylinder>
       <a-cylinder radius="0.025" height="0.44" position=" 0.26 0.22  0.25" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-cylinder>
@@ -241,15 +250,15 @@
       <a-cylinder radius="0.025" height="0.44" position=" 0.26 0.22 -0.25" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-cylinder>
     </a-entity>
     <a-entity id="chairArm" visible="false">
-      <a-box width="0.78" height="0.34" depth="0.72" position="0 0.32 0"
+      <a-box class="chair-fabric" width="0.78" height="0.34" depth="0.72" position="0 0.32 0"
              material="color: #a8564a; roughness: 0.9; metalness: 0"></a-box>
-      <a-box width="0.78" height="0.72" depth="0.2" position="0 0.72 -0.3"
+      <a-box class="chair-fabric" width="0.78" height="0.72" depth="0.2" position="0 0.72 -0.3"
              material="color: #a8564a; roughness: 0.9; metalness: 0"></a-box>
-      <a-box width="0.16" height="0.28" depth="0.72" position="-0.31 0.62 0"
+      <a-box class="chair-fabric" width="0.16" height="0.28" depth="0.72" position="-0.31 0.62 0"
              material="color: #a8564a; roughness: 0.9; metalness: 0"></a-box>
-      <a-box width="0.16" height="0.28" depth="0.72" position=" 0.31 0.62 0"
+      <a-box class="chair-fabric" width="0.16" height="0.28" depth="0.72" position=" 0.31 0.62 0"
              material="color: #a8564a; roughness: 0.9; metalness: 0"></a-box>
-      <a-box width="0.72" height="0.12" depth="0.66" position="0 0.55 0.02"
+      <a-box class="chair-fabric" width="0.72" height="0.12" depth="0.66" position="0 0.55 0.02"
              material="color: #b96256; roughness: 0.9; metalness: 0"></a-box>
       <a-cylinder radius="0.04" height="0.15" position="-0.3 0.07  0.28" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-cylinder>
       <a-cylinder radius="0.04" height="0.15" position=" 0.3 0.07  0.28" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-cylinder>
@@ -330,12 +339,12 @@
 /* ---------- shared palette (single source of truth) ---------- */
 const PALETTE = {
   wall: [
-    { id: 'chalk',   name: 'Chalk',       hex: '#ece7e1' },
-    { id: 'sand',    name: 'Warm Sand',   hex: '#e3d5c0' },
-    { id: 'clay',    name: 'Soft Clay',   hex: '#d9b8a7' },
-    { id: 'sage',    name: 'Sage',        hex: '#c3cfbf' },
-    { id: 'mist',    name: 'Cool Mist',   hex: '#d5dbe0' },
-    { id: 'ink',     name: 'Deep Ink',    hex: '#4a5568' }
+    { id: 'chalk',   name: 'Chalk',       hex: '#ece7e1', proc: 'plaster' },
+    { id: 'sand',    name: 'Warm Sand',   hex: '#e3d5c0', proc: 'plaster' },
+    { id: 'clay',    name: 'Soft Clay',   hex: '#d9b8a7', proc: 'plaster' },
+    { id: 'sage',    name: 'Sage',        hex: '#c3cfbf', proc: 'plaster' },
+    { id: 'mist',    name: 'Cool Mist',   hex: '#d5dbe0', proc: 'plaster' },
+    { id: 'ink',     name: 'Deep Ink',    hex: '#4a5568', proc: 'plaster' }
   ],
   /* To texture a finish, add PBR maps to its entry and drop the files into
      assets/. Everything else — both panels, packages, reset — keeps working
@@ -347,20 +356,46 @@ const PALETTE = {
          rough:  'assets/oak_rough.jpg',
          repeat: '6 6' }                      // tiles across the 6m floor  */
   floor: [
-    { id: 'oak',      name: 'Oak',        hex: '#b98b5e' },
-    { id: 'walnut',   name: 'Walnut',     hex: '#6f4a32' },
-    { id: 'ash',      name: 'Pale Ash',   hex: '#d8c4a4' },
-    { id: 'concrete', name: 'Concrete',   hex: '#b0b3b5' },
-    { id: 'slate',    name: 'Slate Tile', hex: '#6d7378' },
-    { id: 'ivory',    name: 'Ivory Tile', hex: '#e6e2da' }
+    { id: 'oak',      name: 'Oak',        hex: '#b98b5e', proc: 'plank' },
+    { id: 'walnut',   name: 'Walnut',     hex: '#6f4a32', proc: 'plank' },
+    { id: 'ash',      name: 'Pale Ash',   hex: '#d8c4a4', proc: 'plank' },
+    { id: 'concrete', name: 'Concrete',   hex: '#b0b3b5', proc: 'plaster' },
+    { id: 'slate',    name: 'Slate Tile', hex: '#6d7378', proc: 'tile' },
+    { id: 'ivory',    name: 'Ivory Tile', hex: '#e6e2da', proc: 'tile' }
   ],
   sofa: [
-    { id: 'steel',    name: 'Steel Blue', hex: '#6b7a8f' },
-    { id: 'terra',    name: 'Terracotta', hex: '#b5613c' },
-    { id: 'olive',    name: 'Olive',      hex: '#7a8450' },
-    { id: 'charcoal', name: 'Charcoal',   hex: '#4d5157' },
-    { id: 'cream',    name: 'Cream',      hex: '#ddd2bd' },
-    { id: 'plum',     name: 'Plum',       hex: '#6b4a5c' }
+    { id: 'steel',    name: 'Steel Blue', hex: '#6b7a8f', proc: 'weave' },
+    { id: 'terra',    name: 'Terracotta', hex: '#b5613c', proc: 'weave' },
+    { id: 'olive',    name: 'Olive',      hex: '#7a8450', proc: 'weave' },
+    { id: 'charcoal', name: 'Charcoal',   hex: '#4d5157', proc: 'weave' },
+    { id: 'cream',    name: 'Cream',      hex: '#ddd2bd', proc: 'weave' },
+    { id: 'plum',     name: 'Plum',       hex: '#6b4a5c', proc: 'weave' }
+  ],
+  chairFabric: [
+    { id: 'rust',     name: 'Rust',       hex: '#c2703f', proc: 'weave' },
+    { id: 'brick',    name: 'Brick',      hex: '#a8564a', proc: 'weave' },
+    { id: 'leather',  name: 'Tan Leather', hex: '#a9743f', proc: 'grain',
+      roughness: 0.45 },
+    { id: 'moss',     name: 'Moss',       hex: '#6d7a56', proc: 'weave' },
+    { id: 'slateup',  name: 'Slate',      hex: '#5b626c', proc: 'weave' },
+    { id: 'linen',    name: 'Linen',      hex: '#cfc3ac', proc: 'weave' }
+  ],
+  rugColor: [
+    { id: 'mistrug',  name: 'Mist',       hex: '#8d99ae', proc: 'pile' },
+    { id: 'wool',     name: 'Natural Wool', hex: '#cbbfa8', proc: 'pile' },
+    { id: 'indigo',   name: 'Indigo',     hex: '#4a5a7a', proc: 'pile' },
+    { id: 'rustrug',  name: 'Rust',       hex: '#a8623f', proc: 'pile' },
+    { id: 'sagerug',  name: 'Sage',       hex: '#94a68a', proc: 'pile' },
+    { id: 'graphite', name: 'Graphite',   hex: '#4e5157', proc: 'pile' }
+  ],
+  tableWood: [
+    { id: 'walnuttop', name: 'Walnut',    hex: '#6f4e37', proc: 'grain' },
+    { id: 'oaktop',    name: 'Oak',       hex: '#b98b5e', proc: 'grain' },
+    { id: 'ebony',     name: 'Ebony',     hex: '#3a322c', proc: 'grain' },
+    { id: 'teak',      name: 'Teak',      hex: '#96613a', proc: 'grain' },
+    { id: 'whitewash', name: 'Whitewash', hex: '#d8cfc0', proc: 'grain' },
+    { id: 'marble',    name: 'Marble',    hex: '#e2e0da', proc: 'plaster',
+      roughness: 0.2, metalness: 0.05 }
   ]
 };
 
@@ -370,16 +405,19 @@ const PACKAGES = {
   studio: {
     name: 'Studio',
     wall: 'chalk', floor: 'oak', sofa: 'steel',
+    chairFabric: 'rust', rugColor: 'mistrug', tableWood: 'walnuttop',
     chair: 'modern', rug: true, plant: true, art: true
   },
   warmOak: {
     name: 'Warm Oak',
     wall: 'sand', floor: 'walnut', sofa: 'terra',
+    chairFabric: 'leather', rugColor: 'wool', tableWood: 'oaktop',
     chair: 'armchair', rug: true, plant: true, art: true
   },
   coolMinimal: {
     name: 'Cool Minimal',
     wall: 'mist', floor: 'concrete', sofa: 'charcoal',
+    chairFabric: 'slateup', rugColor: 'graphite', tableWood: 'marble',
     chair: 'modern', rug: false, plant: false, art: true
   }
 };
@@ -515,6 +553,245 @@ function entryOf(kind, id) {
   return found || PALETTE[kind][0];
 }
 
+/* =========================================================================
+   Procedural skins
+
+   Material detail drawn on a canvas at runtime rather than downloaded:
+   plaster tooth, plank seams and grain, fabric weave, rug pile, tile grout.
+   A normal map is derived from each by Sobel, so the detail catches the
+   light instead of being a flat picture of texture.
+
+   Why generate rather than download: no files, no CORS, no repo weight, no
+   pop-in, and nothing that can 404 in front of a customer. Every map is
+   greyscale and multiplies over the palette colour, so one weave serves all
+   six fabrics — the hex stays the paint, the skin adds the material.
+
+   These are a floor, not a ceiling. Swapping in scanned PBR sets from
+   ambientCG later is the `tex` path in applyFinish and changes nothing else.
+   ========================================================================= */
+const ProcTex = {
+  size: 256,
+  canvases: {},
+  textures: {},
+
+  // repeats per metre, chosen so texel density reads right at arm's length
+  density: {
+    plaster: 1.2, plank: 0.55, tile: 0.9, weave: 3.2, pile: 2.2, grain: 1.4
+  },
+
+  canvas: function (kind) {
+    if (this.canvases[kind]) { return this.canvases[kind]; }
+    const s = this.size;
+    const c = document.createElement('canvas');
+    c.width = c.height = s;
+    const g = c.getContext('2d');
+    g.fillStyle = '#ffffff';
+    g.fillRect(0, 0, s, s);
+    (this['draw_' + kind] || this.draw_plaster).call(this, g, s);
+    this.canvases[kind] = c;
+    return c;
+  },
+
+  /* Fine tooth. Kept subtle: plaster that reads as noise is worse than
+     plaster that reads as nothing. */
+  draw_plaster: function (g, s) {
+    for (let i = 0; i < s * s * 0.5; i++) {
+      const v = 232 + Math.random() * 23;
+      g.fillStyle = 'rgb(' + v + ',' + v + ',' + v + ')';
+      g.fillRect(Math.random() * s, Math.random() * s, 1, 1);
+    }
+  },
+
+  /* Horizontal boards with seams, each board a slightly different tone. */
+  draw_plank: function (g, s) {
+    const rows = 4, h = s / rows;
+    for (let r = 0; r < rows; r++) {
+      const base = 226 + Math.random() * 26;
+      g.fillStyle = 'rgb(' + base + ',' + base + ',' + base + ')';
+      g.fillRect(0, r * h, s, h);
+
+      // grain: long wavy strokes along the board
+      const offset = Math.random() * s;
+      for (let i = 0; i < 26; i++) {
+        const y = r * h + Math.random() * h;
+        const v = base - 8 - Math.random() * 26;
+        g.strokeStyle = 'rgba(' + v + ',' + v + ',' + v + ',0.55)';
+        g.lineWidth = 0.6 + Math.random();
+        g.beginPath();
+        for (let x = 0; x <= s; x += 8) {
+          const yy = y + Math.sin((x + offset) * 0.035 + i) * 1.6;
+          if (x === 0) { g.moveTo(x, yy); } else { g.lineTo(x, yy); }
+        }
+        g.stroke();
+      }
+      // seam between boards
+      g.fillStyle = 'rgba(120,105,92,0.55)';
+      g.fillRect(0, r * h, s, 1.5);
+    }
+  },
+
+  /* Wood grain without board seams — for furniture rather than flooring. */
+  draw_grain: function (g, s) {
+    g.fillStyle = 'rgb(238,238,238)';
+    g.fillRect(0, 0, s, s);
+    for (let i = 0; i < 90; i++) {
+      const y = Math.random() * s;
+      const v = 196 + Math.random() * 40;
+      g.strokeStyle = 'rgba(' + v + ',' + v + ',' + v + ',0.5)';
+      g.lineWidth = 0.5 + Math.random() * 1.4;
+      g.beginPath();
+      for (let x = 0; x <= s; x += 6) {
+        const yy = y + Math.sin(x * 0.02 + i * 0.7) * 3.2
+                     + Math.sin(x * 0.11 + i) * 0.8;
+        if (x === 0) { g.moveTo(x, yy); } else { g.lineTo(x, yy); }
+      }
+      g.stroke();
+    }
+  },
+
+  /* Over-under weave on a 4px cell — the thing that separates fabric from
+     flat colour when a customer leans in. */
+  draw_weave: function (g, s) {
+    const cell = 4;
+    for (let y = 0; y < s; y += cell) {
+      for (let x = 0; x < s; x += cell) {
+        const over = ((x / cell) + (y / cell)) % 2 === 0;
+        const v = over ? 244 : 214;
+        g.fillStyle = 'rgb(' + v + ',' + v + ',' + v + ')';
+        g.fillRect(x, y, cell, cell);
+        const n = (Math.random() - 0.5) * 14;
+        g.fillStyle = 'rgba(128,128,128,' + Math.abs(n) / 90 + ')';
+        g.fillRect(x, y, cell, cell);
+      }
+    }
+  },
+
+  /* Cut pile: clumped, directionless, coarser than weave. */
+  draw_pile: function (g, s) {
+    g.fillStyle = 'rgb(236,236,236)';
+    g.fillRect(0, 0, s, s);
+    for (let i = 0; i < 5200; i++) {
+      const x = Math.random() * s, y = Math.random() * s;
+      const v = 196 + Math.random() * 56;
+      g.strokeStyle = 'rgba(' + v + ',' + v + ',' + v + ',0.6)';
+      g.lineWidth = 1.2;
+      const a = Math.random() * Math.PI * 2, len = 1.5 + Math.random() * 2.5;
+      g.beginPath();
+      g.moveTo(x, y);
+      g.lineTo(x + Math.cos(a) * len, y + Math.sin(a) * len);
+      g.stroke();
+    }
+  },
+
+  /* Grid with recessed grout. */
+  draw_tile: function (g, s) {
+    const n = 2, t = s / n, grout = 4;
+    g.fillStyle = 'rgb(150,148,145)';
+    g.fillRect(0, 0, s, s);
+    for (let y = 0; y < n; y++) {
+      for (let x = 0; x < n; x++) {
+        const v = 240 + Math.random() * 14;
+        g.fillStyle = 'rgb(' + v + ',' + v + ',' + v + ')';
+        g.fillRect(x * t + grout / 2, y * t + grout / 2, t - grout, t - grout);
+      }
+    }
+    for (let i = 0; i < s * s * 0.25; i++) {
+      const v = 200 + Math.random() * 55;
+      g.fillStyle = 'rgba(' + v + ',' + v + ',' + v + ',0.25)';
+      g.fillRect(Math.random() * s, Math.random() * s, 1, 1);
+    }
+  },
+
+  /* Sobel over the greyscale as a height field. Cheap, and enough to make
+     grout lines and plank seams catch a highlight. */
+  normalCanvas: function (kind, strength) {
+    const src = this.canvas(kind);
+    const s = this.size;
+    const data = src.getContext('2d').getImageData(0, 0, s, s).data;
+    const out = document.createElement('canvas');
+    out.width = out.height = s;
+    const ctx = out.getContext('2d');
+    const img = ctx.createImageData(s, s);
+
+    function h(x, y) {
+      x = (x + s) % s; y = (y + s) % s;
+      const i = (y * s + x) * 4;
+      return (data[i] + data[i + 1] + data[i + 2]) / 765;
+    }
+
+    for (let y = 0; y < s; y++) {
+      for (let x = 0; x < s; x++) {
+        const dx = (h(x - 1, y) - h(x + 1, y)) * strength;
+        const dy = (h(x, y - 1) - h(x, y + 1)) * strength;
+        const len = Math.sqrt(dx * dx + dy * dy + 1);
+        const i = (y * s + x) * 4;
+        img.data[i]     = ((dx / len) * 0.5 + 0.5) * 255;
+        img.data[i + 1] = ((dy / len) * 0.5 + 0.5) * 255;
+        img.data[i + 2] = ((1 / len) * 0.5 + 0.5) * 255;
+        img.data[i + 3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    return out;
+  },
+
+  /* Textures are cached per (kind, repeat) so the handful of distinct tile
+     counts in the room share GPU uploads instead of one clone per mesh. */
+  get: function (kind, rx, ry) {
+    const key = kind + '|' + rx + 'x' + ry;
+    if (this.textures[key]) { return this.textures[key]; }
+
+    const map = new THREE.CanvasTexture(this.canvas(kind));
+    const nrm = new THREE.CanvasTexture(this.normalCanvas(kind, 12));
+    [map, nrm].forEach(function (t) {
+      t.wrapS = t.wrapT = THREE.RepeatWrapping;
+      t.repeat.set(rx, ry);
+      t.anisotropy = 4;
+      t.needsUpdate = true;
+    });
+    // colour maps are sRGB; normal maps must stay linear or the lighting lies
+    if (THREE.SRGBColorSpace) { map.colorSpace = THREE.SRGBColorSpace; }
+
+    this.textures[key] = { map: map, normalMap: nrm };
+    return this.textures[key];
+  }
+};
+
+/* Tile count from the mesh's own size, so a 6m floor and a 20cm chair leg
+   do not end up with the same texel density. */
+function repeatFor(mesh, density) {
+  const g = mesh.geometry;
+  if (!g) { return [1, 1]; }
+  if (!g.boundingBox) { g.computeBoundingBox(); }
+  const b = g.boundingBox;
+  const dims = [b.max.x - b.min.x, b.max.y - b.min.y, b.max.z - b.min.z]
+    .sort(function (p, q) { return q - p; });
+  return [
+    Math.max(1, Math.round(dims[0] * density)),
+    Math.max(1, Math.round(dims[1] * density))
+  ];
+}
+
+function applySkin(el, kind) {
+  el.object3D.traverse(function (n) {
+    if (!n.isMesh || !n.material) { return; }
+    if (!kind) {
+      if (n.material.map) {
+        n.material.map = null;
+        n.material.normalMap = null;
+        n.material.needsUpdate = true;
+      }
+      return;
+    }
+    const r = repeatFor(n, ProcTex.density[kind] || 1);
+    const t = ProcTex.get(kind, r[0], r[1]);
+    n.material.map = t.map;
+    n.material.normalMap = t.normalMap;
+    if (n.material.normalScale) { n.material.normalScale.set(0.55, 0.55); }
+    n.material.needsUpdate = true;
+  });
+}
+
 /* Applies one palette entry to one element.
 
    An entry may carry PBR maps — tex / normal / rough / repeat — and when it
@@ -548,13 +825,20 @@ function applyFinish(el, entry, base) {
   if (entry.metalness !== undefined) { props.metalness = entry.metalness; }
 
   el.setAttribute('material', props);
+
+  // procedural skin rides on top of the flat colour and tints with it;
+  // a downloaded texture in `tex` takes precedence over a generated one
+  applySkin(el, entry.tex ? null : (entry.proc || null));
 }
 
 /* Base PBR values per surface, kept in sync with the markup. */
 const SURFACE = {
-  wall:  { roughness: 0.94, metalness: 0 },
-  floor: { roughness: 0.55, metalness: 0.02 },
-  sofa:  { roughness: 0.92, metalness: 0 }
+  wall:        { roughness: 0.94, metalness: 0 },
+  floor:       { roughness: 0.55, metalness: 0.02 },
+  sofa:        { roughness: 0.92, metalness: 0 },
+  chairFabric: { roughness: 0.9,  metalness: 0 },
+  rugColor:    { roughness: 1,    metalness: 0 },
+  tableWood:   { roughness: 0.28, metalness: 0.04 }
 };
 
 /* ---------- scene mutators ----------
@@ -585,6 +869,34 @@ function setSofaColor(id) {
   });
   state.package = null;
   logEvent('finish', { kind: 'sofa', id: id });
+}
+
+/* Chair upholstery is shared by both chair styles, so switching Modern to
+   Armchair keeps the selected fabric. */
+function setChairFabric(id) {
+  state.chairFabric = id;
+  const entry = entryOf('chairFabric', id);
+  document.querySelectorAll('#chair .chair-fabric').forEach(function (el) {
+    applyFinish(el, entry, SURFACE.chairFabric);
+  });
+  state.package = null;
+  logEvent('finish', { kind: 'chairFabric', id: id });
+}
+
+function setRugColor(id) {
+  state.rugColor = id;
+  applyFinish(document.querySelector('#rug'), entryOf('rugColor', id),
+              SURFACE.rugColor);
+  state.package = null;
+  logEvent('finish', { kind: 'rugColor', id: id });
+}
+
+function setTableWood(id) {
+  state.tableWood = id;
+  applyFinish(document.querySelector('#table .table-top'),
+              entryOf('tableWood', id), SURFACE.tableWood);
+  state.package = null;
+  logEvent('finish', { kind: 'tableWood', id: id });
 }
 
 function setChairStyle(style) {
@@ -657,6 +969,9 @@ function applyPackage(pkgId, silent) {
   setWallColor(p.wall);
   setFloorColor(p.floor);
   setSofaColor(p.sofa);
+  setChairFabric(p.chairFabric);
+  setRugColor(p.rugColor);
+  setTableWood(p.tableWood);
   setChairStyle(p.chair);
   setDecor('rug', p.rug);
   setDecor('plant', p.plant);
@@ -721,7 +1036,10 @@ function buildOverlay() {
   // swatch rows
   [['wall', '#wallSw', setWallColor],
    ['floor', '#floorSw', setFloorColor],
-   ['sofa', '#sofaSw', setSofaColor]].forEach(function (row) {
+   ['rugColor', '#rugColorSw', setRugColor],
+   ['sofa', '#sofaSw', setSofaColor],
+   ['chairFabric', '#chairFabricSw', setChairFabric],
+   ['tableWood', '#tableWoodSw', setTableWood]].forEach(function (row) {
     const kind = row[0], sel = row[1], fn = row[2];
     const host = document.querySelector(sel);
     PALETTE[kind].forEach(function (c) {
@@ -856,7 +1174,11 @@ function renderTelemetry() {
 /* =========================================================================
    In-VR panel — same actions, built from the same PALETTE/PACKAGES
    ========================================================================= */
-const vrTiles = { wall: [], floor: [], sofa: [] };
+const vrTiles = {
+  wall: [], floor: [], rugColor: [], sofa: [], chairFabric: [], tableWood: []
+};
+const vrTabs = {};
+let activeTab = 'room';
 const vrButtons = [];
 
 function mkPlane(parent, opts) {
@@ -904,31 +1226,62 @@ function buildVrPanel() {
     vrButtons.push({ el: bg, kind: 'package', value: id });
   });
 
-  /* --- swatch rows --- */
-  const rows = [
-    { kind: 'wall',  label: 'Walls',    y: 0.49, fn: setWallColor },
-    { kind: 'sofa',  label: 'Sofa',     y: 0.18, fn: setSofaColor },
-    { kind: 'floor', label: 'Flooring', y: -0.13, fn: setFloorColor }
-  ];
-  rows.forEach(function (row) {
-    mkText(panel, row.label, { x: 0, y: row.y + 0.13, width: 2.4, color: '#9aa0ad' });
-    PALETTE[row.kind].forEach(function (c, i) {
-      const x = -0.65 + i * 0.26;
-      // selection ring sits behind the swatch and lights up when active
-      const ring = mkPlane(panel, {
-        w: 0.24, h: 0.24, x: x, y: row.y, z: 0.008, color: '#161a22'
+  /* --- tabs ---
+     Six palettes will not fit on one reachable panel, so they are split
+     across two pages rather than shrinking the tiles: a tile the customer
+     cannot reliably hit with a laser is worse than a second tab. */
+  [['room', 'Room'], ['furniture', 'Furniture']].forEach(function (t, i) {
+    const x = -0.42 + i * 0.84;
+    const bg = mkPlane(panel, {
+      w: 0.78, h: 0.17, x: x, y: 0.60, z: 0.01,
+      color: '#2b3242', clickable: true
+    });
+    mkText(panel, t[1], { x: x, y: 0.60, z: 0.022, width: 1.6 });
+    bg.addEventListener('click', function () { setVrTab(t[0]); });
+    vrButtons.push({ el: bg, kind: 'tab', value: t[0] });
+  });
+
+  /* --- swatch rows, three per tab at the same three heights --- */
+  const TABS = {
+    room: [
+      { kind: 'wall',        label: 'Walls',    fn: setWallColor },
+      { kind: 'floor',       label: 'Flooring', fn: setFloorColor },
+      { kind: 'rugColor',    label: 'Rug',      fn: setRugColor }
+    ],
+    furniture: [
+      { kind: 'sofa',        label: 'Sofa',        fn: setSofaColor },
+      { kind: 'chairFabric', label: 'Chair fabric', fn: setChairFabric },
+      { kind: 'tableWood',   label: 'Table top',   fn: setTableWood }
+    ]
+  };
+  const ROW_Y = [0.32, 0.02, -0.28];
+
+  Object.keys(TABS).forEach(function (tabId) {
+    const group = document.createElement('a-entity');
+    panel.appendChild(group);
+    vrTabs[tabId] = group;
+
+    TABS[tabId].forEach(function (row, r) {
+      const y = ROW_Y[r];
+      mkText(group, row.label, { x: 0, y: y + 0.13, width: 2.4, color: '#9aa0ad' });
+      PALETTE[row.kind].forEach(function (c, i) {
+        const x = -0.65 + i * 0.26;
+        // selection ring sits behind the swatch and lights up when active
+        const ring = mkPlane(group, {
+          w: 0.24, h: 0.24, x: x, y: y, z: 0.008, color: '#161a22'
+        });
+        const tile = mkPlane(group, {
+          w: 0.2, h: 0.2, x: x, y: y, z: 0.014,
+          color: c.hex, clickable: true
+        });
+        tile.addEventListener('click', function () { row.fn(c.id); syncUI(); });
+        vrTiles[row.kind].push({ ring: ring, id: c.id });
       });
-      const tile = mkPlane(panel, {
-        w: 0.2, h: 0.2, x: x, y: row.y, z: 0.014,
-        color: c.hex, clickable: true
-      });
-      tile.addEventListener('click', function () { row.fn(c.id); syncUI(); });
-      vrTiles[row.kind].push({ ring: ring, id: c.id });
     });
   });
 
   /* --- chair + decor toggles --- */
-  mkText(panel, 'Chair & decor', { x: 0, y: -0.32, width: 2.4, color: '#9aa0ad' });
+  mkText(panel, 'Chair & decor', { x: 0, y: -0.47, width: 2.4, color: '#9aa0ad' });
   const toggles = [
     { kind: 'chair', value: 'armchair', label: 'Armchair' },
     { kind: 'decor', value: 'rug',      label: 'Rug' },
@@ -938,10 +1291,10 @@ function buildVrPanel() {
   toggles.forEach(function (t, i) {
     const x = -0.6 + i * 0.4;
     const bg = mkPlane(panel, {
-      w: 0.36, h: 0.18, x: x, y: -0.47, z: 0.01,
+      w: 0.36, h: 0.18, x: x, y: -0.62, z: 0.01,
       color: '#2b3242', clickable: true
     });
-    mkText(panel, t.label, { x: x, y: -0.47, z: 0.022, width: 1.35 });
+    mkText(panel, t.label, { x: x, y: -0.62, z: 0.022, width: 1.35 });
     bg.addEventListener('click', function () {
       if (t.kind === 'chair') {
         setChairStyle(state.chair === 'armchair' ? 'modern' : 'armchair');
@@ -954,33 +1307,33 @@ function buildVrPanel() {
   });
 
   /* --- lighting --- */
-  mkText(panel, 'Lighting', { x: 0, y: -0.66, width: 2.4, color: '#9aa0ad' });
+  mkText(panel, 'Lighting', { x: 0, y: -0.79, width: 2.4, color: '#9aa0ad' });
   const lightIds = Object.keys(LIGHTING);
   lightIds.forEach(function (id, i) {
     const x = -0.6 + i * 0.4;
     const bg = mkPlane(panel, {
-      w: 0.36, h: 0.18, x: x, y: -0.81, z: 0.01,
+      w: 0.36, h: 0.18, x: x, y: -0.94, z: 0.01,
       color: '#2b3242', clickable: true
     });
-    mkText(panel, LIGHTING[id].name, { x: x, y: -0.81, z: 0.022, width: 1.35 });
+    mkText(panel, LIGHTING[id].name, { x: x, y: -0.94, z: 0.022, width: 1.35 });
     bg.addEventListener('click', function () { setLighting(id); syncUI(); });
     vrButtons.push({ el: bg, kind: 'lighting', value: id });
   });
   const lampX = -0.6 + lightIds.length * 0.4;
   const lampBg = mkPlane(panel, {
-    w: 0.36, h: 0.18, x: lampX, y: -0.81, z: 0.01,
+    w: 0.36, h: 0.18, x: lampX, y: -0.94, z: 0.01,
     color: '#2b3242', clickable: true
   });
-  mkText(panel, 'Lamp', { x: lampX, y: -0.81, z: 0.022, width: 1.35 });
+  mkText(panel, 'Lamp', { x: lampX, y: -0.94, z: 0.022, width: 1.35 });
   lampBg.addEventListener('click', function () { setLamp(!state.lamp); syncUI(); });
   vrButtons.push({ el: lampBg, kind: 'lamp', value: 'lamp' });
 
   /* --- reset --- */
   const resetBg = mkPlane(panel, {
-    w: 1.5, h: 0.2, x: 0, y: -1.06, z: 0.01,
+    w: 1.5, h: 0.2, x: 0, y: -1.12, z: 0.01,
     color: '#3a2b2b', clickable: true
   });
-  mkText(panel, 'RESET TO DEFAULT', { x: 0, y: -1.06, z: 0.022, width: 2.0 });
+  mkText(panel, 'RESET TO DEFAULT', { x: 0, y: -1.12, z: 0.022, width: 2.0 });
   resetBg.addEventListener('click', function () { resetRoom(); });
 }
 
@@ -993,12 +1346,21 @@ function syncVrPanel() {
   });
   vrButtons.forEach(function (b) {
     let on = false;
-    if (b.kind === 'package') { on = state.package === b.value; }
+    if (b.kind === 'tab') { on = activeTab === b.value; }
+    else if (b.kind === 'package') { on = state.package === b.value; }
     else if (b.kind === 'chair') { on = state.chair === b.value; }
     else if (b.kind === 'lighting') { on = state.lighting === b.value; }
     else { on = !!state[b.value]; }
     b.el.setAttribute('material', 'color', on ? '#2a6df4' : '#2b3242');
   });
+}
+
+function setVrTab(id) {
+  activeTab = id;
+  Object.keys(vrTabs).forEach(function (k) {
+    vrTabs[k].setAttribute('visible', k === id);
+  });
+  syncVrPanel();
 }
 
 function syncUI() {
@@ -1427,6 +1789,7 @@ function clampToRoom(rig, bounds) {
 function boot() {
   buildOverlay();
   buildVrPanel();
+  setVrTab('room');
   setupShadows();
 
   // opening state is not a visitor choice, so it is not logged

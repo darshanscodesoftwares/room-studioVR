@@ -78,7 +78,29 @@ catches the environment, matte plaster at 0.94, fabric at 0.92, a lacquered
 table top at 0.28 to carry the window reflection, dark metal legs at 0.4 with
 metalness 0.6.
 
-### Adding textures
+### Procedural skins
+
+Every finish carries a material skin generated at runtime on a canvas — no
+files, no CORS, no repo weight, no pop-in, nothing that can 404 in front of a
+customer. Six generators in `ProcTex`: plaster tooth, plank seams with grain,
+furniture wood grain, fabric weave, rug pile, tile with grout. A normal map is
+derived from each by Sobel, so the detail catches light instead of being a flat
+picture of texture.
+
+Every map is greyscale and multiplies over the palette colour, so one weave
+serves all six fabrics: the hex stays the paint, the skin adds the material.
+Tile counts are computed per mesh from its own bounding box, so a 6m floor and a
+20cm chair leg do not end up at the same texel density, and textures are cached
+per (kind, repeat) rather than cloned per mesh.
+
+Six palettes now drive the room — walls, flooring, rug, sofa, chair fabric and
+table top. In VR they are split across **Room** and **Furniture** tabs, because
+a tile too small to hit reliably with a laser is worse than a second tab.
+
+These are a floor, not a ceiling. Scanned PBR sets slot in over them via the
+`tex` path below.
+
+### Adding downloaded textures
 
 You do not need Blender for this — A-Frame primitives already have UVs, so a
 tiling texture drops straight on. Free CC0 sources: [ambientCG](https://ambientcg.com),
