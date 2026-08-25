@@ -1988,28 +1988,87 @@ function buildBlossoms() {
   }
 }
 
-/* The loaded sofa follows the sofa-fabric palette without UVs to carry a
-   skin: colour only. Runner rails keep the dark frame finish every other
-   leg in the room uses. Safe to call before the model arrives — traversing
-   an empty group is a no-op. */
+/* Box-projected UVs for models that ship without any.
+
+   A proper unwrap packs every triangle into one atlas, and that needs
+   Blender. But an atlas is only required for baked, per-triangle imagery —
+   a lightmap, or a painted colour map. A *tiling* material does not need
+   one: it needs a projection. So each vertex is projected onto whichever
+   world axis its normal points at most, in metres.
+
+   That gives consistent texel density across parts of any size, hides its
+   seams on the corners where the projection axis flips, and costs one pass
+   over 896 vertices. It is the right tool for tiling skins and the wrong
+   one for a bake — see the Blender script in tools/ for that job. */
+function boxProjectUVs(root) {
+  root.traverse(function (n) {
+    if (!n.isMesh || !n.geometry) { return; }
+    const g = n.geometry;
+    if (g.attributes.uv) { return; }          // model already has real UVs
+    const pos = g.attributes.position;
+    const nor = g.attributes.normal;
+    if (!pos) { return; }
+
+    const uv = new Float32Array(pos.count * 2);
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+      let ax = 0, ay = 0, az = 1;
+      if (nor) {
+        ax = Math.abs(nor.getX(i));
+        ay = Math.abs(nor.getY(i));
+        az = Math.abs(nor.getZ(i));
+      }
+      let u, v;
+      if (ax >= ay && ax >= az) { u = z; v = y; }        // face points along X
+      else if (ay >= ax && ay >= az) { u = x; v = z; }   // along Y
+      else { u = x; v = y; }                             // along Z
+      uv[i * 2] = u;
+      uv[i * 2 + 1] = v;
+    }
+    g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+    g.userData.worldUV = true;   // UVs are in metres, as with rounded-box
+  });
+}
+
+/* The loaded sofa follows the sofa-fabric palette, skin included now that it
+   has projected UVs. Runner rails keep the dark frame finish every other leg
+   in the room uses. Safe to call before the model arrives — traversing an
+   empty group is a no-op. */
 function skinSofa2() {
   const el = document.querySelector('#sofa2');
   if (!el) { return; }
+
   const entry = entryOf('sofa', state.sofa);
+  const kind = entry.proc || 'weave';
+  const d = ProcTex.density[kind] || 1;
+  const skin = ProcTex.get(kind, d, d);
+  const ns = ProcTex.normalScale[kind] === undefined
+    ? 0.6 : ProcTex.normalScale[kind];
+
   el.object3D.traverse(function (n) {
     if (!n.isMesh) { return; }
     if (!n.material || !n.material.isMeshStandardMaterial) {
       n.material = new THREE.MeshStandardMaterial();
     }
+    const m = n.material;
+
     if (n.name.indexOf('Cylinder') !== -1) {
-      n.material.color.set('#3d3129');
-      n.material.roughness = 0.42;
-      n.material.metalness = 0.55;
+      m.color.set('#3d3129');
+      m.roughness = 0.42;
+      m.metalness = 0.55;
+      m.map = null;
+      m.normalMap = null;
     } else {
-      n.material.color.set(entry.hex);
-      n.material.roughness = 0.92;
-      n.material.metalness = 0;
+      m.color.set(entry.hex);
+      m.roughness = 0.92;
+      m.metalness = 0;
+      if (n.geometry.attributes.uv) {
+        m.map = skin.map;
+        m.normalMap = skin.normalMap;
+        if (m.normalScale) { m.normalScale.set(ns, ns); }
+      }
     }
+    m.needsUpdate = true;
   });
 }
 
@@ -2277,6 +2336,7 @@ function boot() {
   const sofa2 = document.querySelector('#sofa2');
   if (sofa2) {
     sofa2.addEventListener('model-loaded', function () {
+      boxProjectUVs(sofa2.object3D);   // must run before the skin is applied
       skinSofa2();
       setShadowFlags('#sofa2', true, true);
     });

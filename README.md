@@ -230,10 +230,24 @@ primitive-to-model swap: `setSofaColor` drives both sofas from the same palette,
 telling the model's parts apart by mesh name (`Cylinder*` runner rails get the
 dark frame finish, everything else is fabric).
 
-Caveats: the OBJ ships without UVs, so no texture — procedural skins included —
-can map onto it; it stays flat colour. And it is a downloaded asset of unknown
-license — verify redistribution rights before the repo or the deploy goes
-public-facing.
+The model ships with **no UV coordinates** — and neither does the FBX or the
+`.blend` in that pack, so it was not an export mistake. `boxProjectUVs()`
+generates them at load: each vertex is projected onto whichever world axis its
+normal points at most, in metres.
+
+That works because the skins are *tiling* materials, and a tiling material needs
+a projection, not an unwrap. A real unwrap packs every triangle into one atlas,
+which is only required for baked per-triangle imagery — a painted colour map, or
+a lightmap. Box projection gives consistent texel density across parts of any
+size and hides its seams on the corners where the projection axis flips.
+
+For the two jobs projection cannot do, [tools/blend_to_glb.py](tools/blend_to_glb.py)
+unwraps a `.blend` headless and exports GLB. It needs Blender installed
+(`sudo snap install blender --classic`) and is untested — Blender is not on this
+machine.
+
+Licence caveat: this is a downloaded asset of unknown licence. Verify
+redistribution rights before the repo or the deploy goes public-facing.
 
 ## Roadmap
 
