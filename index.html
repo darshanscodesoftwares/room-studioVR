@@ -408,26 +408,27 @@
                 geometry="primitive: rounded-box; width: 0.125; height: 0.135; depth: 0.30; radius: 0.055"
                 position="0 0.205 0"
                 material="color: #66625f; roughness: 0.9; metalness: 0"></a-entity>
-      <a-sphere radius="0.072" scale="0.85 1 0.9" position="0 0.215 0.115"
+      <a-sphere radius="0.06" scale="0.75 0.95 0.85" position="0 0.195 0.135"
                 material="color: #ece8e2; roughness: 0.9; metalness: 0"></a-sphere>
-      <a-sphere radius="0.075" scale="0.55 1 1" position="-0.044 0.195 -0.105"
+      <!-- neck, so the head connects instead of floating -->
+      <a-sphere radius="0.042" position="0 0.275 0.155"
                 material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
-      <a-sphere radius="0.075" scale="0.55 1 1" position="0.044 0.195 -0.105"
+      <a-sphere radius="0.07" scale="0.92 1 1" position="0 0.20 -0.10"
                 material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
 
-      <a-entity id="catHead" position="0 0.315 0.185">
+      <a-entity id="catHead" position="0 0.325 0.195">
         <a-sphere radius="0.062" scale="0.95 0.9 0.95"
                   material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
         <!-- white muzzle and cheeks, like the reference -->
         <a-sphere radius="0.036" scale="1.15 0.78 0.9" position="0 -0.022 0.042"
                   material="color: #ece8e2; roughness: 0.9; metalness: 0"></a-sphere>
         <!-- ears: outer grey, inner pink -->
-        <a-cone radius-bottom="0.03" radius-top="0.003" height="0.06"
-                position="-0.042 0.058 -0.004" rotation="-10 0 18"
-                material="color: #5b5754; roughness: 0.9; metalness: 0"></a-cone>
-        <a-cone radius-bottom="0.03" radius-top="0.003" height="0.06"
-                position="0.042 0.058 -0.004" rotation="-10 0 -18"
-                material="color: #5b5754; roughness: 0.9; metalness: 0"></a-cone>
+        <a-cone radius-bottom="0.028" radius-top="0.003" height="0.055"
+                position="-0.04 0.056 -0.004" rotation="-10 0 18"
+                material="color: #66625f; roughness: 0.9; metalness: 0"></a-cone>
+        <a-cone radius-bottom="0.028" radius-top="0.003" height="0.055"
+                position="0.04 0.056 -0.004" rotation="-10 0 -18"
+                material="color: #66625f; roughness: 0.9; metalness: 0"></a-cone>
         <a-cone radius-bottom="0.016" radius-top="0.002" height="0.034"
                 position="-0.04 0.052 0.008" rotation="-10 0 18"
                 material="color: #d9a3a8; roughness: 0.9; metalness: 0"></a-cone>
@@ -445,8 +446,8 @@
       </a-entity>
 
       <!-- tail: four segments in an upward S, the reference silhouette -->
-      <a-entity id="catTail" position="0 0.245 -0.15">
-        <a-cylinder radius="0.013" height="0.09" rotation="-42 0 0" position="0 0.025 -0.028"
+      <a-entity id="catTail" position="0 0.235 -0.145">
+        <a-cylinder radius="0.015" height="0.09" rotation="-42 0 0" position="0 0.025 -0.028"
                     material="color: #66625f; roughness: 0.9; metalness: 0"></a-cylinder>
         <a-cylinder radius="0.011" height="0.09" rotation="-18 0 0" position="0 0.095 -0.058"
                     material="color: #66625f; roughness: 0.9; metalness: 0"></a-cylinder>
