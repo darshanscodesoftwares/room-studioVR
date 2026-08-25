@@ -345,6 +345,21 @@ they are scale references, not decor.
 > 3D data, and serving the glTF from a public URL is redistribution. See
 > [assets/CREDITS.md](assets/CREDITS.md).
 
+## The wall art
+
+A staggered multi-panel piece hangs on the west wall with **seven switchable
+paintings**. One material spans every panel in the model, so changing the
+artwork is a texture swap rather than a model swap — which makes it a palette
+entry rather than a model slot.
+
+Palette entries can now carry a picture instead of a colour, so the swatches
+show the paintings themselves in both panels: `background-image` on desktop, a
+textured tile in VR. The hex stays as the fallback if an image fails to load.
+
+Seven artworks against six paints meant the VR row could no longer use a fixed
+tile pitch, so rows now share out the available width and the tiles narrow to
+fit rather than running off the board.
+
 ## The TVs
 
 A wall-mounted screen hangs on the north wall above the sofa, switchable
