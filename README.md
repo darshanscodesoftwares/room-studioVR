@@ -271,6 +271,28 @@ This is the direct answer to the brief's *"one showroom presents multiple
 configurations"*: finish packages change the surfaces, model variants change the
 furniture itself, and both are logged.
 
+## The human figure
+
+A 1.69m animated figure stands off the west side of the room, playing a 20.3s
+idle loop through `gltf-animation` — a small `THREE.AnimationMixer` wrapper
+written here rather than pulled from aframe-extras, to keep the file
+dependency-free. A person at true scale is the fastest way for a buyer to read
+room proportions, which is the core claim of the real-estate track.
+
+Converted from Renderpeople FBX with FBX2glTF; it landed already in metres,
+already Y-up with feet on the ground plane, so it needs no correction
+transform. Its normal and roughness maps ride alongside the glTF rather than
+inside it, because the originals are 15MB and 4MB and downsizing them
+separately keeps the model file small. Gloss was inverted to roughness at build
+time, since glTF has no gloss channel.
+
+The **Person** toggle hides it. Finish packages deliberately leave it alone: it
+is a scale reference, not decor.
+
+> **Licence blocks public deploy.** Renderpeople prohibits redistributing the
+> 3D data, and serving the glTF from a public URL is redistribution. See
+> [assets/CREDITS.md](assets/CREDITS.md).
+
 ## Loaded models
 
 The second sofa (`assets/koltuk-sofa.obj`, 896 vertices) is the first real 3D

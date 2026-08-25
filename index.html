@@ -520,6 +520,16 @@
     </a-entity>
   </a-entity>
 
+  <!-- Human figure: the fastest way for a buyer to read room proportions.
+       Converted from Renderpeople FBX via FBX2glTF; landed already in metres,
+       already Y-up, feet on y=0, so it needs no correction transform at all.
+       88-joint skin with a 20.3s idle loop. LICENCE: Renderpeople —
+       redistribution restricted. See assets/CREDITS.md before any public
+       deploy. -->
+  <a-entity id="human" position="-1.5 0 1.0" rotation="0 135 0"
+            gltf-model="url(assets/sophia.gltf)"
+            gltf-animation></a-entity>
+
   <!-- framed wall art, west wall -->
   <a-entity id="art" position="-2.96 1.75 -1.4" rotation="0 90 0">
     <a-box width="1.1" height="0.8" depth="0.04" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-box>
@@ -729,6 +739,9 @@ const DEFAULT_STATE = Object.assign({}, PACKAGES.studio, {
   package: 'studio',
   lighting: 'day',
   lamp: true,
+  // the figure is a scale reference rather than decor, so finish packages
+  // deliberately leave it alone; only the toggle and reset touch it
+  human: true,
   models: { sofa: 'primitive', plant: 'bonsai', cat: 'realistic' }
 });
 delete DEFAULT_STATE.name;
@@ -1460,7 +1473,7 @@ function setDecor(key, on) {
     // the slot decides which plant; this only decides whether any shows
     applyModelSlot('plant');
   } else {
-    const ids = { rug: '#rug', art: '#art', cat: '#cat' };
+    const ids = { rug: '#rug', art: '#art', cat: '#cat', human: '#human' };
     document.querySelectorAll(ids[key]).forEach(function (el) {
       el.setAttribute('visible', on);
     });
@@ -1671,7 +1684,7 @@ function buildOverlay() {
   // decor toggles
   const decorBtns = document.querySelector('#decorBtns');
   [['rug', 'Rug'], ['plant', 'Plant'], ['art', 'Wall art'],
-   ['cat', 'Cat']].forEach(function (d) {
+   ['cat', 'Cat'], ['human', 'Person']].forEach(function (d) {
     const b = document.createElement('button');
     b.textContent = d[1];
     b.dataset.decor = d[0];
@@ -1923,15 +1936,16 @@ function buildVrPanel() {
     { kind: 'decor', value: 'rug',      label: 'Rug' },
     { kind: 'decor', value: 'plant',    label: 'Plant' },
     { kind: 'decor', value: 'art',      label: 'Art' },
-    { kind: 'decor', value: 'cat',      label: 'Cat' }
+    { kind: 'decor', value: 'cat',      label: 'Cat' },
+    { kind: 'decor', value: 'human',    label: 'Person' }
   ];
   toggles.forEach(function (t, i) {
-    const x = -0.68 + i * 0.34;
+    const x = -0.7 + i * 0.28;
     const bg = mkPlane(panel, {
-      w: 0.31, h: 0.18, x: x, y: -0.62, z: 0.01,
+      w: 0.26, h: 0.18, x: x, y: -0.62, z: 0.01,
       color: '#2b3242', clickable: true
     });
-    mkText(panel, t.label, { x: x, y: -0.62, z: 0.022, width: 1.2 });
+    mkText(panel, t.label, { x: x, y: -0.62, z: 0.022, width: 1.05 });
     bg.addEventListener('click', function () {
       if (t.kind === 'chair') {
         setChairStyle(state.chair === 'armchair' ? 'modern' : 'armchair');
@@ -2459,6 +2473,82 @@ function skinCatModel() {
   });
 }
 
+/* Plays a loaded glTF's own animation clips.
+
+   A-Frame hangs the clip list on the model object it emits, so the mixer
+   just needs binding once the model lands. Written here rather than pulled
+   from aframe-extras to keep the file dependency-free. */
+AFRAME.registerComponent('gltf-animation', {
+  schema: {
+    clip: { default: 0 },
+    timeScale: { default: 1 }
+  },
+
+  init: function () {
+    const self = this;
+    this.mixer = null;
+    this.el.addEventListener('model-loaded', function (e) {
+      self.bind(e.detail.model);
+    });
+    // preloaded models can land before this component initialises
+    const existing = this.el.getObject3D('mesh');
+    if (existing) { this.bind(existing); }
+  },
+
+  bind: function (model) {
+    const clips = model.animations;
+    if (!clips || !clips.length) {
+      console.warn('[gltf-animation] model carries no clips');
+      return;
+    }
+    this.mixer = new THREE.AnimationMixer(model);
+    const action = this.mixer.clipAction(clips[this.data.clip] || clips[0]);
+    action.setLoop(THREE.LoopRepeat, Infinity);
+    action.play();
+  },
+
+  tick: function (time, delta) {
+    if (this.mixer && delta) {
+      this.mixer.update((delta / 1000) * this.data.timeScale);
+    }
+  },
+
+  remove: function () {
+    if (this.mixer) { this.mixer.stopAllAction(); this.mixer = null; }
+  }
+});
+
+/* The figure's normal and roughness maps ride alongside the glTF rather than
+   inside it: the pack's originals are 15MB and 4MB, and downsizing them
+   separately keeps the model file small. Gloss was inverted to roughness at
+   build time, since glTF has no gloss channel. */
+function skinHuman() {
+  const el = document.querySelector('#human');
+  if (!el) { return; }
+
+  const load = new THREE.TextureLoader();
+  function tex(path, srgb) {
+    const t = load.load(path, undefined, undefined, function () {
+      console.warn('[human] texture failed to load: ' + path);
+    });
+    if (srgb && THREE.SRGBColorSpace) { t.colorSpace = THREE.SRGBColorSpace; }
+    t.flipY = false;              // glTF UV convention
+    t.anisotropy = 4;
+    return t;
+  }
+  const normalMap = tex('assets/sophia-norm.jpg', false);
+  const roughnessMap = tex('assets/sophia-rough.jpg', false);
+
+  el.object3D.traverse(function (n) {
+    if (!n.isMesh || !n.material) { return; }
+    n.material.normalMap = normalMap;
+    n.material.roughnessMap = roughnessMap;
+    n.material.roughness = 1;
+    n.material.metalness = 0;
+    n.material.needsUpdate = true;
+  });
+}
+
 /* Runs fn once the entity's model exists, whether it arrived before or after
    this call. Preloaded assets almost always land first, which is the case a
    bare addEventListener silently misses. */
@@ -2856,6 +2946,11 @@ function boot() {
   whenModelReady(document.querySelector('#catModel'), function () {
     skinCatModel();
     setShadowFlags('#catModel', true, true);
+  });
+
+  whenModelReady(document.querySelector('#human'), function () {
+    skinHuman();
+    setShadowFlags('#human', true, true);
   });
   // dynamically appended blossoms initialise on the next tick, so the
   // shadow flags get a second pass once their meshes exist

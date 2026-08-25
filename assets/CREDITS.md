@@ -59,6 +59,36 @@ uncleared until its origin is established.
 
 Treat as uncleared until its origin is established.
 
+---
+
+## sophia.gltf + sophia-*.jpg — Sophia Animated 003 Idling
+
+- **Author / vendor:** Renderpeople
+- **Licence: RESTRICTED — the strictest asset in this repo.** Renderpeople's
+  terms permit using their people in renders and visualisations but **prohibit
+  redistributing the 3D data itself**. Serving `sophia.gltf` and
+  `sophia-buffer.bin` from a public URL *is* redistribution: anyone can fetch
+  the files.
+- **Source pack:** `35-rp_sophia_animated_003_idling_fbx`
+- 10,000 polygons, 88-joint skin, one 20.3s idle clip
+
+**Status: blocking for any public deploy.** Read the licence that shipped with
+the download before this reaches the Render URL. Options: keep it for local and
+headset-on-your-own-network demos only, buy the appropriate licence, or replace
+the figure with a CC0 alternative.
+
+Processing applied (originals not redistributed here):
+
+| Output | From | Notes |
+| --- | --- | --- |
+| `sophia.gltf` + `sophia-buffer.bin` | `.fbx` | via FBX2glTF 0.9.7; landed in metres, Y-up, feet at y=0 — no correction needed |
+| `sophia-dif.jpg` | `tex/*_dif.jpg` | 6.8MB → 182KB at 1024px |
+| `sophia-norm.jpg` | `tex/*_norm.jpg` | 14.8MB → 265KB at 1024px |
+| `sophia-rough.jpg` | `tex/*_gloss.jpg` | **inverted** — glTF has no gloss channel, roughness is its complement |
+
+The `mask01`/`mask02` maps were not used. 47MB of source became 1.8MB of web
+assets.
+
 ## Replacing these
 
 Prefer glTF/GLB with an explicit licence. [Poly Haven](https://polyhaven.com)
