@@ -414,28 +414,28 @@
        cat-walk. To upgrade later, drop in an animated GLB, keep this path
        logic, and drive THREE.AnimationMixer instead of the leg swing.
        Local frame: nose points +z; the component yaws the root. -->
-  <a-entity id="cat" cat-walk position="-2.3 0 1.8">
+  <a-entity id="cat" cat-walk fur-shells="selector: .cat-fluff" position="-2.3 0 1.8">
     <a-entity id="catBody">
       <!-- torso from overlapping ellipsoids only: boxes read as luggage,
            spheres read as flesh. Hindquarters ride slightly higher. -->
-      <a-sphere radius="0.085" scale="0.8 0.75 1.75" position="0 0.195 -0.005"
+      <a-sphere class="cat-fur cat-fluff" radius="0.085" scale="0.8 0.75 1.75" position="0 0.195 -0.005"
                 material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
-      <a-sphere radius="0.06" scale="0.95 1 1" position="0 0.205 0.09"
+      <a-sphere class="cat-fur cat-fluff" radius="0.06" scale="0.95 1 1" position="0 0.205 0.09"
                 material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
-      <a-sphere radius="0.065" scale="1 1.05 1" position="0 0.21 -0.105"
+      <a-sphere class="cat-fur cat-fluff" radius="0.065" scale="1 1.05 1" position="0 0.21 -0.105"
                 material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
       <!-- white bib, narrower than the chest so it never bleeds sideways -->
-      <a-sphere radius="0.05" scale="0.7 0.9 0.7" position="0 0.185 0.145"
+      <a-sphere class="cat-fur" radius="0.05" scale="0.7 0.9 0.7" position="0 0.185 0.145"
                 material="color: #ece8e2; roughness: 0.9; metalness: 0"></a-sphere>
       <!-- diagonal neck: the head hangs forward off it, never perches -->
-      <a-cylinder radius="0.032" height="0.09" rotation="-38 0 0"
+      <a-cylinder class="cat-fur" radius="0.032" height="0.09" rotation="-38 0 0"
                   position="0 0.26 0.155"
                   material="color: #66625f; roughness: 0.9; metalness: 0"></a-cylinder>
 
       <a-entity id="catHead" position="0 0.315 0.215">
-        <a-sphere radius="0.055" scale="0.9 0.82 0.95"
+        <a-sphere class="cat-fur cat-fluff" radius="0.055" scale="0.9 0.82 0.95"
                   material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
-        <a-sphere radius="0.032" scale="1.1 0.7 0.85" position="0 -0.02 0.038"
+        <a-sphere class="cat-fur" radius="0.032" scale="1.1 0.7 0.85" position="0 -0.02 0.038"
                   material="color: #ece8e2; roughness: 0.9; metalness: 0"></a-sphere>
         <a-cone radius-bottom="0.026" radius-top="0.003" height="0.05"
                 position="-0.036 0.05 -0.006" rotation="-8 0 16"
@@ -474,35 +474,35 @@
     <!-- legs: thigh mass at the pivot, limb tapering to a white paw.
          The thigh lives inside the leg entity, so it swings with it. -->
     <a-entity class="cat-leg" position="-0.040 0.155 0.10">
-      <a-sphere radius="0.028" scale="0.6 1.1 0.9" position="0 -0.005 0"
+      <a-sphere class="cat-fur" radius="0.028" scale="0.6 1.1 0.9" position="0 -0.005 0"
                 material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
-      <a-cone radius-bottom="0.010" radius-top="0.015" height="0.125" position="0 -0.075 0"
+      <a-cone class="cat-fur" radius-bottom="0.010" radius-top="0.015" height="0.125" position="0 -0.075 0"
               material="color: #66625f; roughness: 0.9; metalness: 0"></a-cone>
-      <a-sphere radius="0.016" scale="1 0.75 1.2" position="0 -0.142 0.005"
+      <a-sphere class="cat-fur" radius="0.016" scale="1 0.75 1.2" position="0 -0.142 0.005"
                 material="color: #ece8e2; roughness: 0.9; metalness: 0"></a-sphere>
     </a-entity>
     <a-entity class="cat-leg" position="0.040 0.155 0.10">
-      <a-sphere radius="0.028" scale="0.6 1.1 0.9" position="0 -0.005 0"
+      <a-sphere class="cat-fur" radius="0.028" scale="0.6 1.1 0.9" position="0 -0.005 0"
                 material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
-      <a-cone radius-bottom="0.010" radius-top="0.015" height="0.125" position="0 -0.075 0"
+      <a-cone class="cat-fur" radius-bottom="0.010" radius-top="0.015" height="0.125" position="0 -0.075 0"
               material="color: #66625f; roughness: 0.9; metalness: 0"></a-cone>
-      <a-sphere radius="0.016" scale="1 0.75 1.2" position="0 -0.142 0.005"
+      <a-sphere class="cat-fur" radius="0.016" scale="1 0.75 1.2" position="0 -0.142 0.005"
                 material="color: #ece8e2; roughness: 0.9; metalness: 0"></a-sphere>
     </a-entity>
     <a-entity class="cat-leg" position="-0.048 0.155 -0.105">
-      <a-sphere radius="0.042" scale="0.55 1.15 1" position="0 0.005 0"
+      <a-sphere class="cat-fur" radius="0.042" scale="0.55 1.15 1" position="0 0.005 0"
                 material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
-      <a-cone radius-bottom="0.011" radius-top="0.017" height="0.125" position="0 -0.075 0"
+      <a-cone class="cat-fur" radius-bottom="0.011" radius-top="0.017" height="0.125" position="0 -0.075 0"
               material="color: #66625f; roughness: 0.9; metalness: 0"></a-cone>
-      <a-sphere radius="0.017" scale="1 0.75 1.2" position="0 -0.142 0.005"
+      <a-sphere class="cat-fur" radius="0.017" scale="1 0.75 1.2" position="0 -0.142 0.005"
                 material="color: #ece8e2; roughness: 0.9; metalness: 0"></a-sphere>
     </a-entity>
     <a-entity class="cat-leg" position="0.048 0.155 -0.105">
-      <a-sphere radius="0.042" scale="0.55 1.15 1" position="0 0.005 0"
+      <a-sphere class="cat-fur" radius="0.042" scale="0.55 1.15 1" position="0 0.005 0"
                 material="color: #66625f; roughness: 0.9; metalness: 0"></a-sphere>
-      <a-cone radius-bottom="0.011" radius-top="0.017" height="0.125" position="0 -0.075 0"
+      <a-cone class="cat-fur" radius-bottom="0.011" radius-top="0.017" height="0.125" position="0 -0.075 0"
               material="color: #66625f; roughness: 0.9; metalness: 0"></a-cone>
-      <a-sphere radius="0.017" scale="1 0.75 1.2" position="0 -0.142 0.005"
+      <a-sphere class="cat-fur" radius="0.017" scale="1 0.75 1.2" position="0 -0.142 0.005"
                 material="color: #ece8e2; roughness: 0.9; metalness: 0"></a-sphere>
     </a-entity>
   </a-entity>
@@ -889,19 +889,19 @@ const ProcTex = {
      tuned so the smallest feature stays around 4-6mm, which survives. */
   density: {
     plaster: 1.2, plank: 0.55, tile: 0.9, weave: 6.5, pile: 4, grain: 1.4,
-    terracotta: 4, soil: 8, bark: 12, foliage: 6
+    terracotta: 4, soil: 8, bark: 12, foliage: 6, fur: 26
   },
 
   // how hard the derived normal map pushes, per material
   normalScale: {
     plaster: 0.35, plank: 0.6, tile: 0.9, weave: 1.3, pile: 1.0, grain: 0.5,
-    terracotta: 0.5, soil: 1.4, bark: 1.2, foliage: 0.9
+    terracotta: 0.5, soil: 1.4, bark: 1.2, foliage: 0.9, fur: 1.5
   },
 
   // Sobel gain when deriving that normal map
   relief: {
     plaster: 6, plank: 10, tile: 12, weave: 18, pile: 14, grain: 8,
-    terracotta: 8, soil: 18, bark: 16, foliage: 10
+    terracotta: 8, soil: 18, bark: 16, foliage: 10, fur: 20
   },
 
   canvas: function (kind) {
@@ -1159,6 +1159,69 @@ const ProcTex = {
       g.arc(x, y, r, 0, Math.PI * 2);
       g.fill();
     }
+  },
+
+  /* Fur: fine directional strands with a bright edge and a dark root, so
+     the Sobel pass turns each into a rounded fibre. Tuned much finer than
+     rug pile — the pile generator is built for features seen from a metre
+     away, which is why it read as bread crust on a 13cm cat. */
+  draw_fur: function (g, s) {
+    g.fillStyle = 'rgb(214,214,214)';
+    g.fillRect(0, 0, s, s);
+
+    for (let i = 0; i < 5200; i++) {
+      const x = Math.random() * s, y = Math.random() * s;
+      // strands mostly agree on a direction, with drift: combed, not chaotic
+      const a = Math.PI * 0.5 + (Math.random() - 0.5) * 1.1;
+      const len = 5 + Math.random() * 9;
+      const v = 168 + Math.random() * 88;
+      g.strokeStyle = 'rgba(' + v + ',' + v + ',' + v + ',0.55)';
+      g.lineWidth = 0.7 + Math.random() * 0.9;
+      g.lineCap = 'round';
+      g.beginPath();
+      g.moveTo(x, y);
+      g.quadraticCurveTo(
+        x + Math.cos(a) * len * 0.5 + 1.5, y + Math.sin(a) * len * 0.5,
+        x + Math.cos(a) * len, y + Math.sin(a) * len);
+      g.stroke();
+    }
+    // clumping, the thing that separates fur from felt
+    for (let i = 0; i < 90; i++) {
+      const x = Math.random() * s, y = Math.random() * s;
+      const r = 5 + Math.random() * 14;
+      const blob = g.createRadialGradient(x, y, 0, x, y, r);
+      blob.addColorStop(0, Math.random() < 0.5 ? 'rgba(140,140,140,0.20)'
+                                               : 'rgba(255,255,255,0.20)');
+      blob.addColorStop(1, 'rgba(128,128,128,0)');
+      g.fillStyle = blob;
+      g.fillRect(x - r, y - r, r * 2, r * 2);
+    }
+  },
+
+  /* Alpha mask for one fur shell: scattered strand tips. Outer shells keep
+     fewer, so the coat tapers to a soft edge instead of ending in a wall. */
+  furAlpha: function (keep) {
+    const key = 'furAlpha' + keep;
+    if (this.textures[key]) { return this.textures[key]; }
+    const s = 256;
+    const c = document.createElement('canvas');
+    c.width = c.height = s;
+    const g = c.getContext('2d');
+    g.fillStyle = '#000000';
+    g.fillRect(0, 0, s, s);
+    const n = Math.round(9000 * keep);
+    for (let i = 0; i < n; i++) {
+      const r = 0.5 + Math.random() * 1.1;
+      g.fillStyle = 'rgba(255,255,255,' + (0.55 + Math.random() * 0.45) + ')';
+      g.beginPath();
+      g.arc(Math.random() * s, Math.random() * s, r, 0, Math.PI * 2);
+      g.fill();
+    }
+    const t = new THREE.CanvasTexture(c);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.repeat.set(5, 4);
+    this.textures[key] = t;
+    return t;
   },
 
   /* Grid with recessed grout. */
@@ -2125,8 +2188,9 @@ function skinFixtures() {
     ['#potSoil',      'soil',       [3, 3]],
     ['.bonsai-wood',  'bark',       [3, 2]],
     ['.bonsai-leaf',  'foliage',    [3, 2]],
-    ['#lampShade',    'weave',      [6, 2]]
-    // cat fur stays flat colour: at cat scale the pile skin read as crust
+    ['#lampShade',    'weave',      [6, 2]],
+    // fine strand map; the pile skin that read as crust is not this one
+    ['.cat-fur',      'fur',        [5, 4]]
   ].forEach(function (f) {
     document.querySelectorAll(f[0]).forEach(function (el) {
       applySkin(el, f[1], f[2]);
@@ -2387,6 +2451,61 @@ function setupShadows() {
   setShadowFlags('#windowGlass', false, false);
   setShadowFlags('#vrPanel', false, false);
 }
+
+/* Shell fur.
+
+   A texture alone cannot make a silhouette fluffy — the outline stays a
+   hard mathematical curve. Shell rendering fixes that: a few concentric
+   copies of the mesh, each slightly larger and masked by scattered strand
+   tips, so the coat has depth and a soft edge. Outer shells keep fewer
+   strands, which is what tapers it instead of ending in a wall.
+
+   Only the big masses are shelled, not every limb — a laser-thin leg does
+   not need volumetric fur, and each shell is a draw call. */
+AFRAME.registerComponent('fur-shells', {
+  schema: {
+    selector: { default: '.cat-fluff' },
+    layers: { default: 3 },
+    step: { default: 0.045 }      // growth per shell, fraction of the mesh
+  },
+
+  init: function () {
+    const self = this;
+    // geometry exists once the entity has loaded its primitives
+    setTimeout(function () { self.build(); }, 0);
+  },
+
+  build: function () {
+    const d = this.data;
+    const els = this.el.querySelectorAll(d.selector);
+
+    els.forEach(function (el) {
+      const mesh = el.getObject3D('mesh');
+      if (!mesh || !mesh.geometry || mesh.userData.furred) { return; }
+      mesh.userData.furred = true;
+
+      const base = mesh.material;
+      for (let i = 1; i <= d.layers; i++) {
+        const keep = 1 - (i - 1) * 0.28;          // thinning outward
+        const mat = new THREE.MeshStandardMaterial({
+          color: base.color ? base.color.clone() : new THREE.Color('#66625f'),
+          roughness: 1,
+          metalness: 0,
+          alphaMap: ProcTex.furAlpha(keep),
+          // cutout rather than blended: sorts correctly against itself and
+          // costs no transparency pass
+          alphaTest: 0.28 + i * 0.13,
+          side: THREE.FrontSide
+        });
+        const shell = new THREE.Mesh(mesh.geometry, mat);
+        shell.scale.setScalar(1 + i * d.step);
+        shell.castShadow = false;                 // the core mesh casts
+        shell.receiveShadow = true;
+        mesh.add(shell);                          // inherits every animation
+      }
+    });
+  }
+});
 
 /* Waypoint patrol with a procedural diagonal gait.
 

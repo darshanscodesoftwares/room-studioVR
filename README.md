@@ -223,6 +223,16 @@ Controller mapping uses `meta-touch-controls` (Quest). For Pico or WMR, swap in
 
 ## The cat
 
+Fur is two techniques, because a texture alone cannot make a silhouette
+fluffy — the outline stays a hard mathematical curve. A fine strand map with
+a Sobel normal covers the surface, and **shell rendering** covers the edge:
+three concentric copies of each major mass, each slightly larger and masked
+by scattered strand tips, with outer shells keeping fewer strands so the coat
+tapers instead of ending in a wall. Only the big masses are shelled — a
+laser-thin leg does not need volumetric fur and every shell is a draw call.
+Shells are children of the mesh, so they inherit the gait animation for free.
+
+
 A primitive-built cat patrols a hardcoded waypoint loop that threads the
 clear floor lanes: along the west wall, through the gap between sofa and
 coffee table, up the window side, and back across the entrance. The path is
