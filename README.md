@@ -46,6 +46,98 @@ and directional lights, the window glass and the daylight spill together, plus a
 separate floor-lamp switch. Lighting is deliberately independent of the finish
 package, so one finish can be judged across the day without losing the package.
 
+## Visual fidelity
+
+The ceiling here is the headset GPU, not the framework — A-Frame *is* Three.js,
+so moving to raw Three.js or Babylon would buy control, not fidelity. What is
+implemented:
+
+**Renderer.** ACES filmic tone mapping, colour management, exposure 1.1,
+`highRefreshRate` and foveation level 1. Tone mapping is the single largest
+perceived-realism change in the file: it stops highlights clipping to flat
+white, which is what makes untuned WebGL look cheap.
+
+**Image-based lighting.** The `image-based-lighting` component builds a
+sky/horizon/ground gradient with a soft sun on a canvas and runs it through
+`PMREMGenerator`, so every PBR surface gets reflections and ambient bounce with
+no asset to download and nothing that can fail. To use a real captured
+environment instead, drop an equirectangular **LDR JPG** into `assets/` and set
+`image-based-lighting="src: assets/env.jpg"` on the scene — an LDR JPG loads
+with the plain `TextureLoader`, so no extra loader has to be bundled. The
+environment intensity dims with the lighting preset, or night looks like a lit
+studio set.
+
+**Shadows.** One shadow-casting directional light — affordable on a mobile GPU,
+where three would not be — with a 2048 map and the shadow camera clamped tight
+to the room so none of it is wasted on empty space outside the walls. Casting
+and receiving policy lives in `setupShadows()` rather than scattered across
+entity attributes.
+
+**Materials.** Per-surface roughness and metalness: sealed floor at 0.55 so it
+catches the environment, matte plaster at 0.94, fabric at 0.92, a lacquered
+table top at 0.28 to carry the window reflection, dark metal legs at 0.4 with
+metalness 0.6.
+
+### Adding textures
+
+You do not need Blender for this — A-Frame primitives already have UVs, so a
+tiling texture drops straight on. Free CC0 sources: [ambientCG](https://ambientcg.com),
+[Poly Haven](https://polyhaven.com/textures), [3dtextures.me](https://3dtextures.me).
+
+Download the files into `assets/` — hotlinking will fail CORS and give you a
+black surface — then add the maps to the palette entry:
+
+```js
+{ id: 'oak', name: 'Oak', hex: '#b98b5e',
+  tex:    'assets/oak_color.jpg',
+  normal: 'assets/oak_normal.jpg',
+  rough:  'assets/oak_rough.jpg',
+  repeat: '6 6' }
+```
+
+Both panels, the packages and reset keep working unchanged, and entries without
+maps stay flat colour — so finishes can be textured one at a time. If a texture
+404s the material falls back to its `hex`, which preserves the "nothing can fail
+to load" property. Preload the files in `<a-assets>` so surfaces do not pop in
+while a customer is standing there. Use 1K JPGs, and skip ambient-occlusion and
+displacement maps — they will cost more framerate than they return.
+
+### Baked lighting — the next step, and the one that needs Blender
+
+Real-time lights cannot produce bounce light or contact shadows at mobile
+framerates. Baking precomputes them. The `lightmap` component is already wired
+in and dormant:
+
+```html
+<a-entity id="room" lightmap="src: assets/room_bake.jpg"></a-entity>
+```
+
+Bake to **greyscale only** — ambient occlusion, contact shadows and light
+falloff — so it multiplies over whatever albedo the customer has selected. Bake
+the colours in and switching the sofa to olive leaves terracotta bounce light on
+the floor. You lose coloured bounce; you keep live customisation, which is the
+product.
+
+This tier does need Blender, not for modelling but for the UV2 unwrap and the
+Cycles bake. It is a one-time job per room, not an ongoing pipeline.
+
+### Performance budget (Quest 3)
+
+| Constraint | Target |
+| --- | --- |
+| Draw calls | under ~150 — **matters more than triangle count** |
+| Visible triangles | 300–500k |
+| Textures | 2K for floor and hero furniture, 1K elsewhere |
+| Format | KTX2/Basis over JPG once real assets land |
+| Meshes | Draco or Meshopt compression on every glTF |
+| Framerate | lock 72fps and never drop |
+
+Above the standalone browser there are only two real options: **cloud pixel
+streaming** (Unreal + Pixel Streaming over WebRTC — unlimited fidelity, but a
+GPU server per concurrent viewer and hard latency sensitivity), and **Gaussian
+splatting** (photoreal for a captured real room, but you cannot repaint a wall
+in a splat, so it is incompatible with customisation).
+
 ## Session telemetry
 
 Every visitor action is logged locally: finish selections, package applies,

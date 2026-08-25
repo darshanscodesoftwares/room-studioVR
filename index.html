@@ -108,15 +108,41 @@
   <p class="note"><button id="hideUi">Hide panel</button></p>
 </div>
 
+<!--
+  Renderer settings carry most of the perceived realism here.
+  ACES tone mapping is the single biggest change: it stops highlights
+  clipping to flat white, which is what makes untuned WebGL look cheap.
+  highRefreshRate + foveationLevel buy back the headroom the shadows cost.
+-->
 <a-scene
-  renderer="colorManagement: true; antialias: true"
+  renderer="colorManagement: true;
+            antialias: true;
+            toneMapping: ACESFilmic;
+            exposure: 1.1;
+            highRefreshRate: true;
+            foveationLevel: 1"
+  shadow="type: pcfsoft; autoUpdate: true"
+  image-based-lighting="intensity: 1"
   background="color: #101014">
+
+  <!-- Drop downloaded texture files into assets/ and preload them here so
+       surfaces do not pop in one by one while a customer is standing there. -->
+  <a-assets timeout="10000"></a-assets>
 
   <!-- ============ lighting ============ -->
   <a-entity id="ambientLight"
             light="type: ambient; color: #cfd4dd; intensity: 0.55"></a-entity>
+  <!-- One shadow-casting light is affordable on a mobile GPU; three are not.
+       The shadow camera is clamped tight to the room so the 2048 map is not
+       wasted covering empty space outside the walls. -->
   <a-entity id="sunLight"
-            light="type: directional; color: #fff6e8; intensity: 0.75; castShadow: false"
+            light="type: directional; color: #fff6e8; intensity: 0.75;
+                   castShadow: true;
+                   shadowMapWidth: 2048; shadowMapHeight: 2048;
+                   shadowCameraLeft: -5; shadowCameraRight: 5;
+                   shadowCameraTop: 5; shadowCameraBottom: -5;
+                   shadowCameraNear: 0.5; shadowCameraFar: 18;
+                   shadowBias: -0.0012; shadowRadius: 2"
             position="2.5 4 1.5"></a-entity>
   <!-- daylight spill from the window -->
   <a-entity id="windowLight"
@@ -125,37 +151,40 @@
 
   <!-- ============ room shell (6 x 6 x 3 m, centred on origin) ============ -->
   <a-entity id="room">
+    <!-- Sealed wood floor: low roughness is what lets the environment map
+         show up as a soft sheen. A matte floor kills every reflection. -->
     <a-plane id="floor" class="wall-surface"
              rotation="-90 0 0" width="6" height="6" position="0 0 0"
-             material="color: #b98b5e; roughness: 0.85"></a-plane>
+             material="color: #b98b5e; roughness: 0.55; metalness: 0.02"></a-plane>
 
     <a-plane id="ceiling"
              rotation="90 0 0" width="6" height="6" position="0 3 0"
-             material="color: #f4f4f2; roughness: 1"></a-plane>
+             material="color: #f4f4f2; roughness: 0.98; metalness: 0"></a-plane>
 
+    <!-- matte plaster -->
     <a-plane class="wall" width="6" height="3" position="0 1.5 -3"
-             material="color: #ece7e1; roughness: 1"></a-plane>
+             material="color: #ece7e1; roughness: 0.94; metalness: 0"></a-plane>
     <a-plane class="wall" width="6" height="3" position="0 1.5 3" rotation="0 180 0"
-             material="color: #ece7e1; roughness: 1"></a-plane>
+             material="color: #ece7e1; roughness: 0.94; metalness: 0"></a-plane>
     <a-plane class="wall" width="6" height="3" position="-3 1.5 0" rotation="0 90 0"
-             material="color: #ece7e1; roughness: 1"></a-plane>
+             material="color: #ece7e1; roughness: 0.94; metalness: 0"></a-plane>
     <a-plane class="wall" width="6" height="3" position="3 1.5 0" rotation="0 -90 0"
-             material="color: #ece7e1; roughness: 1"></a-plane>
+             material="color: #ece7e1; roughness: 0.94; metalness: 0"></a-plane>
 
     <!-- window on the east wall -->
     <a-entity position="2.97 1.6 0" rotation="0 -90 0">
       <a-plane id="windowGlass" width="1.9" height="1.3"
                material="color: #cfe4f7; shader: flat; opacity: 0.95"></a-plane>
       <a-box width="2.05" height="0.08" depth="0.06" position="0  0.69 0.01"
-             material="color: #ffffff"></a-box>
+             material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
       <a-box width="2.05" height="0.08" depth="0.06" position="0 -0.69 0.01"
-             material="color: #ffffff"></a-box>
+             material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
       <a-box width="0.08" height="1.46" depth="0.06" position="-0.99 0 0.01"
-             material="color: #ffffff"></a-box>
+             material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
       <a-box width="0.08" height="1.46" depth="0.06" position=" 0.99 0 0.01"
-             material="color: #ffffff"></a-box>
+             material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
       <a-box width="0.06" height="1.3" depth="0.05" position="0 0 0.01"
-             material="color: #ffffff"></a-box>
+             material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
     </a-entity>
   </a-entity>
 
@@ -163,75 +192,78 @@
 
   <!-- rug -->
   <a-plane id="rug" rotation="-90 0 0" width="3.2" height="2.2" position="0 0.01 -0.9"
-           material="color: #8d99ae; roughness: 1"></a-plane>
+           material="color: #8d99ae; roughness: 1; metalness: 0"></a-plane>
 
   <!-- sofa, against the north wall -->
   <a-entity id="sofa" position="0 0 -2.25">
     <a-box class="fabric" width="2.2" height="0.32" depth="0.9" position="0 0.36 0"
-           material="color: #6b7a8f; roughness: 0.95"></a-box>
+           material="color: #6b7a8f; roughness: 0.92; metalness: 0"></a-box>
     <a-box class="fabric" width="2.2" height="0.62" depth="0.22" position="0 0.71 -0.34"
-           material="color: #6b7a8f; roughness: 0.95"></a-box>
+           material="color: #6b7a8f; roughness: 0.92; metalness: 0"></a-box>
     <a-box class="fabric" width="0.22" height="0.5" depth="0.9" position="-1.0 0.5 0"
-           material="color: #6b7a8f; roughness: 0.95"></a-box>
+           material="color: #6b7a8f; roughness: 0.92; metalness: 0"></a-box>
     <a-box class="fabric" width="0.22" height="0.5" depth="0.9" position=" 1.0 0.5 0"
-           material="color: #6b7a8f; roughness: 0.95"></a-box>
+           material="color: #6b7a8f; roughness: 0.92; metalness: 0"></a-box>
     <a-box class="fabric" width="0.82" height="0.14" depth="0.82" position="-0.44 0.59 0.02"
-           material="color: #6b7a8f; roughness: 0.95"></a-box>
+           material="color: #6b7a8f; roughness: 0.92; metalness: 0"></a-box>
     <a-box class="fabric" width="0.82" height="0.14" depth="0.82" position=" 0.44 0.59 0.02"
-           material="color: #6b7a8f; roughness: 0.95"></a-box>
-    <a-cylinder radius="0.035" height="0.2" position="-0.95 0.1  0.35" material="color: #3d3129"></a-cylinder>
-    <a-cylinder radius="0.035" height="0.2" position=" 0.95 0.1  0.35" material="color: #3d3129"></a-cylinder>
-    <a-cylinder radius="0.035" height="0.2" position="-0.95 0.1 -0.35" material="color: #3d3129"></a-cylinder>
-    <a-cylinder radius="0.035" height="0.2" position=" 0.95 0.1 -0.35" material="color: #3d3129"></a-cylinder>
+           material="color: #6b7a8f; roughness: 0.92; metalness: 0"></a-box>
+    <a-cylinder radius="0.035" height="0.2" position="-0.95 0.1  0.35" material="color: #3d3129; roughness: 0.42; metalness: 0.55"></a-cylinder>
+    <a-cylinder radius="0.035" height="0.2" position=" 0.95 0.1  0.35" material="color: #3d3129; roughness: 0.42; metalness: 0.55"></a-cylinder>
+    <a-cylinder radius="0.035" height="0.2" position="-0.95 0.1 -0.35" material="color: #3d3129; roughness: 0.42; metalness: 0.55"></a-cylinder>
+    <a-cylinder radius="0.035" height="0.2" position=" 0.95 0.1 -0.35" material="color: #3d3129; roughness: 0.42; metalness: 0.55"></a-cylinder>
   </a-entity>
 
   <!-- coffee table -->
   <a-entity id="table" position="0 0 -0.85">
+    <!-- lacquered top: the glossiest thing in the room, so it carries the
+         window reflection and reads as a real surface -->
     <a-box width="1.25" height="0.07" depth="0.65" position="0 0.43 0"
-           material="color: #6f4e37; roughness: 0.6"></a-box>
-    <a-box width="0.06" height="0.4" depth="0.06" position="-0.55 0.2  0.26" material="color: #3d3129"></a-box>
-    <a-box width="0.06" height="0.4" depth="0.06" position=" 0.55 0.2  0.26" material="color: #3d3129"></a-box>
-    <a-box width="0.06" height="0.4" depth="0.06" position="-0.55 0.2 -0.26" material="color: #3d3129"></a-box>
-    <a-box width="0.06" height="0.4" depth="0.06" position=" 0.55 0.2 -0.26" material="color: #3d3129"></a-box>
-    <a-cylinder radius="0.09" height="0.02" position="0.3 0.47 0" material="color: #d9cfc2"></a-cylinder>
+           material="color: #6f4e37; roughness: 0.28; metalness: 0.04"></a-box>
+    <a-box width="0.06" height="0.4" depth="0.06" position="-0.55 0.2  0.26" material="color: #3d3129; roughness: 0.42; metalness: 0.55"></a-box>
+    <a-box width="0.06" height="0.4" depth="0.06" position=" 0.55 0.2  0.26" material="color: #3d3129; roughness: 0.42; metalness: 0.55"></a-box>
+    <a-box width="0.06" height="0.4" depth="0.06" position="-0.55 0.2 -0.26" material="color: #3d3129; roughness: 0.42; metalness: 0.55"></a-box>
+    <a-box width="0.06" height="0.4" depth="0.06" position=" 0.55 0.2 -0.26" material="color: #3d3129; roughness: 0.42; metalness: 0.55"></a-box>
+    <a-cylinder radius="0.09" height="0.02" position="0.3 0.47 0"
+                material="color: #d9cfc2; roughness: 0.35; metalness: 0.1"></a-cylinder>
   </a-entity>
 
   <!-- accent chair: two switchable styles, same footprint -->
   <a-entity id="chair" position="1.95 0 0.35" rotation="0 -125 0">
     <a-entity id="chairModern">
       <a-box width="0.62" height="0.09" depth="0.6" position="0 0.44 0"
-             material="color: #c2703f; roughness: 0.9"></a-box>
+             material="color: #c2703f; roughness: 0.85; metalness: 0.02"></a-box>
       <a-box width="0.62" height="0.62" depth="0.09" position="0 0.75 -0.26"
-             rotation="-8 0 0" material="color: #c2703f; roughness: 0.9"></a-box>
-      <a-cylinder radius="0.025" height="0.44" position="-0.26 0.22  0.25" material="color: #2f2a26"></a-cylinder>
-      <a-cylinder radius="0.025" height="0.44" position=" 0.26 0.22  0.25" material="color: #2f2a26"></a-cylinder>
-      <a-cylinder radius="0.025" height="0.44" position="-0.26 0.22 -0.25" material="color: #2f2a26"></a-cylinder>
-      <a-cylinder radius="0.025" height="0.44" position=" 0.26 0.22 -0.25" material="color: #2f2a26"></a-cylinder>
+             rotation="-8 0 0" material="color: #c2703f; roughness: 0.85; metalness: 0.02"></a-box>
+      <a-cylinder radius="0.025" height="0.44" position="-0.26 0.22  0.25" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-cylinder>
+      <a-cylinder radius="0.025" height="0.44" position=" 0.26 0.22  0.25" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-cylinder>
+      <a-cylinder radius="0.025" height="0.44" position="-0.26 0.22 -0.25" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-cylinder>
+      <a-cylinder radius="0.025" height="0.44" position=" 0.26 0.22 -0.25" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-cylinder>
     </a-entity>
     <a-entity id="chairArm" visible="false">
       <a-box width="0.78" height="0.34" depth="0.72" position="0 0.32 0"
-             material="color: #a8564a; roughness: 0.95"></a-box>
+             material="color: #a8564a; roughness: 0.9; metalness: 0"></a-box>
       <a-box width="0.78" height="0.72" depth="0.2" position="0 0.72 -0.3"
-             material="color: #a8564a; roughness: 0.95"></a-box>
+             material="color: #a8564a; roughness: 0.9; metalness: 0"></a-box>
       <a-box width="0.16" height="0.28" depth="0.72" position="-0.31 0.62 0"
-             material="color: #a8564a; roughness: 0.95"></a-box>
+             material="color: #a8564a; roughness: 0.9; metalness: 0"></a-box>
       <a-box width="0.16" height="0.28" depth="0.72" position=" 0.31 0.62 0"
-             material="color: #a8564a; roughness: 0.95"></a-box>
+             material="color: #a8564a; roughness: 0.9; metalness: 0"></a-box>
       <a-box width="0.72" height="0.12" depth="0.66" position="0 0.55 0.02"
-             material="color: #b96256; roughness: 0.95"></a-box>
-      <a-cylinder radius="0.04" height="0.15" position="-0.3 0.07  0.28" material="color: #2f2a26"></a-cylinder>
-      <a-cylinder radius="0.04" height="0.15" position=" 0.3 0.07  0.28" material="color: #2f2a26"></a-cylinder>
-      <a-cylinder radius="0.04" height="0.15" position="-0.3 0.07 -0.28" material="color: #2f2a26"></a-cylinder>
-      <a-cylinder radius="0.04" height="0.15" position=" 0.3 0.07 -0.28" material="color: #2f2a26"></a-cylinder>
+             material="color: #b96256; roughness: 0.9; metalness: 0"></a-box>
+      <a-cylinder radius="0.04" height="0.15" position="-0.3 0.07  0.28" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-cylinder>
+      <a-cylinder radius="0.04" height="0.15" position=" 0.3 0.07  0.28" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-cylinder>
+      <a-cylinder radius="0.04" height="0.15" position="-0.3 0.07 -0.28" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-cylinder>
+      <a-cylinder radius="0.04" height="0.15" position=" 0.3 0.07 -0.28" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-cylinder>
     </a-entity>
   </a-entity>
 
   <!-- floor lamp -->
   <a-entity id="lamp" position="-2.25 0 -2.2">
-    <a-cylinder radius="0.19" height="0.03" position="0 0.015 0" material="color: #2f2a26"></a-cylinder>
-    <a-cylinder radius="0.022" height="1.5" position="0 0.76 0" material="color: #3d3129"></a-cylinder>
+    <a-cylinder radius="0.19" height="0.03" position="0 0.015 0" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-cylinder>
+    <a-cylinder radius="0.022" height="1.5" position="0 0.76 0" material="color: #3d3129; roughness: 0.42; metalness: 0.55"></a-cylinder>
     <a-cone id="lampShade" radius-bottom="0.24" radius-top="0.15" height="0.28"
-            position="0 1.62 0" material="color: #f0e6d2; roughness: 1"></a-cone>
+            position="0 1.62 0" material="color: #f0e6d2; roughness: 0.85; metalness: 0"></a-cone>
     <a-entity id="lampLight"
               light="type: point; color: #ffd9a0; intensity: 0.65; distance: 5"
               position="0 1.5 0"></a-entity>
@@ -240,16 +272,16 @@
   <!-- potted plant -->
   <a-entity id="plant" position="2.35 0 -2.4">
     <a-cylinder radius-bottom="0.16" radius-top="0.21" height="0.34" position="0 0.17 0"
-                material="color: #b5613c; roughness: 1"></a-cylinder>
-    <a-cylinder radius="0.03" height="0.5" position="0 0.55 0" material="color: #4f6b3a"></a-cylinder>
-    <a-sphere radius="0.3" position="0 0.92 0" material="color: #3f7d43; roughness: 1"></a-sphere>
-    <a-sphere radius="0.19" position="0.2 0.75 0.12" material="color: #4c8f4f; roughness: 1"></a-sphere>
-    <a-sphere radius="0.17" position="-0.18 0.8 -0.1" material="color: #356b3a; roughness: 1"></a-sphere>
+                material="color: #b5613c; roughness: 0.75; metalness: 0.02"></a-cylinder>
+    <a-cylinder radius="0.03" height="0.5" position="0 0.55 0" material="color: #4f6b3a; roughness: 0.8; metalness: 0"></a-cylinder>
+    <a-sphere radius="0.3" position="0 0.92 0" material="color: #3f7d43; roughness: 0.72; metalness: 0"></a-sphere>
+    <a-sphere radius="0.19" position="0.2 0.75 0.12" material="color: #4c8f4f; roughness: 0.72; metalness: 0"></a-sphere>
+    <a-sphere radius="0.17" position="-0.18 0.8 -0.1" material="color: #356b3a; roughness: 0.72; metalness: 0"></a-sphere>
   </a-entity>
 
   <!-- framed wall art, west wall -->
   <a-entity id="art" position="-2.96 1.75 -1.4" rotation="0 90 0">
-    <a-box width="1.1" height="0.8" depth="0.04" material="color: #2f2a26"></a-box>
+    <a-box width="1.1" height="0.8" depth="0.04" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-box>
     <a-plane width="0.98" height="0.68" position="0 0 0.03"
              material="color: #cbb89d; shader: flat"></a-plane>
     <a-plane width="0.5" height="0.34" position="-0.12 0.06 0.035"
@@ -305,6 +337,15 @@ const PALETTE = {
     { id: 'mist',    name: 'Cool Mist',   hex: '#d5dbe0' },
     { id: 'ink',     name: 'Deep Ink',    hex: '#4a5568' }
   ],
+  /* To texture a finish, add PBR maps to its entry and drop the files into
+     assets/. Everything else — both panels, packages, reset — keeps working
+     unchanged, and untextured entries stay flat colour:
+
+       { id: 'oak', name: 'Oak', hex: '#b98b5e',
+         tex:    'assets/oak_color.jpg',
+         normal: 'assets/oak_normal.jpg',
+         rough:  'assets/oak_rough.jpg',
+         repeat: '6 6' }                      // tiles across the 6m floor  */
   floor: [
     { id: 'oak',      name: 'Oak',        hex: '#b98b5e' },
     { id: 'walnut',   name: 'Walnut',     hex: '#6f4a32' },
@@ -354,7 +395,8 @@ const LIGHTING = {
     window:  { color: '#dceaff', intensity: 0.50 },
     glass:   '#cfe4f7',
     lamp:    { color: '#ffd9a0', intensity: 0.35 },
-    sky:     '#101014'
+    sky:     '#101014',
+    env:     1.00
   },
   evening: {
     name: 'Evening',
@@ -363,7 +405,8 @@ const LIGHTING = {
     window:  { color: '#ffb27a', intensity: 0.38 },
     glass:   '#f3ad7e',
     lamp:    { color: '#ffd9a0', intensity: 0.75 },
-    sky:     '#0d0b0f'
+    sky:     '#0d0b0f',
+    env:     0.55
   },
   night: {
     name: 'Night',
@@ -372,7 +415,8 @@ const LIGHTING = {
     window:  { color: '#5878ad', intensity: 0.16 },
     glass:   '#233152',
     lamp:    { color: '#ffd9a0', intensity: 0.95 },
-    sky:     '#07080c'
+    sky:     '#07080c',
+    env:     0.22
   }
 };
 
@@ -466,19 +510,61 @@ function logEvent(type, detail) {
 }
 
 /* ---------- lookups ---------- */
-function hexOf(kind, id) {
+function entryOf(kind, id) {
   const found = PALETTE[kind].find(function (c) { return c.id === id; });
-  return found ? found.hex : PALETTE[kind][0].hex;
+  return found || PALETTE[kind][0];
 }
+
+/* Applies one palette entry to one element.
+
+   An entry may carry PBR maps — tex / normal / rough / repeat — and when it
+   does, the flat hex becomes a white base for the texture. When it does not,
+   the hex is used directly and any previously applied maps are cleared, so
+   textured and untextured finishes can coexist in the same palette while you
+   work through them one at a time.
+
+   The colour staying as the fallback is what preserves the "nothing can fail
+   to load" property: a 404 on a texture degrades to the flat finish rather
+   than a black surface in front of a customer. */
+function applyFinish(el, entry, base) {
+  const props = Object.assign({}, base || {});
+  const repeat = entry.repeat || '1 1';
+
+  if (entry.tex) {
+    props.src = entry.tex;
+    props.color = entry.tint || '#ffffff';
+    props.repeat = repeat;
+    props.normalMap = entry.normal || '';
+    props.normalTextureRepeat = repeat;
+    props.roughnessMap = entry.rough || '';
+    props.roughnessTextureRepeat = repeat;
+  } else {
+    props.color = entry.hex;
+    props.src = '';
+    props.normalMap = '';
+    props.roughnessMap = '';
+  }
+  if (entry.roughness !== undefined) { props.roughness = entry.roughness; }
+  if (entry.metalness !== undefined) { props.metalness = entry.metalness; }
+
+  el.setAttribute('material', props);
+}
+
+/* Base PBR values per surface, kept in sync with the markup. */
+const SURFACE = {
+  wall:  { roughness: 0.94, metalness: 0 },
+  floor: { roughness: 0.55, metalness: 0.02 },
+  sofa:  { roughness: 0.92, metalness: 0 }
+};
 
 /* ---------- scene mutators ----------
    These stay stable when primitives are later swapped for <a-gltf-model>;
    only the selectors change. */
 function setWallColor(id) {
   state.wall = id;
-  const hex = hexOf('wall', id);
+  const entry = entryOf('wall', id);
   document.querySelectorAll('#room .wall').forEach(function (el) {
-    el.setAttribute('material', 'color', hex);
+    applyFinish(el, entry, SURFACE.wall);
   });
   state.package = null;
   logEvent('finish', { kind: 'wall', id: id });
@@ -486,16 +572,16 @@ function setWallColor(id) {
 
 function setFloorColor(id) {
   state.floor = id;
-  document.querySelector('#floor').setAttribute('material', 'color', hexOf('floor', id));
+  applyFinish(document.querySelector('#floor'), entryOf('floor', id), SURFACE.floor);
   state.package = null;
   logEvent('finish', { kind: 'floor', id: id });
 }
 
 function setSofaColor(id) {
   state.sofa = id;
-  const hex = hexOf('sofa', id);
+  const entry = entryOf('sofa', id);
   document.querySelectorAll('#sofa .fabric').forEach(function (el) {
-    el.setAttribute('material', 'color', hex);
+    applyFinish(el, entry, SURFACE.sofa);
   });
   state.package = null;
   logEvent('finish', { kind: 'sofa', id: id });
@@ -533,6 +619,9 @@ function setLighting(id) {
     .setAttribute('material', 'color', p.glass);
   document.querySelector('a-scene')
     .setAttribute('background', 'color', p.sky);
+  // reflections must dim with the room, or night looks like a lit set
+  document.querySelector('a-scene')
+    .setAttribute('image-based-lighting', 'intensity', p.env);
 
   applyLampLight();
   // lighting is deliberately independent of the finish package: a buyer can
@@ -918,6 +1007,182 @@ function syncUI() {
 }
 
 /* =========================================================================
+   Fidelity components
+
+   Real-time lights alone cannot produce bounce light or contact shadows at
+   mobile framerates, which is most of what separates "a 3D room" from "a
+   photo of a room". These two components close that gap: an environment map
+   for reflections and ambient bounce, and a slot for a baked lightmap.
+   ========================================================================= */
+
+/* Image-based lighting.
+
+   Builds a procedural sky gradient on a canvas and runs it through
+   PMREMGenerator, so every PBR surface picks up reflections and ambient
+   bounce with no asset to download and nothing to fail. Point `src` at an
+   equirectangular JPG in assets/ to replace it with a real captured
+   environment — an LDR JPG works with the plain TextureLoader, so no extra
+   loader has to be bundled. */
+AFRAME.registerComponent('image-based-lighting', {
+  schema: {
+    src: { default: '' },
+    intensity: { default: 1 },
+    resolution: { default: 512 }
+  },
+
+  init: function () {
+    const self = this;
+    this.envRT = null;
+    if (this.el.renderer) { this.build(); }
+    else { this.el.addEventListener('renderstart', function () { self.build(); }); }
+  },
+
+  update: function (oldData) {
+    if (!this.el.renderer) { return; }
+    if (oldData && oldData.src !== this.data.src) { this.build(); }
+    else { this.setIntensity(); }
+  },
+
+  setIntensity: function () {
+    const root = this.el.object3D;
+    // three exposes environmentIntensity from r163; older builds ignore it
+    if ('environmentIntensity' in root) {
+      root.environmentIntensity = this.data.intensity;
+    }
+  },
+
+  build: function () {
+    const self = this;
+    const renderer = this.el.renderer;
+    if (!renderer) { return; }
+
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    pmrem.compileEquirectangularShader();
+
+    function install(texture) {
+      texture.mapping = THREE.EquirectangularReflectionMapping;
+      if (THREE.SRGBColorSpace) { texture.colorSpace = THREE.SRGBColorSpace; }
+      const rt = pmrem.fromEquirectangular(texture);
+      if (self.envRT) { self.envRT.dispose(); }
+      self.envRT = rt;
+      self.el.object3D.environment = rt.texture;
+      self.setIntensity();
+      texture.dispose();
+      pmrem.dispose();
+    }
+
+    if (this.data.src) {
+      new THREE.TextureLoader().load(this.data.src, install, undefined, function () {
+        console.warn('[ibl] could not load ' + self.data.src +
+                     ' — falling back to the procedural sky');
+        install(new THREE.CanvasTexture(self.skyCanvas()));
+      });
+    } else {
+      install(new THREE.CanvasTexture(this.skyCanvas()));
+    }
+  },
+
+  /* A sky/horizon/ground gradient with a soft sun, drawn as an equirect.
+     Crude, but it gives glossy surfaces something real to reflect, which is
+     what the eye actually reads as material. */
+  skyCanvas: function () {
+    const h = this.data.resolution, w = h * 2;
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    const g = c.getContext('2d');
+
+    const grad = g.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0.00, '#9fbde0');   // zenith
+    grad.addColorStop(0.44, '#dfe8f2');   // horizon haze
+    grad.addColorStop(0.50, '#cfc8bd');   // horizon line
+    grad.addColorStop(1.00, '#6b6259');   // ground bounce
+    g.fillStyle = grad;
+    g.fillRect(0, 0, w, h);
+
+    const sun = g.createRadialGradient(w * 0.72, h * 0.30, 0,
+                                       w * 0.72, h * 0.30, h * 0.30);
+    sun.addColorStop(0, 'rgba(255,246,226,1)');
+    sun.addColorStop(1, 'rgba(255,246,226,0)');
+    g.fillStyle = sun;
+    g.fillRect(0, 0, w, h);
+
+    return c;
+  },
+
+  remove: function () {
+    this.el.object3D.environment = null;
+    if (this.envRT) { this.envRT.dispose(); this.envRT = null; }
+  }
+});
+
+/* Baked lightmap slot.
+
+   Dormant until you have a bake. Bake ambient occlusion, contact shadows and
+   light falloff to GREYSCALE only, then this multiplies over whatever albedo
+   the customer has selected — so the bake stays valid across every finish.
+   Bake the colours in and switching the sofa leaves terracotta bounce light
+   on the floor.
+
+   Usage: <a-entity id="room" lightmap="src: assets/room_bake.jpg"> */
+AFRAME.registerComponent('lightmap', {
+  schema: {
+    src: { default: '' },
+    intensity: { default: 1 },
+    channel: { default: 1 }      // baked UV2 set; 0 if the bake reuses UV0
+  },
+
+  init: function () {
+    this.apply = this.apply.bind(this);
+    this.el.addEventListener('object3dset', this.apply);
+    this.apply();
+  },
+
+  update: function () { this.apply(); },
+
+  apply: function () {
+    if (!this.data.src) { return; }
+    const self = this;
+    new THREE.TextureLoader().load(this.data.src, function (tex) {
+      tex.flipY = false;   // glTF/Blender bakes are not Y-flipped
+      if (THREE.SRGBColorSpace) { tex.colorSpace = THREE.SRGBColorSpace; }
+      if ('channel' in tex) { tex.channel = self.data.channel; }
+      self.el.object3D.traverse(function (n) {
+        if (!n.isMesh || !n.material) { return; }
+        n.material.lightMap = tex;
+        n.material.lightMapIntensity = self.data.intensity;
+        n.material.needsUpdate = true;
+      });
+    }, undefined, function () {
+      console.warn('[lightmap] could not load ' + self.data.src);
+    });
+  }
+});
+
+/* Shadow flags are set here rather than as per-entity attributes so the
+   casting/receiving policy lives in one readable place. Walls and floor
+   receive only; furniture does both; the UI panel and window glass are out
+   of it entirely. */
+function setShadowFlags(selector, cast, receive) {
+  const el = document.querySelector(selector);
+  if (!el) { return; }
+  el.object3D.traverse(function (n) {
+    if (!n.isMesh) { return; }
+    n.castShadow = cast;
+    n.receiveShadow = receive;
+  });
+}
+
+function setupShadows() {
+  setShadowFlags('#room', false, true);
+  setShadowFlags('#rug', false, true);
+  ['#sofa', '#table', '#chair', '#lamp', '#plant', '#art'].forEach(function (s) {
+    setShadowFlags(s, true, true);
+  });
+  setShadowFlags('#windowGlass', false, false);
+  setShadowFlags('#vrPanel', false, false);
+}
+
+/* =========================================================================
    Locomotion components (dependency-free)
    ========================================================================= */
 
@@ -1162,6 +1427,7 @@ function clampToRoom(rig, bounds) {
 function boot() {
   buildOverlay();
   buildVrPanel();
+  setupShadows();
 
   // opening state is not a visitor choice, so it is not logged
   const wasLogging = logging;
