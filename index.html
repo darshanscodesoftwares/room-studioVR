@@ -105,6 +105,9 @@
   <h2>Lighting</h2>
   <div class="btns" id="lightBtns"></div>
 
+  <h2>Wall panel</h2>
+  <div class="btns" id="wallPanelBtns"></div>
+
   <h2>Movement (VR)</h2>
   <div class="btns" id="moveBtns"></div>
 
@@ -1790,6 +1793,16 @@ function buildOverlay() {
   lampBtn.onclick = function () { setLamp(!state.lamp); syncUI(); };
   lightBtns.appendChild(lampBtn);
 
+  // the in-scene panel, so the room can be seen without it
+  const wp = document.querySelector('#wallPanelBtns');
+  [[true, 'Shown'], [false, 'Hidden']].forEach(function (m) {
+    const b = document.createElement('button');
+    b.textContent = m[1];
+    b.dataset.wallpanel = String(m[0]);
+    b.onclick = function () { setVrPanelVisible(m[0]); };
+    wp.appendChild(b);
+  });
+
   // movement mode — kept as a toggle so smooth vs teleport can be A/B tested
   // on the same build during buyer sessions
   const moveBtns = document.querySelector('#moveBtns');
@@ -1848,6 +1861,9 @@ function syncOverlay() {
   });
   document.querySelectorAll('#moveBtns button').forEach(function (b) {
     b.classList.toggle('on', (b.dataset.smooth === 'true') === smoothMoveEnabled);
+  });
+  document.querySelectorAll('#wallPanelBtns button').forEach(function (b) {
+    b.classList.toggle('on', (b.dataset.wallpanel === 'true') === vrPanelShown);
   });
   document.querySelectorAll('#lightBtns button').forEach(function (b) {
     if (b.dataset.lamp) { b.classList.toggle('on', !!state.lamp); }
@@ -1912,21 +1928,27 @@ function mkText(parent, value, opts) {
 function buildVrPanel() {
   const panel = document.querySelector('#vrPanel');
 
-  // backing board
-  mkPlane(panel, { w: 1.8, h: 2.70, x: 0, y: 0, z: 0, color: '#161a22', opacity: 0.94 });
+  /* Everything except the handle lives in a body group, so the whole panel
+     can be folded away without losing the way back to it. */
+  const body = document.createElement('a-entity');
+  body.setAttribute('id', 'vrPanelBody');
+  panel.appendChild(body);
 
-  mkText(panel, 'ROOM STUDIO', { x: 0, y: 1.17, width: 2.0, color: '#8fb4ff' });
+  // backing board
+  mkPlane(body, { w: 1.8, h: 2.70, x: 0, y: 0, z: 0, color: '#161a22', opacity: 0.94 });
+
+  mkText(body, 'ROOM STUDIO', { x: 0, y: 1.17, width: 2.0, color: '#8fb4ff' });
 
   /* --- finish packages --- */
-  mkText(panel, 'Finish package', { x: 0, y: 1.00, width: 2.4, color: '#9aa0ad' });
+  mkText(body, 'Finish package', { x: 0, y: 1.00, width: 1.5, color: '#9aa0ad' });
   const pkgIds = Object.keys(PACKAGES);
   pkgIds.forEach(function (id, i) {
     const x = -0.56 + i * 0.56;
-    const bg = mkPlane(panel, {
+    const bg = mkPlane(body, {
       w: 0.5, h: 0.18, x: x, y: 0.84, z: 0.01,
       color: '#2b3242', clickable: true
     });
-    mkText(panel, PACKAGES[id].name, { x: x, y: 0.84, z: 0.022, width: 1.5 });
+    mkText(body, PACKAGES[id].name, { x: x, y: 0.84, z: 0.022, width: 1.5 });
     bg.addEventListener('click', function () { applyPackage(id); });
     vrButtons.push({ el: bg, kind: 'package', value: id });
   });
@@ -1938,11 +1960,11 @@ function buildVrPanel() {
   [['room', 'Room'], ['furniture', 'Furniture'],
    ['models', 'Models']].forEach(function (t, i) {
     const x = -0.56 + i * 0.56;
-    const bg = mkPlane(panel, {
+    const bg = mkPlane(body, {
       w: 0.52, h: 0.17, x: x, y: 0.65, z: 0.01,
       color: '#2b3242', clickable: true
     });
-    mkText(panel, t[1], { x: x, y: 0.65, z: 0.022, width: 1.45 });
+    mkText(body, t[1], { x: x, y: 0.65, z: 0.022, width: 1.45 });
     bg.addEventListener('click', function () { setVrTab(t[0]); });
     vrButtons.push({ el: bg, kind: 'tab', value: t[0] });
   });
@@ -1967,12 +1989,12 @@ function buildVrPanel() {
 
   Object.keys(TABS).forEach(function (tabId) {
     const group = document.createElement('a-entity');
-    panel.appendChild(group);
+    body.appendChild(group);
     vrTabs[tabId] = group;
 
     TABS[tabId].forEach(function (row, r) {
       const y = ROW_Y[r];
-      mkText(group, row.label, { x: 0, y: y + 0.13, width: 2.8, color: '#9aa0ad' });
+      mkText(group, row.label, { x: 0, y: y + 0.13, width: 1.5, color: '#9aa0ad' });
       PALETTE[row.kind].forEach(function (c, i) {
         const x = -0.65 + i * 0.26;
         // selection ring sits behind the swatch and lights up when active
@@ -1993,7 +2015,7 @@ function buildVrPanel() {
          because a laser needs a big target more than the panel needs
          symmetry --- */
   const mGroup = document.createElement('a-entity');
-  panel.appendChild(mGroup);
+  body.appendChild(mGroup);
   vrTabs.models = mGroup;
 
   // four slots will not fit on the three swatch rows, so the models tab uses
@@ -2003,7 +2025,7 @@ function buildVrPanel() {
     const y = MODEL_ROW_Y[r];
     const vars = MODELS[slot].variants;
     mkText(mGroup, MODELS[slot].label,
-      { x: 0, y: y + 0.115, width: 2.9, color: '#9aa0ad' });
+      { x: 0, y: y + 0.115, width: 1.6, color: '#9aa0ad' });
 
     const w = Math.min(0.8, 1.68 / vars.length - 0.06);
     const step = w + 0.06;
@@ -2020,7 +2042,7 @@ function buildVrPanel() {
   });
 
   /* --- chair + decor toggles --- */
-  mkText(panel, 'Chair & decor', { x: 0, y: -0.60, width: 2.4, color: '#9aa0ad' });
+  mkText(body, 'Chair & decor', { x: 0, y: -0.60, width: 1.5, color: '#9aa0ad' });
   const toggles = [
     { kind: 'chair', value: 'armchair', label: 'Armchair' },
     { kind: 'decor', value: 'rug',      label: 'Rug' },
@@ -2031,11 +2053,11 @@ function buildVrPanel() {
   ];
   toggles.forEach(function (t, i) {
     const x = -0.7 + i * 0.28;
-    const bg = mkPlane(panel, {
+    const bg = mkPlane(body, {
       w: 0.26, h: 0.18, x: x, y: -0.74, z: 0.01,
       color: '#2b3242', clickable: true
     });
-    mkText(panel, t.label, { x: x, y: -0.74, z: 0.022, width: 1.05 });
+    mkText(body, t.label, { x: x, y: -0.74, z: 0.022, width: 1.05 });
     bg.addEventListener('click', function () {
       if (t.kind === 'chair') {
         setChairStyle(state.chair === 'armchair' ? 'modern' : 'armchair');
@@ -2048,33 +2070,49 @@ function buildVrPanel() {
   });
 
   /* --- lighting --- */
-  mkText(panel, 'Lighting', { x: 0, y: -0.89, width: 2.4, color: '#9aa0ad' });
+  mkText(body, 'Lighting', { x: 0, y: -0.89, width: 1.1, color: '#9aa0ad' });
   const lightIds = Object.keys(LIGHTING);
   lightIds.forEach(function (id, i) {
     const x = -0.6 + i * 0.4;
-    const bg = mkPlane(panel, {
+    const bg = mkPlane(body, {
       w: 0.36, h: 0.18, x: x, y: -1.02, z: 0.01,
       color: '#2b3242', clickable: true
     });
-    mkText(panel, LIGHTING[id].name, { x: x, y: -1.02, z: 0.022, width: 1.35 });
+    mkText(body, LIGHTING[id].name, { x: x, y: -1.02, z: 0.022, width: 1.35 });
     bg.addEventListener('click', function () { setLighting(id); syncUI(); });
     vrButtons.push({ el: bg, kind: 'lighting', value: id });
   });
   const lampX = -0.6 + lightIds.length * 0.4;
-  const lampBg = mkPlane(panel, {
+  const lampBg = mkPlane(body, {
     w: 0.36, h: 0.18, x: lampX, y: -1.02, z: 0.01,
     color: '#2b3242', clickable: true
   });
-  mkText(panel, 'Lamp', { x: lampX, y: -1.02, z: 0.022, width: 1.35 });
+  mkText(body, 'Lamp', { x: lampX, y: -1.02, z: 0.022, width: 1.35 });
   lampBg.addEventListener('click', function () { setLamp(!state.lamp); syncUI(); });
   vrButtons.push({ el: lampBg, kind: 'lamp', value: 'lamp' });
 
+  /* --- handle ---
+     Stays visible when the body is folded away, at chest height on the edge
+     of the board where it does not cover any control. Hiding a panel with no
+     way back is worse than not being able to hide it at all. */
+  const handleBg = mkPlane(panel, {
+    w: 0.22, h: 0.46, x: 1.02, y: 0.0, z: 0.01,
+    color: '#2a6df4', clickable: true
+  });
+  handleBg.setAttribute('id', 'vrPanelHandle');
+  const handleTxt = mkText(panel, 'HIDE', { x: 1.02, y: 0.0, z: 0.022, width: 1.1 });
+  handleTxt.setAttribute('id', 'vrPanelHandleText');
+  handleTxt.setAttribute('rotation', '0 0 90');
+  handleBg.addEventListener('click', function () {
+    setVrPanelVisible(!vrPanelShown);
+  });
+
   /* --- reset --- */
-  const resetBg = mkPlane(panel, {
+  const resetBg = mkPlane(body, {
     w: 1.5, h: 0.2, x: 0, y: -1.23, z: 0.01,
     color: '#3a2b2b', clickable: true
   });
-  mkText(panel, 'RESET TO DEFAULT', { x: 0, y: -1.23, z: 0.022, width: 2.0 });
+  mkText(body, 'RESET TO DEFAULT', { x: 0, y: -1.23, z: 0.022, width: 2.0 });
   resetBg.addEventListener('click', function () { resetRoom(); });
 }
 
@@ -2095,6 +2133,24 @@ function syncVrPanel() {
     else { on = !!state[b.value]; }
     b.el.setAttribute('material', 'color', on ? '#2a6df4' : '#2b3242');
   });
+}
+
+let vrPanelShown = true;
+
+/* Fold the wall panel away. Reachable three ways, because a visitor in a
+   headset should not have to remember one: the handle on its edge, the upper
+   face button on either controller, and a button in the desktop overlay for
+   seeing the room without it. */
+function setVrPanelVisible(on) {
+  vrPanelShown = on;
+  const body = document.querySelector('#vrPanelBody');
+  const bg = document.querySelector('#vrPanelHandle');
+  const txt = document.querySelector('#vrPanelHandleText');
+  if (body) { body.setAttribute('visible', on); }
+  if (bg) { bg.setAttribute('material', 'color', on ? '#2a6df4' : '#4a5568'); }
+  if (txt) { txt.setAttribute('value', on ? 'HIDE' : 'PANEL'); }
+  logEvent('vrPanel', { shown: on });
+  syncOverlay();
 }
 
 function setVrTab(id) {
@@ -3315,6 +3371,18 @@ function boot() {
   buildBlossoms();
   skinFixtures();
   setupShadows();
+
+  /* Upper face button on either controller folds the panel away — B on the
+     right hand, Y on the left, the conventional menu buttons. */
+  ['#handLeft', '#handRight'].forEach(function (sel) {
+    const hand = document.querySelector(sel);
+    if (!hand) { return; }
+    ['bbuttondown', 'ybuttondown', 'menudown'].forEach(function (evt) {
+      hand.addEventListener(evt, function () {
+        setVrPanelVisible(!vrPanelShown);
+      });
+    });
+  });
 
   /* Preloaded <a-asset-item> models finish before the scene fires 'loaded',
      so by the time boot() runs, model-loaded has usually ALREADY fired and a
