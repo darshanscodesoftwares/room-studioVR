@@ -391,8 +391,8 @@
        browsers cannot load TGA — and the maps are applied in JS.
        LICENCE: marked NOT FOR COMMERCIAL USE. See assets/CREDITS.md. -->
   <a-entity id="plant2" obj-model="obj: #plantObj"
-            position="2.4 0 1.5" rotation="0 -25 0"
-            scale="0.01 0.01 0.01"></a-entity>
+            position="2.45 0 1.75" rotation="0 -25 0"
+            scale="0.016 0.016 0.016"></a-entity>
 
   <!-- framed wall art, west wall -->
   <a-entity id="art" position="-2.96 1.75 -1.4" rotation="0 90 0">
@@ -2098,10 +2098,16 @@ function skinPlant2() {
   if (!el) { return; }
 
   const load = new THREE.TextureLoader();
-  const map = load.load('assets/plant-c.jpg');
-  const normalMap = load.load('assets/plant-n.jpg');
-  const roughnessMap = load.load('assets/plant-rough.jpg');
-  const alphaMap = load.load('assets/plant-alpha.jpg');
+  function tex(path) {
+    return load.load(path, undefined, undefined, function () {
+      console.warn('[plant] texture failed to load: ' + path +
+                   ' — the plant will render untextured');
+    });
+  }
+  const map = tex('assets/plant-c.jpg');
+  const normalMap = tex('assets/plant-n.jpg');
+  const roughnessMap = tex('assets/plant-rough.jpg');
+  const alphaMap = tex('assets/plant-alpha.jpg');
   if (THREE.SRGBColorSpace) { map.colorSpace = THREE.SRGBColorSpace; }
   [map, normalMap, roughnessMap, alphaMap].forEach(function (t) {
     t.anisotropy = 4;
@@ -2129,6 +2135,15 @@ function skinPlant2() {
       alphaTest: 0.5
     });
   });
+}
+
+/* Runs fn once the entity's model exists, whether it arrived before or after
+   this call. Preloaded assets almost always land first, which is the case a
+   bare addEventListener silently misses. */
+function whenModelReady(el, fn) {
+  if (!el) { return; }
+  if (el.getObject3D('mesh')) { fn(el); return; }
+  el.addEventListener('model-loaded', function () { fn(el); });
 }
 
 function setupShadows() {
@@ -2391,23 +2406,20 @@ function boot() {
   skinFixtures();
   setupShadows();
 
-  // the OBJ may arrive after boot; skin and shadow it whenever it lands
-  const sofa2 = document.querySelector('#sofa2');
-  if (sofa2) {
-    sofa2.addEventListener('model-loaded', function () {
-      boxProjectUVs(sofa2.object3D);   // must run before the skin is applied
-      skinSofa2();
-      setShadowFlags('#sofa2', true, true);
-    });
-  }
+  /* Preloaded <a-asset-item> models finish before the scene fires 'loaded',
+     so by the time boot() runs, model-loaded has usually ALREADY fired and a
+     plain addEventListener never hears it. Check for the mesh first, and only
+     wait if it genuinely has not arrived. */
+  whenModelReady(document.querySelector('#sofa2'), function (el) {
+    boxProjectUVs(el.object3D);        // must run before the skin is applied
+    skinSofa2();
+    setShadowFlags('#sofa2', true, true);
+  });
 
-  const plant2 = document.querySelector('#plant2');
-  if (plant2) {
-    plant2.addEventListener('model-loaded', function () {
-      skinPlant2();
-      setShadowFlags('#plant2', true, true);
-    });
-  }
+  whenModelReady(document.querySelector('#plant2'), function (el) {
+    skinPlant2();
+    setShadowFlags('#plant2', true, true);
+  });
   // dynamically appended blossoms initialise on the next tick, so the
   // shadow flags get a second pass once their meshes exist
   setTimeout(setupShadows, 0);
