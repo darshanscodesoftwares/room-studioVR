@@ -219,11 +219,11 @@
   <!-- ============ furniture ============ -->
 
   <!-- rug -->
-  <a-plane id="rug" rotation="-90 0 0" width="3.2" height="2.2" position="0 0.01 -0.9"
+  <a-plane id="rug" rotation="-90 0 0" width="3.2" height="2.2" position="0 0.01 0.15"
            material="color: #8d99ae; roughness: 1; metalness: 0"></a-plane>
 
   <!-- sofa, against the north wall -->
-  <a-entity id="sofa" position="0 0 -2.25">
+  <a-entity id="sofa" position="0 0 0.95" rotation="0 180 0">
     <a-entity class="fabric"
               geometry="primitive: rounded-box; width: 2.2; height: 0.32; depth: 0.9; radius: 0.07" position="0 0.36 0"
            material="color: #6b7a8f; roughness: 0.92; metalness: 0"></a-entity>
@@ -258,10 +258,10 @@
        the primitive-to-model swap. Parts are told apart by mesh name in
        skinSofa2(): the Cylinder runner rails get the dark frame finish. -->
   <a-entity id="sofa2" obj-model="obj: #koltukObj"
-            position="0 0.17 -2.25" rotation="0 0 0" visible="false"></a-entity>
+            position="0 0.17 0.95" rotation="0 180 0" visible="false"></a-entity>
 
   <!-- coffee table -->
-  <a-entity id="table" position="0 0 -0.85">
+  <a-entity id="table" position="0 0 -0.25">
     <!-- lacquered top: the glossiest thing in the room, so it carries the
          window reflection and reads as a real surface -->
     <a-entity class="table-top"
@@ -276,7 +276,7 @@
   </a-entity>
 
   <!-- accent chair: two switchable styles, same footprint -->
-  <a-entity id="chair" position="1.95 0 0.35" rotation="0 -125 0">
+  <a-entity id="chair" position="2.35 0 2.25" rotation="0 -155 0">
     <a-entity id="chairModern">
       <a-entity class="chair-fabric"
                 geometry="primitive: rounded-box; width: 0.62; height: 0.09; depth: 0.6; radius: 0.03" position="0 0.44 0"
@@ -313,7 +313,7 @@
   </a-entity>
 
   <!-- floor lamp -->
-  <a-entity id="lamp" position="-2.25 0 -2.2">
+  <a-entity id="lamp" position="-2.35 0 -2.3">
     <a-cylinder radius="0.19" height="0.03" position="0 0.015 0" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-cylinder>
     <a-cylinder radius="0.022" height="1.5" position="0 0.76 0" material="color: #3d3129; roughness: 0.42; metalness: 0.55"></a-cylinder>
     <a-cone id="lampShade" radius-bottom="0.24" radius-top="0.15" height="0.28"
@@ -330,7 +330,7 @@
        truncated a-cone, which honours both radii.
        Blossoms, fallen petals and moss are scattered in JS from a fixed
        seed, so the tree looks identical to every visitor. -->
-  <a-entity id="plant" position="2.35 0 -2.4">
+  <a-entity id="plant" position="2.40 0 -2.35">
     <!-- drip saucer -->
     <a-cylinder id="potSaucer" radius="0.2" height="0.016" position="0 0.008 0"
                 material="color: #9c4f30; roughness: 0.78; metalness: 0.02"></a-cylinder>
@@ -409,7 +409,7 @@
        browsers cannot load TGA — and the maps are applied in JS.
        LICENCE: marked NOT FOR COMMERCIAL USE. See assets/CREDITS.md. -->
   <a-entity id="plant2" obj-model="obj: #plantObj"
-            position="2.35 0 -2.4" rotation="0 -25 0"
+            position="2.40 0 -2.35" rotation="0 -25 0"
             scale="0.016 0.016 0.016" visible="false"></a-entity>
 
   <!-- Cat on a hardcoded patrol. The downloaded .skp could not be used:
@@ -530,7 +530,7 @@
        88-joint skin with a 20.3s idle loop. LICENCE: Renderpeople —
        redistribution restricted. See assets/CREDITS.md before any public
        deploy. -->
-  <a-entity id="human" position="-1.5 0 1.0" rotation="0 135 0"
+  <a-entity id="human" position="-2.5 0 2.5" rotation="0 145 0"
             gltf-model="url(assets/sophia.gltf)"
             gltf-animation></a-entity>
 
@@ -2881,10 +2881,15 @@ AFRAME.registerComponent('path-walk', {
   init: function () {
     // x, z, seconds to wait, and what to look at while waiting
     this.stops = [
-      { x: -0.80, z:  1.15, dwell: 18, face: [-1.5, 1.0] },  // beside her
-      { x:  1.15, z:  0.55, dwell: 15, face: [ 3.0, 0.0] },  // at the window
-      { x:  0.35, z: -0.10, dwell: 20, face: [ 0.0, -2.4] }, // facing the sofa
-      { x:  1.00, z:  1.90, dwell: 12, face: null }          // open floor
+      { x:  2.15, z:  0.30, dwell: 20, face: [ 3.2,  0.30] }, // at the window
+      { x:  1.85, z:  1.35, dwell:  0, face: null },
+      { x:  1.00, z:  2.35, dwell:  0, face: null },
+      { x: -0.60, z:  2.45, dwell: 12, face: null },
+      { x: -1.75, z:  2.30, dwell: 18, face: [-2.5, 2.50] }, // beside her
+      { x: -2.00, z:  0.90, dwell:  0, face: null },
+      { x: -1.60, z: -1.30, dwell:  0, face: null },
+      { x:  0.10, z: -1.70, dwell: 15, face: [ 0.0, -2.95] }, // at the TV
+      { x:  1.30, z: -1.60, dwell:  0, face: null }
     ];
     this.i = 0;
     this.wait = this.stops[0].dwell;
@@ -2971,10 +2976,10 @@ AFRAME.registerComponent('cat-walk', {
   init: function () {
     // [x, z] waypoints; dwell[i] = seconds to sit after arriving at point i
     this.path = [
-      [-2.3, 1.8], [-2.4, -1.0], [-1.5, -1.55], [1.2, -1.5],
-      [2.5, -0.7], [2.6, 0.75], [1.65, 1.5], [1.5, 2.3], [-0.5, 2.3]
+      [-2.60, 1.60], [-2.55, -1.20], [-1.60, -2.45], [1.40, -2.55],
+      [1.85, -1.65], [2.55, -0.60], [2.60, 0.90], [1.00, 2.60], [-0.60, 2.62]
     ];
-    this.dwell = [0, 3, 0, 0, 4, 0, 0, 0, 3];
+    this.dwell = [0, 3, 0, 0, 0, 4, 0, 0, 3];
     this.seg = 0;
     this.t = 0;
     this.wait = 0;

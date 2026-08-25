@@ -292,11 +292,14 @@ inside it, because the originals are 15MB and 4MB and downsizing them
 separately keeps the model file small. Gloss was inverted to roughness at build
 time, since glTF has no gloss channel.
 
-A second figure — a 1.86m man — moves between four places and waits at each,
+A second figure — a 1.86m man — moves between stops and waits at each,
 his own walk clip supplying the gait. A continuous loop reads as a mannequin on
 a track; the giveaway is that he never stops. So each stop carries its own dwell
-(12–20s) and something to look at while waiting: he stands beside the woman and
-turns toward her, looks out of the window, faces the sofa. With nothing
+(12–20s) and something to look at while waiting: he stands at the window looking
+out, beside the woman turned toward her, and in front of the TV. Zero-dwell
+waypoints between them keep his route clear of the furniture — the room's
+circulation runs as a ring around the seating, and a straight line between two
+stops would otherwise cut through the sofa. With nothing
 specified he turns toward wherever he is heading next, so leaving reads as
 intentional. Over a cycle he spends 65 seconds standing and 9 walking, which is
 roughly how people actually occupy a room.
