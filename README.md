@@ -126,9 +126,15 @@ One API landmine worth recording: `<a-cylinder>` silently ignores
 default radius — the original pot rendered as a 2m disc because of exactly this.
 Tapered cylinders must be truncated cones.
 
-Six palettes now drive the room — walls, flooring, rug, sofa, chair fabric and
-table top. In VR they are split across **Room** and **Furniture** tabs, because
-a tile too small to hit reliably with a laser is worse than a second tab.
+Seven palettes now drive the room — walls, **ceiling**, flooring, rug, sofa,
+chair fabric and table top. Ceiling is its own finish rather than following the
+walls, so a timber or charcoal ceiling can be tried against any wall colour.
+
+In VR they are split across **Room** and **Furniture** tabs. The room tab needed
+a fourth row for the ceiling, so the whole panel was re-laid out and the board
+grew to 2.70m. Both tab layouts are verified against a collision check that
+walks the panel top to bottom, since a 2cm text overlap is invisible in code and
+obvious in a headset.
 
 These are a floor, not a ceiling. Scanned PBR sets slot in over them via the
 `tex` path below.
