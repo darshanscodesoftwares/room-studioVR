@@ -2186,9 +2186,8 @@ function skinFixtures() {
     ['#potSoil',      'soil',       [3, 3]],
     ['.bonsai-wood',  'bark',       [3, 2]],
     ['.bonsai-leaf',  'foliage',    [3, 2]],
-    ['#lampShade',    'weave',      [6, 2]],
-    // normal-only: strand relief in the lighting, colour left clean
-    ['.cat-fur',      'fur',        [7, 6],  true]
+    ['#lampShade',    'weave',      [6, 2]]
+    // no skin on the cat: every fur attempt read as blotches at this scale
   ].forEach(function (f) {
     document.querySelectorAll(f[0]).forEach(function (el) {
       applySkin(el, f[1], f[2], f[3]);
