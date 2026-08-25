@@ -96,9 +96,6 @@
   <h2>Table top</h2>
   <div class="swatches" id="tableWoodSw"></div>
 
-  <h2>Wall art</h2>
-  <div class="swatches" id="artworkSw"></div>
-
   <h2>Accent chair</h2>
   <div class="btns" id="chairBtns"></div>
 
@@ -161,7 +158,6 @@
     <a-asset-item id="plantObj" src="assets/eb-house-plant.obj"></a-asset-item>
     <a-asset-item id="catObj" src="assets/cat-realistic.obj"></a-asset-item>
     <a-asset-item id="tvMiObj" src="assets/tv-mi.obj"></a-asset-item>
-    <a-asset-item id="artObj" src="assets/art-frame.obj"></a-asset-item>
   </a-assets>
 
   <!-- ============ lighting ============ -->
@@ -571,14 +567,15 @@
             position="0 1.62 -2.21" scale="0.712 0.712 0.712"
             gltf-model="url(assets/tv-smart.gltf)"></a-entity>
 
-  <!-- Wall art, west wall. A staggered multi-panel piece: already Y-up and
-       already facing +X, so mounting it on the west wall needs no rotation
-       at all — the only correction is pushing its back face up to the wall.
-       One material spans every panel, which is why switching the artwork is
-       a texture swap rather than a model swap. -->
-  <a-entity id="art" position="-2.90 1.35 -1.47">
-    <a-entity id="artFrame" obj-model="obj: #artObj"
-              scale="0.014 0.014 0.014"></a-entity>
+  <!-- framed wall art, west wall -->
+  <a-entity id="art" position="-2.96 1.75 -1.4" rotation="0 90 0">
+    <a-box width="1.1" height="0.8" depth="0.04" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-box>
+    <a-plane width="0.98" height="0.68" position="0 0 0.03"
+             material="color: #cbb89d; shader: flat"></a-plane>
+    <a-plane width="0.5" height="0.34" position="-0.12 0.06 0.035"
+             material="color: #7b8fa1; shader: flat"></a-plane>
+    <a-plane width="0.3" height="0.22" position="0.2 -0.1 0.035"
+             material="color: #a8564a; shader: flat"></a-plane>
   </a-entity>
 
   <!-- in-VR control panel; children are generated in JS -->
@@ -627,18 +624,6 @@ const PALETTE = {
     { id: 'sage',    name: 'Sage',        hex: '#c3cfbf', proc: 'plaster' },
     { id: 'mist',    name: 'Cool Mist',   hex: '#d5dbe0', proc: 'plaster' },
     { id: 'ink',     name: 'Deep Ink',    hex: '#4a5568', proc: 'plaster' }
-  ],
-  /* Artwork entries carry a picture rather than a colour, so the swatch can
-     show the painting instead of a flat average of it. The hex is only the
-     fallback if the image fails to load. */
-  artwork: [
-    { id: 'a1', name: 'Indigo',   tex: 'assets/art-01.jpg', hex: '#52576b' },
-    { id: 'a2', name: 'Plum',     tex: 'assets/art-02.jpg', hex: '#635860' },
-    { id: 'a3', name: 'Stone',    tex: 'assets/art-03.jpg', hex: '#7d7c79' },
-    { id: 'a4', name: 'Amber',    tex: 'assets/art-04.jpg', hex: '#daaa70' },
-    { id: 'a5', name: 'Ash',      tex: 'assets/art-05.jpg', hex: '#a5a5a5' },
-    { id: 'a6', name: 'Silver',   tex: 'assets/art-06.jpg', hex: '#acacac' },
-    { id: 'a7', name: 'Linen',    tex: 'assets/art-07.jpg', hex: '#a39e9e' }
   ],
   ceiling: [
     { id: 'chalkC',  name: 'White',      hex: '#f4f4f2', proc: 'plaster' },
@@ -706,19 +691,19 @@ const PALETTE = {
 const PACKAGES = {
   studio: {
     name: 'Studio',
-    wall: 'chalk', ceiling: 'chalkC', artwork: 'a1', floor: 'oak', sofa: 'steel',
+    wall: 'chalk', ceiling: 'chalkC', floor: 'oak', sofa: 'steel',
     chairFabric: 'rust', rugColor: 'mistrug', tableWood: 'walnuttop',
     chair: 'modern', rug: true, plant: true, art: true, cat: true
   },
   warmOak: {
     name: 'Warm Oak',
-    wall: 'sand', ceiling: 'warmC', artwork: 'a4', floor: 'walnut', sofa: 'terra',
+    wall: 'sand', ceiling: 'warmC', floor: 'walnut', sofa: 'terra',
     chairFabric: 'leather', rugColor: 'wool', tableWood: 'oaktop',
     chair: 'armchair', rug: true, plant: true, art: true, cat: true
   },
   coolMinimal: {
     name: 'Cool Minimal',
-    wall: 'mist', ceiling: 'coolC', artwork: 'a5', floor: 'concrete', sofa: 'charcoal',
+    wall: 'mist', ceiling: 'coolC', floor: 'concrete', sofa: 'charcoal',
     chairFabric: 'slateup', rugColor: 'graphite', tableWood: 'marble',
     chair: 'modern', rug: false, plant: false, art: true, cat: true
   }
@@ -1491,33 +1476,6 @@ function setWallColor(id) {
   logEvent('finish', { kind: 'wall', id: id });
 }
 
-/* The frame carries one material across all of its staggered panels, so the
-   painting is applied to every mesh under it rather than to a named face. */
-function setArtwork(id) {
-  state.artwork = id;
-  const entry = entryOf('artwork', id);
-  const el = document.querySelector('#artFrame');
-  if (el) {
-    const tex = new THREE.TextureLoader().load(entry.tex, undefined, undefined,
-      function () { console.warn('[art] texture failed: ' + entry.tex); });
-    if (THREE.SRGBColorSpace) { tex.colorSpace = THREE.SRGBColorSpace; }
-    tex.anisotropy = 4;
-    el.object3D.traverse(function (n) {
-      if (!n.isMesh) { return; }
-      if (!n.material || !n.material.isMeshStandardMaterial) {
-        n.material = new THREE.MeshStandardMaterial();
-      }
-      n.material.map = tex;
-      n.material.color.set('#ffffff');
-      n.material.roughness = 0.55;
-      n.material.metalness = 0;
-      n.material.needsUpdate = true;
-    });
-  }
-  state.package = null;
-  logEvent('finish', { kind: 'artwork', id: id });
-}
-
 function setCeilingColor(id) {
   state.ceiling = id;
   applyFinish(document.querySelector('#ceiling'), entryOf('ceiling', id),
@@ -1687,7 +1645,6 @@ function applyPackage(pkgId, silent) {
   logging = false;
   setWallColor(p.wall);
   setCeilingColor(p.ceiling);
-  setArtwork(p.artwork);
   setFloorColor(p.floor);
   setSofaColor(p.sofa);
   setChairFabric(p.chairFabric);
@@ -1785,18 +1742,13 @@ function buildOverlay() {
    ['rugColor', '#rugColorSw', setRugColor],
    ['sofa', '#sofaSw', setSofaColor],
    ['chairFabric', '#chairFabricSw', setChairFabric],
-   ['tableWood', '#tableWoodSw', setTableWood],
-   ['artwork', '#artworkSw', setArtwork]].forEach(function (row) {
+   ['tableWood', '#tableWoodSw', setTableWood]].forEach(function (row) {
     const kind = row[0], sel = row[1], fn = row[2];
     const host = document.querySelector(sel);
     PALETTE[kind].forEach(function (c) {
       const d = document.createElement('div');
       d.className = 'sw';
       d.style.background = c.hex;
-      if (c.tex) {
-        d.style.backgroundImage = 'url(' + c.tex + ')';
-        d.style.backgroundSize = 'cover';
-      }
       d.title = c.name;
       d.dataset.kind = kind;
       d.dataset.id = c.id;
@@ -1944,7 +1896,7 @@ function renderTelemetry() {
    ========================================================================= */
 const vrTiles = {
   wall: [], ceiling: [], floor: [], rugColor: [],
-  sofa: [], chairFabric: [], tableWood: [], artwork: []
+  sofa: [], chairFabric: [], tableWood: []
 };
 const vrTabs = {};
 let activeTab = 'room';
@@ -1956,8 +1908,7 @@ function mkPlane(parent, opts) {
   el.setAttribute('height', opts.h);
   el.setAttribute('position', opts.x + ' ' + opts.y + ' ' + (opts.z || 0));
   el.setAttribute('material', 'color: ' + opts.color + '; shader: flat; opacity: ' +
-    (opts.opacity === undefined ? 1 : opts.opacity) +
-    (opts.src ? '; src: ' + opts.src : ''));
+    (opts.opacity === undefined ? 1 : opts.opacity));
   if (opts.clickable) { el.classList.add('clickable'); }
   parent.appendChild(el);
   return el;
@@ -2029,8 +1980,7 @@ function buildVrPanel() {
     furniture: [
       { kind: 'sofa',        label: 'Sofa',        fn: setSofaColor },
       { kind: 'chairFabric', label: 'Chair fabric', fn: setChairFabric },
-      { kind: 'tableWood',   label: 'Table top',   fn: setTableWood },
-      { kind: 'artwork',     label: 'Wall art',    fn: setArtwork }
+      { kind: 'tableWood',   label: 'Table top',   fn: setTableWood }
     ]
   };
   // four rows on the room tab now, so the band tightens and the tiles shrink
@@ -2045,19 +1995,15 @@ function buildVrPanel() {
     TABS[tabId].forEach(function (row, r) {
       const y = ROW_Y[r];
       mkText(group, row.label, { x: 0, y: y + 0.13, width: 1.5, color: '#9aa0ad' });
-      // seven artworks against six paints, so the row width is shared out
-      // rather than fixed — the tiles narrow instead of running off the board
-      const step = Math.min(0.26, 1.56 / PALETTE[row.kind].length);
       PALETTE[row.kind].forEach(function (c, i) {
-        const x = -(step * (PALETTE[row.kind].length - 1)) / 2 + i * step;
+        const x = -0.65 + i * 0.26;
         // selection ring sits behind the swatch and lights up when active
         const ring = mkPlane(group, {
-          w: step - 0.06, h: 0.20, x: x, y: y, z: 0.008, color: '#161a22'
+          w: 0.20, h: 0.20, x: x, y: y, z: 0.008, color: '#161a22'
         });
         const tile = mkPlane(group, {
-          w: step - 0.09, h: 0.17, x: x, y: y, z: 0.014,
-          // an artwork swatch shows the painting; a paint swatch is the colour
-          color: c.tex ? '#ffffff' : c.hex, src: c.tex, clickable: true
+          w: 0.17, h: 0.17, x: x, y: y, z: 0.014,
+          color: c.hex, clickable: true
         });
         tile.addEventListener('click', function () { row.fn(c.id); syncUI(); });
         vrTiles[row.kind].push({ ring: ring, id: c.id });
@@ -3461,11 +3407,6 @@ function boot() {
   whenModelReady(document.querySelector('#human'), function () {
     skinHuman('#human', 'sophia');
     setShadowFlags('#human', true, true);
-  });
-
-  whenModelReady(document.querySelector('#artFrame'), function () {
-    setArtwork(state.artwork);          // texture the panels once they exist
-    setShadowFlags('#art', true, false);
   });
 
   whenModelReady(document.querySelector('#tvMi'), function () {

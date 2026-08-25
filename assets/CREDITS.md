@@ -132,17 +132,6 @@ channel was removed at build time so `path-walk` can drive the travel instead.
 - Its FBX never referenced the bundled `Texture.jpg`, so the screen texture is
   applied at runtime.
 
----
-
-## art-frame.obj + art-01..07.jpg — Tablo 1001
-
-- **Licence: unknown.** No licence file in the pack.
-- **Source pack:** `17-1001`, exported from 3ds Max, 2020
-- A staggered multi-panel wall piece, 3,084 verts, one material spanning every
-  panel — which is why switching the artwork is a texture swap, not a model swap
-- Already Y-up and already facing +X, so the west wall needed no rotation
-- Seven paintings, resized to at most 1024px: 5.0MB of source became 1.5MB
-
 ## Replacing these
 
 Prefer glTF/GLB with an explicit licence. [Poly Haven](https://polyhaven.com)
