@@ -240,6 +240,23 @@ the Sketchfab "Animated" filter and licence), keep the `cat-walk` path
 logic, and drive `THREE.AnimationMixer` from the model's walk clip instead
 of the procedural leg swing.
 
+## Model variants
+
+Sofa and plant are **slots**, not fixed objects: each holds interchangeable
+models of the same piece of furniture, chosen from a dropdown in the desktop
+panel or a **Models** tab in VR. Variants share an anchor, so switching swaps in
+place instead of moving furniture across the room.
+
+All variants live in the scene at once and are shown one at a time. That keeps
+switching instant with no load hitch mid-demo; the trade is memory, and at these
+polycounts it is the right way round. Adding a variant means putting its entity
+in the markup and adding a row to `MODELS` — both panels pick it up with no
+further wiring.
+
+This is the direct answer to the brief's *"one showroom presents multiple
+configurations"*: finish packages change the surfaces, model variants change the
+furniture itself, and both are logged.
+
 ## Loaded models
 
 The second sofa (`assets/koltuk-sofa.obj`, 896 vertices) is the first real 3D

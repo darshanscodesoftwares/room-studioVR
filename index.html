@@ -48,6 +48,14 @@
     border-radius: 6px; padding: 7px 9px;
   }
   .tele span { color: #6fd3a0; }
+  .mrow { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .mrow label { flex: 0 0 46px; font-size: 11px; color: #9aa0ad; }
+  .mrow select {
+    flex: 1; font: inherit; font-size: 12px; color: #e8e8ea; cursor: pointer;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 6px; padding: 5px 6px;
+  }
+  .mrow select option { background: #1b1f27; color: #e8e8ea; }
   #toggleUi {
     position: fixed; top: 12px; left: 12px; z-index: 11; display: none;
   }
@@ -60,6 +68,9 @@
 <div id="ui">
   <h1>Room Studio</h1>
   <p class="sub">Interior preview &middot; desktop controls</p>
+
+  <h2>Models</h2>
+  <div id="modelSelects"></div>
 
   <h2>Finish package</h2>
   <div class="btns" id="pkgBtns"></div>
@@ -232,15 +243,17 @@
     <a-cylinder radius="0.035" height="0.2" position=" 0.95 0.1 -0.35" material="color: #3d3129; roughness: 0.42; metalness: 0.55"></a-cylinder>
   </a-entity>
 
-  <!-- Second sofa: the first real 3D asset in the scene, an OBJ loaded
-       as-is (already metre-scaled, Y-up). It ships without UVs, so no
+  <!-- Sofa variant B for the sofa slot: shares the north-wall anchor with
+       the primitive sofa, so switching swaps in place rather than moving
+       furniture across the room. An OBJ loaded as-is (already metre-scaled,
+       Y-up, back already at -Z). It ships without UVs, so no
        texture — procedural skins included — can map onto it; it stays flat
        colour, but that colour is driven by the same sofa-fabric palette,
        which is the roadmap's whole claim: customisation functions survive
        the primitive-to-model swap. Parts are told apart by mesh name in
        skinSofa2(): the Cylinder runner rails get the dark frame finish. -->
   <a-entity id="sofa2" obj-model="obj: #koltukObj"
-            position="0 0.17 1.0" rotation="0 180 0"></a-entity>
+            position="0 0.17 -2.25" rotation="0 0 0" visible="false"></a-entity>
 
   <!-- coffee table -->
   <a-entity id="table" position="0 0 -0.85">
@@ -385,14 +398,14 @@
     <a-entity id="blossoms"></a-entity>
   </a-entity>
 
-  <!-- Second plant: a fully textured OBJ (602 tris) by the window, where a
-       real houseplant would be put. Model units are centimetres, hence the
+  <!-- Plant variant B for the plant slot: shares the corner anchor with the
+       bonsai. A fully textured OBJ (602 tris). Model units are centimetres, hence the
        0.01 scale. Its textures are converted from the pack's 2048px TGAs —
        browsers cannot load TGA — and the maps are applied in JS.
        LICENCE: marked NOT FOR COMMERCIAL USE. See assets/CREDITS.md. -->
   <a-entity id="plant2" obj-model="obj: #plantObj"
-            position="2.45 0 1.75" rotation="0 -25 0"
-            scale="0.016 0.016 0.016"></a-entity>
+            position="2.35 0 -2.4" rotation="0 -25 0"
+            scale="0.016 0.016 0.016" visible="false"></a-entity>
 
   <!-- Cat on a hardcoded patrol. The downloaded .skp could not be used:
        no browser loader exists for SketchUp files, and SketchUp has no
@@ -628,6 +641,33 @@ const PACKAGES = {
   }
 };
 
+/* ---------- model variants ----------
+   Each slot holds interchangeable versions of the same piece of furniture.
+   The variants all exist in the scene at once and are shown one at a time,
+   which keeps switching instant with no load hitch mid-demo — the trade is
+   memory, and at these polycounts that is the right way round.
+
+   `anchor` positions the whole slot, so a variant only carries the offset,
+   rotation and scale that differ from its siblings. To add a variant: put
+   its entity inside the slot's container in the markup, add a row here, and
+   both panels pick it up with no further wiring. */
+const MODELS = {
+  sofa: {
+    label: 'Sofa',
+    variants: [
+      { id: 'primitive', name: 'Studio 3-Seat', el: '#sofa' },
+      { id: 'koltuk',    name: 'Koltuk Loaded', el: '#sofa2' }
+    ]
+  },
+  plant: {
+    label: 'Plant',
+    variants: [
+      { id: 'bonsai',    name: 'Flowering Bonsai', el: '#plant' },
+      { id: 'house',     name: 'House Plant',      el: '#plant2' }
+    ]
+  }
+};
+
 /* ---------- lighting presets ----------
    Daylight is carried by the ambient + directional pair and the window; the
    floor lamp is a separate switch so it can be judged against each preset. */
@@ -668,13 +708,15 @@ const LIGHTING = {
 const DEFAULT_STATE = Object.assign({}, PACKAGES.studio, {
   package: 'studio',
   lighting: 'day',
-  lamp: true
+  lamp: true,
+  models: { sofa: 'primitive', plant: 'bonsai' }
 });
 delete DEFAULT_STATE.name;
 
 const START_POSITION = { x: 0, y: 0, z: 2.2 };
 
-let state = Object.assign({}, DEFAULT_STATE);
+let state = Object.assign({}, DEFAULT_STATE,
+  { models: Object.assign({}, DEFAULT_STATE.models) });
 let smoothMoveEnabled = true;
 
 /* =========================================================================
@@ -1355,12 +1397,43 @@ function setChairStyle(style) {
 
 function setDecor(key, on) {
   state[key] = on;
-  const ids = { rug: '#rug', plant: '#plant, #plant2', art: '#art', cat: '#cat' };
-  document.querySelectorAll(ids[key]).forEach(function (el) {
-    el.setAttribute('visible', on);
-  });
+  if (key === 'plant') {
+    // the slot decides which plant; this only decides whether any shows
+    applyModelSlot('plant');
+  } else {
+    const ids = { rug: '#rug', art: '#art', cat: '#cat' };
+    document.querySelectorAll(ids[key]).forEach(function (el) {
+      el.setAttribute('visible', on);
+    });
+  }
   state.package = null;
   logEvent('decor', { id: key, on: on });
+}
+
+/* ---------- model variants ---------- */
+function setModel(slot, variantId) {
+  if (!MODELS[slot]) { return; }
+  state.models[slot] = variantId;
+  applyModelSlot(slot);
+  logEvent('model', { slot: slot, id: variantId });
+}
+
+function applyModelSlot(slot) {
+  const def = MODELS[slot];
+  if (!def) { return; }
+  const chosen = state.models[slot];
+  // decor toggles own visibility for the plant slot, so a hidden slot must
+  // stay hidden when its variant changes
+  const slotVisible = (slot !== 'plant') || !!state.plant;
+
+  def.variants.forEach(function (v) {
+    const el = document.querySelector(v.el);
+    if (el) { el.setAttribute('visible', slotVisible && v.id === chosen); }
+  });
+}
+
+function applyModels() {
+  Object.keys(MODELS).forEach(applyModelSlot);
 }
 
 /* ---------- lighting ---------- */
@@ -1434,7 +1507,9 @@ function applyPackage(pkgId, silent) {
 
 function resetRoom(silent) {
   applyPackage('studio', true);
-  state = Object.assign({}, DEFAULT_STATE);
+  state = Object.assign({}, DEFAULT_STATE,
+    { models: Object.assign({}, DEFAULT_STATE.models) });
+  applyModels();
 
   const wasLogging = logging;
   logging = false;
@@ -1472,6 +1547,27 @@ function setSmoothMove(on) {
    Desktop overlay
    ========================================================================= */
 function buildOverlay() {
+  // model dropdowns, one per slot
+  const mHost = document.querySelector('#modelSelects');
+  Object.keys(MODELS).forEach(function (slot) {
+    const row = document.createElement('div');
+    row.className = 'mrow';
+    const lab = document.createElement('label');
+    lab.textContent = MODELS[slot].label;
+    const sel = document.createElement('select');
+    sel.dataset.slot = slot;
+    MODELS[slot].variants.forEach(function (v) {
+      const opt = document.createElement('option');
+      opt.value = v.id;
+      opt.textContent = v.name;
+      sel.appendChild(opt);
+    });
+    sel.onchange = function () { setModel(slot, sel.value); syncUI(); };
+    row.appendChild(lab);
+    row.appendChild(sel);
+    mHost.appendChild(row);
+  });
+
   // packages
   const pkgBtns = document.querySelector('#pkgBtns');
   Object.keys(PACKAGES).forEach(function (id) {
@@ -1580,6 +1676,9 @@ function buildOverlay() {
 }
 
 function syncOverlay() {
+  document.querySelectorAll('#modelSelects select').forEach(function (sel) {
+    sel.value = state.models[sel.dataset.slot];
+  });
   document.querySelectorAll('#pkgBtns button').forEach(function (b) {
     b.classList.toggle('on', b.dataset.pkg === state.package);
   });
@@ -1680,13 +1779,14 @@ function buildVrPanel() {
      Six palettes will not fit on one reachable panel, so they are split
      across two pages rather than shrinking the tiles: a tile the customer
      cannot reliably hit with a laser is worse than a second tab. */
-  [['room', 'Room'], ['furniture', 'Furniture']].forEach(function (t, i) {
-    const x = -0.42 + i * 0.84;
+  [['room', 'Room'], ['furniture', 'Furniture'],
+   ['models', 'Models']].forEach(function (t, i) {
+    const x = -0.56 + i * 0.56;
     const bg = mkPlane(panel, {
-      w: 0.78, h: 0.17, x: x, y: 0.60, z: 0.01,
+      w: 0.52, h: 0.17, x: x, y: 0.60, z: 0.01,
       color: '#2b3242', clickable: true
     });
-    mkText(panel, t[1], { x: x, y: 0.60, z: 0.022, width: 1.6 });
+    mkText(panel, t[1], { x: x, y: 0.60, z: 0.022, width: 1.45 });
     bg.addEventListener('click', function () { setVrTab(t[0]); });
     vrButtons.push({ el: bg, kind: 'tab', value: t[0] });
   });
@@ -1727,6 +1827,33 @@ function buildVrPanel() {
         tile.addEventListener('click', function () { row.fn(c.id); syncUI(); });
         vrTiles[row.kind].push({ ring: ring, id: c.id });
       });
+    });
+  });
+
+  /* --- models tab: one row per slot, buttons sized to fit the variants,
+         because a laser needs a big target more than the panel needs
+         symmetry --- */
+  const mGroup = document.createElement('a-entity');
+  panel.appendChild(mGroup);
+  vrTabs.models = mGroup;
+
+  Object.keys(MODELS).forEach(function (slot, r) {
+    const y = ROW_Y[r];
+    const vars = MODELS[slot].variants;
+    mkText(mGroup, MODELS[slot].label,
+      { x: 0, y: y + 0.13, width: 2.4, color: '#9aa0ad' });
+
+    const w = Math.min(0.8, 1.68 / vars.length - 0.06);
+    const step = w + 0.06;
+    vars.forEach(function (v, i) {
+      const x = -(step * (vars.length - 1)) / 2 + i * step;
+      const bg = mkPlane(mGroup, {
+        w: w, h: 0.18, x: x, y: y, z: 0.01,
+        color: '#2b3242', clickable: true
+      });
+      mkText(mGroup, v.name, { x: x, y: y, z: 0.022, width: 1.45 });
+      bg.addEventListener('click', function () { setModel(slot, v.id); syncUI(); });
+      vrButtons.push({ el: bg, kind: 'model', slot: slot, value: v.id });
     });
   });
 
@@ -1798,6 +1925,7 @@ function syncVrPanel() {
   vrButtons.forEach(function (b) {
     let on = false;
     if (b.kind === 'tab') { on = activeTab === b.value; }
+    else if (b.kind === 'model') { on = state.models[b.slot] === b.value; }
     else if (b.kind === 'package') { on = state.package === b.value; }
     else if (b.kind === 'chair') { on = state.chair === b.value; }
     else if (b.kind === 'lighting') { on = state.lighting === b.value; }
@@ -2632,6 +2760,7 @@ function boot() {
   const wasLogging = logging;
   logging = false;
   applyPackage('studio', true);
+  applyModels();
   setLighting('day');
   setLamp(true);
   setSmoothMove(true);
