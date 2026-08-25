@@ -223,14 +223,12 @@ Controller mapping uses `meta-touch-controls` (Quest). For Pico or WMR, swap in
 
 ## The cat
 
-Fur is two techniques, because a texture alone cannot make a silhouette
-fluffy — the outline stays a hard mathematical curve. A fine strand map with
-a Sobel normal covers the surface, and **shell rendering** covers the edge:
-three concentric copies of each major mass, each slightly larger and masked
-by scattered strand tips, with outer shells keeping fewer strands so the coat
-tapers instead of ending in a wall. Only the big masses are shelled — a
-laser-thin leg does not need volumetric fur and every shell is a draw call.
-Shells are children of the mesh, so they inherit the gait animation for free.
+Fur is a normal-only strand map: relief in the lighting, colour left clean.
+Two things were tried and reverted, both worth recording. A greyscale colour
+map at cat scale reads as grime, not fur. And shell rendering — concentric
+alpha-masked copies, the textbook fluff technique — needs strand tips far
+finer than a 256px mask gives on a 13cm body, so it rendered as mottled
+lumps. Volumetric fur wants a real groom, not primitives.
 
 
 A primitive-built cat patrols a hardcoded waypoint loop that threads the
