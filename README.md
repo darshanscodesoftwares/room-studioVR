@@ -336,6 +336,24 @@ they are scale references, not decor.
 > 3D data, and serving the glTF from a public URL is redistribution. See
 > [assets/CREDITS.md](assets/CREDITS.md).
 
+## The TVs
+
+A wall-mounted screen hangs on the north wall above the sofa, switchable
+between two models from the **TV** slot. Both are scaled to the same 1.25m
+screen width so the switch compares the screens rather than their sizes.
+
+The MI model ships as a pedestal unit, which cannot hang on anything. Its OBJ
+groups separate cleanly, so the base and neck were stripped at build time —
+27,140 of its 44,085 vertices — leaving the panel alone and taking the file
+from 5.7MB to 379KB. The SmartTV was authored on its side and is rolled upright
+in the scene.
+
+Neither pack carries usable materials: the MI `.mtl` has colour-only slots and
+the SmartTV's FBX never referenced its own bundled texture. So both get their
+surfaces assigned at runtime, the screen identified as the largest flat face in
+the model and given a low roughness so an off screen reads as glass catching
+the window rather than as dark paint.
+
 ## Loaded models
 
 The second sofa (`assets/koltuk-sofa.obj`, 896 vertices) is the first real 3D

@@ -111,6 +111,27 @@ Processing applied (originals not redistributed here):
 — a native ground speed of 1.282 m/s — and snaps back on every loop. That
 channel was removed at build time so `path-walk` can drive the travel instead.
 
+---
+
+## tv-mi.obj — MI Smart TV
+
+- **Licence: unknown.** No licence file in the pack.
+- **Source pack:** `32-fbxobj-formats`
+- Shipped as a **pedestal** unit. The base and neck were stripped at build
+  time — 27,140 of its 44,085 vertices — leaving only the panel, which is what
+  can hang on a wall. 5.7MB became 379KB.
+- Its `.mtl` defines colour-only material slots and no texture maps, so the
+  screen and bezel materials are assigned at runtime.
+
+## tv-smart.gltf — SmartTV
+
+- **Licence: unknown.** No licence file in the pack.
+- **Source pack:** `wa5ztx5h5jb4-SmartTV`
+- Converted from FBX via FBX2glTF. Authored on its side with the stand at -X,
+  so it is rolled 90 degrees upright in the scene.
+- Its FBX never referenced the bundled `Texture.jpg`, so the screen texture is
+  applied at runtime.
+
 ## Replacing these
 
 Prefer glTF/GLB with an explicit licence. [Poly Haven](https://polyhaven.com)

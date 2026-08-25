@@ -151,6 +151,7 @@
     <a-asset-item id="koltukObj" src="assets/koltuk-sofa.obj"></a-asset-item>
     <a-asset-item id="plantObj" src="assets/eb-house-plant.obj"></a-asset-item>
     <a-asset-item id="catObj" src="assets/cat-realistic.obj"></a-asset-item>
+    <a-asset-item id="tvMiObj" src="assets/tv-mi.obj"></a-asset-item>
   </a-assets>
 
   <!-- ============ lighting ============ -->
@@ -540,6 +541,21 @@
             gltf-animation
             path-walk="speed: 0.83; clipSpeed: 1.282"></a-entity>
 
+  <!-- Wall-mounted TVs, north wall above the sofa. Both variants share the
+       anchor and are scaled to the same 1.25m screen width so switching
+       compares the screens, not their sizes.
+       The MI model ships as a pedestal unit; its pedestal and base were
+       stripped at build time (27k of its 44k vertices) leaving the panel,
+       which is what can actually hang on a wall. -->
+  <a-entity id="tvMi" visible="false"
+            obj-model="obj: #tvMiObj"
+            position="0 1.62 -2.88" scale="0.625 0.625 0.625"></a-entity>
+
+  <!-- authored on its side with the stand at -X, so it rolls upright -->
+  <a-entity id="tvSmart" visible="false"
+            position="0 1.41 -2.94" rotation="0 0 90" scale="0.712 0.712 0.712"
+            gltf-model="url(assets/tv-smart.gltf)"></a-entity>
+
   <!-- framed wall art, west wall -->
   <a-entity id="art" position="-2.96 1.75 -1.4" rotation="0 90 0">
     <a-box width="1.1" height="0.8" depth="0.04" material="color: #2f2a26; roughness: 0.4; metalness: 0.6"></a-box>
@@ -708,6 +724,13 @@ const MODELS = {
       { id: 'both',  name: 'Both',  el: '#human, #human2' }
     ]
   },
+  tv: {
+    label: 'TV',
+    variants: [
+      { id: 'mi',    name: 'MI Smart',  el: '#tvMi' },
+      { id: 'smart', name: 'Slim Wall', el: '#tvSmart' }
+    ]
+  },
   cat: {
     label: 'Cat',
     variants: [
@@ -762,7 +785,7 @@ const DEFAULT_STATE = Object.assign({}, PACKAGES.studio, {
   // deliberately leave it alone; only the toggle and reset touch it
   human: true,
   models: { sofa: 'primitive', plant: 'bonsai', cat: 'realistic',
-            people: 'woman' }
+            people: 'woman', tv: 'mi' }
 });
 delete DEFAULT_STATE.name;
 
@@ -1944,7 +1967,7 @@ function buildVrPanel() {
 
   // four slots will not fit on the three swatch rows, so the models tab uses
   // its own tighter spacing
-  const MODEL_ROW_Y = [0.40, 0.17, -0.06, -0.29];
+  const MODEL_ROW_Y = [0.44, 0.255, 0.07, -0.115, -0.30];
   Object.keys(MODELS).forEach(function (slot, r) {
     const y = MODEL_ROW_Y[r];
     const vars = MODELS[slot].variants;
@@ -1956,7 +1979,7 @@ function buildVrPanel() {
     vars.forEach(function (v, i) {
       const x = -(step * (vars.length - 1)) / 2 + i * step;
       const bg = mkPlane(mGroup, {
-        w: w, h: 0.155, x: x, y: y, z: 0.01,
+        w: w, h: 0.14, x: x, y: y, z: 0.01,
         color: '#2b3242', clickable: true
       });
       mkText(mGroup, v.name, { x: x, y: y, z: 0.022, width: 1.45 });
@@ -2744,6 +2767,47 @@ function skinHuman(selector, prefix) {
   });
 }
 
+/* Neither TV pack carries usable materials — the MI model has colour-only
+   material slots and the SmartTV's texture was not referenced by its FBX at
+   all. So both get their surfaces assigned here: a dark, glossy screen face
+   and a matte dark bezel, told apart by area. The screen is the largest flat
+   face in either model, so the biggest mesh takes the screen treatment. */
+function skinTv(selector, screenTexture) {
+  const el = document.querySelector(selector);
+  if (!el) { return; }
+
+  let biggest = null, biggestArea = -1;
+  const box = new THREE.Box3();
+  el.object3D.traverse(function (n) {
+    if (!n.isMesh || !n.geometry) { return; }
+    n.geometry.computeBoundingBox();
+    const b = n.geometry.boundingBox;
+    const area = (b.max.x - b.min.x) * (b.max.y - b.min.y);
+    if (area > biggestArea) { biggestArea = area; biggest = n; }
+  });
+
+  let screenMap = null;
+  if (screenTexture) {
+    screenMap = new THREE.TextureLoader().load(screenTexture, undefined, undefined,
+      function () { console.warn('[tv] texture failed: ' + screenTexture); });
+    if (THREE.SRGBColorSpace) { screenMap.colorSpace = THREE.SRGBColorSpace; }
+    screenMap.flipY = false;
+  }
+
+  el.object3D.traverse(function (n) {
+    if (!n.isMesh) { return; }
+    const isScreen = (n === biggest);
+    n.material = new THREE.MeshStandardMaterial({
+      color: isScreen ? (screenMap ? '#ffffff' : '#0d1014') : '#1b1d21',
+      map: isScreen ? screenMap : null,
+      // a screen off is glass, not paint: low roughness so it catches the
+      // window and the room lights
+      roughness: isScreen ? 0.12 : 0.55,
+      metalness: isScreen ? 0.1 : 0.35
+    });
+  });
+}
+
 /* Runs fn once the entity's model exists, whether it arrived before or after
    this call. Preloaded assets almost always land first, which is the case a
    bare addEventListener silently misses. */
@@ -3239,6 +3303,16 @@ function boot() {
   whenModelReady(document.querySelector('#human'), function () {
     skinHuman('#human', 'sophia');
     setShadowFlags('#human', true, true);
+  });
+
+  whenModelReady(document.querySelector('#tvMi'), function () {
+    skinTv('#tvMi', null);
+    setShadowFlags('#tvMi', true, false);
+  });
+
+  whenModelReady(document.querySelector('#tvSmart'), function () {
+    skinTv('#tvSmart', 'assets/tv-smart-screen.jpg');
+    setShadowFlags('#tvSmart', true, false);
   });
 
   whenModelReady(document.querySelector('#human2'), function () {
