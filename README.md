@@ -292,6 +292,14 @@ shipped as an untextured material**, so it takes a true colour palette —
 six options on the desktop panel and the VR furniture tab — while the
 photo-textured pieces are tintable and toggleable per piece by material name.
 
+The model's own walls, shoji window and curtains stay hidden for a reason:
+they are baked scenery, and using them would freeze the room. Their character
+is rebuilt instead as customisable pieces — a paintable **accent wall** panel
+behind the bed, **curtains** flanking both windows on the shared curtain
+palette, and a bedroom rug on the living room's rug palette. The lamp shades
+glow softly via emissive. The VR panel gains a fourth **Bedroom** tab carrying
+accent wall, curtains and duvet.
+
 Walkable space is now a union of regions — living room, bedroom, and the
 doorway strip — rather than one clamped square. Blocked moves slide along the
 wall instead of stopping dead, which is also what funnels a visitor through

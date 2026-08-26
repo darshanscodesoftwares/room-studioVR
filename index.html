@@ -99,6 +99,12 @@
   <h2>Bedroom duvet</h2>
   <div class="swatches" id="duvetSw"></div>
 
+  <h2>Accent wall</h2>
+  <div class="swatches" id="accentWallSw"></div>
+
+  <h2>Curtains</h2>
+  <div class="swatches" id="curtainSw"></div>
+
   <h2>Accent chair</h2>
   <div class="btns" id="chairBtns"></div>
 
@@ -233,6 +239,16 @@
              material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
       <a-box width="0.06" height="1.3" depth="0.05" position="0 0 0.01"
              material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
+      <a-cylinder radius="0.018" height="2.5" rotation="0 0 90" position="0 0.82 0.1"
+                  material="color: #3d3129; roughness: 0.42; metalness: 0.55"></a-cylinder>
+      <a-entity class="curtain-panel"
+                geometry="primitive: rounded-box; width: 0.55; height: 2.3; depth: 0.07; radius: 0.03"
+                position="-1.18 -0.35 0.1"
+                material="color: #d8d2c4; roughness: 0.92; metalness: 0"></a-entity>
+      <a-entity class="curtain-panel"
+                geometry="primitive: rounded-box; width: 0.55; height: 2.3; depth: 0.07; radius: 0.03"
+                position="1.18 -0.35 0.1"
+                material="color: #d8d2c4; roughness: 0.92; metalness: 0"></a-entity>
     </a-entity>
   </a-entity>
 
@@ -270,6 +286,32 @@
              material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
     </a-entity>
 
+    <!-- Feature wall behind the bed: what the source model did with a baked
+         marble wall, rebuilt as a paintable panel centred on the bed. Sits a
+         touch proud of the wall so it reads as a fitted panel, not paint. -->
+    <a-plane class="accent-surface" width="3.6" height="2.7"
+             position="0.78 1.38 7.985" rotation="0 180 0"
+             material="color: #23262b; roughness: 0.9; metalness: 0"></a-plane>
+
+    <!-- bedroom rug, driven by the same rug palette as the living room -->
+    <a-plane id="rug2" class="rug-surface" rotation="-90 0 0" width="3.0" height="2.2"
+             position="0.78 0.012 5.6"
+             material="color: #8d99ae; roughness: 1; metalness: 0"></a-plane>
+
+    <!-- curtains: the model's were baked into its walls, these are ours -->
+    <a-entity position="2.9 0 5.5" rotation="0 -90 0">
+      <a-cylinder radius="0.018" height="2.5" rotation="0 0 90" position="0 2.42 0.1"
+                  material="color: #3d3129; roughness: 0.42; metalness: 0.55"></a-cylinder>
+      <a-entity class="curtain-panel"
+                geometry="primitive: rounded-box; width: 0.55; height: 2.3; depth: 0.07; radius: 0.03"
+                position="-1.18 1.25 0.1"
+                material="color: #d8d2c4; roughness: 0.92; metalness: 0"></a-entity>
+      <a-entity class="curtain-panel"
+                geometry="primitive: rounded-box; width: 0.55; height: 2.3; depth: 0.07; radius: 0.03"
+                position="1.18 1.25 0.1"
+                material="color: #d8d2c4; roughness: 0.92; metalness: 0"></a-entity>
+    </a-entity>
+
     <!-- daylight spill for the bedroom, preset-driven like the first -->
     <a-entity id="windowLight2"
               light="type: point; color: #dceaff; intensity: 0.4; distance: 8"
@@ -287,7 +329,7 @@
   <!-- ============ furniture ============ -->
 
   <!-- rug -->
-  <a-plane id="rug" rotation="-90 0 0" width="3.2" height="2.2" position="0 0.01 0.15"
+  <a-plane id="rug" class="rug-surface" rotation="-90 0 0" width="3.2" height="2.2" position="0 0.01 0.15"
            material="color: #8d99ae; roughness: 1; metalness: 0"></a-plane>
 
   <!-- sofa, against the north wall -->
@@ -701,6 +743,23 @@ const PALETTE = {
     { id: 'terraD',   name: 'Terracotta', hex: '#b5714f' },
     { id: 'charD',    name: 'Charcoal',   hex: '#4b4e55' }
   ],
+  accentWall: [
+    { id: 'charA',   name: 'Charcoal',   hex: '#23262b', proc: 'plaster' },
+    { id: 'navyA',   name: 'Ink Navy',   hex: '#2e3442', proc: 'plaster' },
+    { id: 'forestA', name: 'Forest',     hex: '#33413a', proc: 'plaster' },
+    { id: 'plumA',   name: 'Plum',       hex: '#463844', proc: 'plaster' },
+    { id: 'marbleA', name: 'Marble',     hex: '#e8e6e2', proc: 'plaster',
+      roughness: 0.25, metalness: 0.05 },
+    { id: 'walnutA', name: 'Walnut',     hex: '#4a3a2e', proc: 'grain' }
+  ],
+  curtain: [
+    { id: 'linenC',  name: 'Linen',      hex: '#d8d2c4', proc: 'weave' },
+    { id: 'ivoryC',  name: 'Ivory',      hex: '#ece8de', proc: 'weave' },
+    { id: 'slateC',  name: 'Slate',      hex: '#6a7078', proc: 'weave' },
+    { id: 'sageC',   name: 'Sage',       hex: '#9aa78f', proc: 'weave' },
+    { id: 'terraC',  name: 'Terracotta', hex: '#b07052', proc: 'weave' },
+    { id: 'charC',   name: 'Charcoal',   hex: '#3d4046', proc: 'weave' }
+  ],
   ceiling: [
     { id: 'chalkC',  name: 'White',      hex: '#f4f4f2', proc: 'plaster' },
     { id: 'warmC',   name: 'Warm White', hex: '#f2ece1', proc: 'plaster' },
@@ -767,19 +826,19 @@ const PALETTE = {
 const PACKAGES = {
   studio: {
     name: 'Studio',
-    wall: 'chalk', ceiling: 'chalkC', duvet: 'snow', floor: 'oak', sofa: 'steel',
+    wall: 'chalk', ceiling: 'chalkC', duvet: 'snow', accentWall: 'charA', curtain: 'linenC', floor: 'oak', sofa: 'steel',
     chairFabric: 'rust', rugColor: 'mistrug', tableWood: 'walnuttop',
     chair: 'modern', rug: true, plant: true, art: true, cat: true
   },
   warmOak: {
     name: 'Warm Oak',
-    wall: 'sand', ceiling: 'warmC', duvet: 'sandD', floor: 'walnut', sofa: 'terra',
+    wall: 'sand', ceiling: 'warmC', duvet: 'sandD', accentWall: 'walnutA', curtain: 'terraC', floor: 'walnut', sofa: 'terra',
     chairFabric: 'leather', rugColor: 'wool', tableWood: 'oaktop',
     chair: 'armchair', rug: true, plant: true, art: true, cat: true
   },
   coolMinimal: {
     name: 'Cool Minimal',
-    wall: 'mist', ceiling: 'coolC', duvet: 'charD', floor: 'concrete', sofa: 'charcoal',
+    wall: 'mist', ceiling: 'coolC', duvet: 'charD', accentWall: 'marbleA', curtain: 'slateC', floor: 'concrete', sofa: 'charcoal',
     chairFabric: 'slateup', rugColor: 'graphite', tableWood: 'marble',
     chair: 'modern', rug: false, plant: false, art: true, cat: true
   }
@@ -1552,6 +1611,26 @@ function setWallColor(id) {
   logEvent('finish', { kind: 'wall', id: id });
 }
 
+function setAccentWall(id) {
+  state.accentWall = id;
+  const entry = entryOf('accentWall', id);
+  document.querySelectorAll('.accent-surface').forEach(function (el) {
+    applyFinish(el, entry, { roughness: 0.9, metalness: 0 });
+  });
+  state.package = null;
+  logEvent('finish', { kind: 'accentWall', id: id });
+}
+
+function setCurtain(id) {
+  state.curtain = id;
+  const entry = entryOf('curtain', id);
+  document.querySelectorAll('.curtain-panel').forEach(function (el) {
+    applyFinish(el, entry, { roughness: 0.92, metalness: 0 });
+  });
+  state.package = null;
+  logEvent('finish', { kind: 'curtain', id: id });
+}
+
 function setDuvet(id) {
   state.duvet = id;
   const entry = entryOf('duvet', id);
@@ -1610,8 +1689,9 @@ function setChairFabric(id) {
 
 function setRugColor(id) {
   state.rugColor = id;
-  applyFinish(document.querySelector('#rug'), entryOf('rugColor', id),
-              SURFACE.rugColor);
+  document.querySelectorAll('.rug-surface').forEach(function (el) {
+    applyFinish(el, entryOf('rugColor', id), SURFACE.rugColor);
+  });
   state.package = null;
   logEvent('finish', { kind: 'rugColor', id: id });
 }
@@ -1640,7 +1720,7 @@ function setDecor(key, on) {
   if (gated[key]) {
     applyModelSlot(gated[key]);
   } else {
-    const ids = { rug: '#rug', art: '#art', cat: '#cat' };
+    const ids = { rug: '.rug-surface', art: '#art', cat: '#cat' };
     document.querySelectorAll(ids[key]).forEach(function (el) {
       el.setAttribute('visible', on);
     });
@@ -1743,6 +1823,8 @@ function applyPackage(pkgId, silent) {
   setWallColor(p.wall);
   setCeilingColor(p.ceiling);
   setDuvet(p.duvet);
+  setAccentWall(p.accentWall);
+  setCurtain(p.curtain);
   setFloorColor(p.floor);
   setSofaColor(p.sofa);
   setChairFabric(p.chairFabric);
@@ -1841,7 +1923,9 @@ function buildOverlay() {
    ['sofa', '#sofaSw', setSofaColor],
    ['chairFabric', '#chairFabricSw', setChairFabric],
    ['tableWood', '#tableWoodSw', setTableWood],
-   ['duvet', '#duvetSw', setDuvet]].forEach(function (row) {
+   ['duvet', '#duvetSw', setDuvet],
+   ['accentWall', '#accentWallSw', setAccentWall],
+   ['curtain', '#curtainSw', setCurtain]].forEach(function (row) {
     const kind = row[0], sel = row[1], fn = row[2];
     const host = document.querySelector(sel);
     PALETTE[kind].forEach(function (c) {
@@ -1995,7 +2079,8 @@ function renderTelemetry() {
    ========================================================================= */
 const vrTiles = {
   wall: [], ceiling: [], floor: [], rugColor: [],
-  sofa: [], chairFabric: [], tableWood: [], duvet: []
+  sofa: [], chairFabric: [], tableWood: [], duvet: [],
+  accentWall: [], curtain: []
 };
 const vrTabs = {};
 let activeTab = 'room';
@@ -2057,13 +2142,13 @@ function buildVrPanel() {
      across two pages rather than shrinking the tiles: a tile the customer
      cannot reliably hit with a laser is worse than a second tab. */
   [['room', 'Room'], ['furniture', 'Furniture'],
-   ['models', 'Models']].forEach(function (t, i) {
-    const x = -0.56 + i * 0.56;
+   ['bedroom', 'Bedroom'], ['models', 'Models']].forEach(function (t, i) {
+    const x = -0.63 + i * 0.42;
     const bg = mkPlane(body, {
-      w: 0.52, h: 0.17, x: x, y: 0.65, z: 0.01,
+      w: 0.38, h: 0.17, x: x, y: 0.65, z: 0.01,
       color: '#2b3242', clickable: true
     });
-    mkText(body, t[1], { x: x, y: 0.65, z: 0.022, width: 1.45 });
+    mkText(body, t[1], { x: x, y: 0.65, z: 0.022, width: 1.05 });
     bg.addEventListener('click', function () { setVrTab(t[0]); });
     vrButtons.push({ el: bg, kind: 'tab', value: t[0] });
   });
@@ -2079,7 +2164,11 @@ function buildVrPanel() {
     furniture: [
       { kind: 'sofa',        label: 'Sofa',        fn: setSofaColor },
       { kind: 'chairFabric', label: 'Chair fabric', fn: setChairFabric },
-      { kind: 'tableWood',   label: 'Table top',   fn: setTableWood },
+      { kind: 'tableWood',   label: 'Table top',   fn: setTableWood }
+    ],
+    bedroom: [
+      { kind: 'accentWall',  label: 'Accent wall', fn: setAccentWall },
+      { kind: 'curtain',     label: 'Curtains',    fn: setCurtain },
       { kind: 'duvet',       label: 'Duvet',       fn: setDuvet }
     ]
   };
@@ -3042,10 +3131,13 @@ function skinBedroom() {
     Pillows:   { c: 'bedroom-pillows-c.jpg', n: 'bedroom-pillows-n.jpg', rough: 0.95 },
     BedFrame:  { c: 'bedroom-bed-c.jpg', rough: 0.55, metal: 0.1 },
     Chair:     { c: 'bedroom-chair-c.jpg', n: 'bedroom-chair-n.jpg', rough: 0.9 },
-    Carpet:    { c: 'bedroom-carpet-c.jpg', n: 'bedroom-carpet-n.jpg', rough: 1 },
+    Carpet:    null,   // replaced by our palette-driven rug; the model's
+                       // carpet also rendered wrong after the axis change
+
     Painting:  { c: 'bedroom-painting-c.jpg', rough: 0.6 },
     EndTables: { c: 'bedroom-endtables-c.jpg', rough: 0.4, metal: 0.15 },
-    EndLamps:  { c: 'bedroom-endlamps-c.jpg', rough: 0.4, metal: 0.3 },
+    EndLamps:  { c: 'bedroom-endlamps-c.jpg', rough: 0.4, metal: 0.3,
+                 emissive: '#ffe6c0', emissiveIntensity: 0.55 },
     Duvet:     { plain: true, rough: 0.92 }
   };
 
@@ -3061,6 +3153,10 @@ function skinBedroom() {
       roughness: r.rough,
       metalness: r.metal || 0
     });
+    if (r.emissive) {
+      mat.emissive = new THREE.Color(r.emissive);
+      mat.emissiveIntensity = r.emissiveIntensity || 0.5;
+    }
     if (r.c) { mat.map = tex('assets/' + r.c); }
     if (r.n) { mat.normalMap = ntex('assets/' + r.n); }
     n.material = mat;
