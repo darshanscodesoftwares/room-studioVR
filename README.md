@@ -315,6 +315,28 @@ wall instead of stopping dead, which is also what funnels a visitor through
 the doorway naturally. Teleport aims with the same rule, so the arc goes red
 over the doorway wall but lands in either room.
 
+## The gun range
+
+A doorway near the living room's south-west corner leads to a 7.6m shooting
+range — roofed over the firing side, open sky over the target half, concrete
+throughout and deliberately not on the finish palettes. Walkable space gains
+two more regions for it.
+
+**Standing on the glowing ring is the entire game interface.** Step on: the
+last-chosen gun snaps into the right hand (or under the desktop camera), the
+right laser hides, three ring targets go live, and a scoreboard tracks
+hits — 10, 5 or 2 points by ring, targets tip over and pop back up. Step off:
+gun away, laser back, final score on the board. No menu, quit any time by
+walking away.
+
+Three weapons hang on a rack by the door — pistol, revolver, AK — click one
+to take it. Firing is right trigger in VR (suppressed while the laser is on a
+UI element, so the hand menu still clicks) and mouse click on desktop, and
+the aim ray comes from the hand rather than the barrel, which is what feels
+right in VR. All three guns arrived in different authoring scales (0.45x to
+100x), so each is normalised at load by measuring its bounding box — no
+per-pack transforms.
+
 ## Interactive furniture
 
 A sideboard with two lift-up doors stands against the bedroom's west wall

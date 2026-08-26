@@ -220,8 +220,21 @@
            material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
     <a-box width="1.41" height="0.09" depth="0.14" position="0 2.145 3"
            material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
-    <a-plane class="wall" width="6" height="3" position="-3 1.5 0" rotation="0 90 0"
-             material="color: #ece7e1; roughness: 0.94; metalness: 0"></a-plane>
+    <!-- West wall carries the way to the range: solid run, then a cased
+         opening near the south corner. side: double — these faces are also
+         the range's east wall. -->
+    <a-plane class="wall" width="4.9" height="3" position="-3 1.5 -0.55" rotation="0 90 0"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
+    <a-plane class="wall" width="0.1" height="3" position="-3 1.5 2.95" rotation="0 90 0"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
+    <a-plane class="wall" width="1.0" height="0.9" position="-3 2.55 2.4" rotation="0 90 0"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
+    <a-box width="0.14" height="2.16" depth="0.09" position="-3 1.06 1.9"
+           material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
+    <a-box width="0.14" height="2.16" depth="0.09" position="-3 1.06 2.9"
+           material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
+    <a-box width="0.14" height="0.09" depth="1.09" position="-3 2.145 2.4"
+           material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
     <a-plane class="wall" width="6" height="3" position="3 1.5 0" rotation="0 -90 0"
              material="color: #ece7e1; roughness: 0.94; metalness: 0"></a-plane>
 
@@ -250,6 +263,60 @@
                 position="1.18 -0.35 0.1"
                 material="color: #d8d2c4; roughness: 0.42; metalness: 0"></a-entity>
     </a-entity>
+  </a-entity>
+
+  <!-- ============ gun range (x -10.6..-3, z 0.55..3.45) ============
+       Semi-outdoor: the near half is roofed, the target half is open sky.
+       Deliberately NOT on the finish palettes — a range is concrete. -->
+  <a-entity id="range" range-game>
+    <a-plane rotation="-90 0 0" width="7.6" height="2.9" position="-6.8 0 2.0"
+             material="color: #9b9b98; roughness: 0.96; metalness: 0"></a-plane>
+    <a-plane rotation="90 0 0" width="3.8" height="2.9" position="-4.9 3 2.0"
+             material="color: #8e8e8b; roughness: 1; metalness: 0"></a-plane>
+    <a-plane width="7.6" height="3" position="-6.8 1.5 0.55"
+             material="color: #b4b4b0; roughness: 0.96; metalness: 0"></a-plane>
+    <a-plane width="7.6" height="3" position="-6.8 1.5 3.45" rotation="0 180 0"
+             material="color: #b4b4b0; roughness: 0.96; metalness: 0"></a-plane>
+    <!-- backstop berm -->
+    <a-plane width="2.9" height="3" position="-10.6 1.5 2.0" rotation="0 90 0"
+             material="color: #6e6a64; roughness: 1; metalness: 0"></a-plane>
+    <a-box width="0.5" height="1.1" depth="2.9" position="-10.3 0.55 2.0" rotation="0 0 18"
+           material="color: #7a756e; roughness: 1; metalness: 0"></a-box>
+
+    <!-- shooting stand: bench + the game marker -->
+    <a-box width="0.5" height="0.06" depth="2.4" position="-4.85 1.02 2.0"
+           material="color: #6f4e37; roughness: 0.5; metalness: 0"></a-box>
+    <a-box width="0.5" height="1.0" depth="0.08" position="-4.85 0.5 0.95"
+           material="color: #4a4640; roughness: 0.8; metalness: 0.2"></a-box>
+    <a-box width="0.5" height="1.0" depth="0.08" position="-4.85 0.5 3.05"
+           material="color: #4a4640; roughness: 0.8; metalness: 0.2"></a-box>
+
+    <a-entity id="rangeMarker" position="-4.35 0 2.0">
+      <a-ring rotation="-90 0 0" radius-inner="0.30" radius-outer="0.42" position="0 0.012 0"
+              material="color: #4cc9f0; shader: flat; opacity: 0.85; side: double"></a-ring>
+      <a-ring rotation="-90 0 0" radius-inner="0.05" radius-outer="0.10" position="0 0.012 0"
+              material="color: #4cc9f0; shader: flat; opacity: 0.6; side: double"></a-ring>
+      <a-text value="STAND HERE TO SHOOT" align="center" color="#dff3fb" width="2.2"
+              position="0 1.9 0" rotation="0 90 0"></a-text>
+    </a-entity>
+
+    <!-- score board on the roofed half's south wall -->
+    <a-text id="rangeScore" value="" align="center" color="#eef2f5" width="3.2"
+            position="-4.85 2.35 3.43" rotation="0 180 0"></a-text>
+
+    <!-- gun rack: click a weapon to take it -->
+    <a-entity id="gunRack" position="-3.35 0 0.72" rotation="0 90 0">
+      <a-box width="1.7" height="1.0" depth="0.06" position="0 1.25 -0.05"
+             material="color: #4a4038; roughness: 0.8; metalness: 0"></a-box>
+      <a-entity class="clickable rack-gun" data-gun="pistol"   position="-0.55 1.45 0.1"></a-entity>
+      <a-entity class="clickable rack-gun" data-gun="revolver" position="0 1.45 0.1"></a-entity>
+      <a-entity class="clickable rack-gun" data-gun="ak"       position="0.58 1.15 0.1"></a-entity>
+    </a-entity>
+
+    <a-entity light="type: point; color: #fff2dd; intensity: 0.5; distance: 8"
+              position="-4.9 2.6 2.0"></a-entity>
+
+    <a-entity id="rangeTargets"></a-entity>
   </a-entity>
 
   <!-- ============ bedroom (6 x 5 x 3 m, z from 3 to 8) ============
@@ -672,7 +739,7 @@
        88-joint skin with a 20.3s idle loop. LICENCE: Renderpeople —
        redistribution restricted. See assets/CREDITS.md before any public
        deploy. -->
-  <a-entity id="human" position="-2.5 0 2.5" rotation="0 145 0"
+  <a-entity id="human" position="-1.30 0 -1.95" rotation="0 34 0"
             gltf-model="url(assets/sophia.gltf)"
             gltf-animation></a-entity>
 
@@ -3367,9 +3434,11 @@ AFRAME.registerComponent('path-walk', {
       { x:  1.85, z:  1.35, dwell:  0, face: null },
       { x:  1.00, z:  2.35, dwell:  0, face: null },
       { x: -0.60, z:  2.45, dwell: 12, face: null },
-      { x: -1.75, z:  2.30, dwell: 18, face: [-2.5, 2.50] }, // beside her
+      { x: -1.75, z:  2.30, dwell:  6, face: null },
       { x: -2.00, z:  0.90, dwell:  0, face: null },
-      { x: -1.60, z: -1.30, dwell:  0, face: null },
+      { x: -1.85, z: -1.35, dwell: 18, face: [-1.30, -1.95] }, // beside her
+      { x: -0.55, z: -1.05, dwell:  0, face: null },
+
       { x:  0.10, z: -1.70, dwell: 15, face: [ 0.0, -2.95] }, // at the TV
       { x:  1.30, z: -1.60, dwell:  0, face: null }
     ];
@@ -3587,6 +3656,351 @@ AFRAME.registerComponent('clip-toggle', {
     this.mixer.setTime(this.progress * this.duration);
   }
 });
+
+/* =========================================================================
+   The range game
+
+   Stand on the marker ring and the game starts: the last-chosen gun snaps
+   into the right hand (or under the desktop camera), the right laser gets
+   out of the way, and the targets go live. Step off the ring and it all
+   reverses — that is the whole quit mechanic, no menu needed.
+
+   Guns come from three packs in three different authoring scales (0.45x to
+   100x), so each is normalised at load: measure its Box3, scale its longest
+   axis to a target length, recentre. No per-pack transform guessing.
+
+   Firing raycasts from the hand (or camera) rather than from any muzzle:
+   aim follows where the visitor points, which is what feels right in VR
+   even when the barrel lags a frame behind.
+   ========================================================================= */
+const RangeGame = {
+  GUNS: {
+    pistol:   { url: 'assets/gun-pistol.gltf',   length: 0.30, name: 'Pistol' },
+    revolver: { url: 'assets/gun-revolver.gltf', length: 0.32, name: 'Revolver' },
+    ak:       { url: 'assets/gun-ak.gltf',       length: 0.80, name: 'AK-47' }
+  },
+  current: 'pistol',
+  active: false,
+  score: 0,
+  shots: 0,
+  targets: [],
+  holder: null,
+  recoil: 0,
+
+  /* ---------- targets: classic ring boards, drawn on a canvas ---------- */
+  targetTexture: function () {
+    if (this._ttex) { return this._ttex; }
+    const c = document.createElement('canvas');
+    c.width = c.height = 256;
+    const g = c.getContext('2d');
+    const rings = [['#e8e4da', 128], ['#1d1f24', 100], ['#e8e4da', 72],
+                   ['#c03434', 44], ['#e8e4da', 18]];
+    g.fillStyle = '#e8e4da'; g.fillRect(0, 0, 256, 256);
+    rings.forEach(function (r) {
+      g.fillStyle = r[0];
+      g.beginPath(); g.arc(128, 128, r[1], 0, Math.PI * 2); g.fill();
+    });
+    this._ttex = new THREE.CanvasTexture(c);
+    return this._ttex;
+  },
+
+  buildTargets: function () {
+    const host = document.querySelector('#rangeTargets');
+    const self = this;
+    [1.1, 2.0, 2.9].forEach(function (z) {
+      const stand = document.createElement('a-entity');
+      stand.setAttribute('position', { x: -9.4, y: 0, z: z });
+
+      const post = document.createElement('a-cylinder');
+      post.setAttribute('radius', 0.03);
+      post.setAttribute('height', 1.1);
+      post.setAttribute('position', '0 0.55 0');
+      post.setAttribute('material', 'color: #55504a; roughness: 0.8');
+      stand.appendChild(post);
+
+      const board = document.createElement('a-circle');
+      board.setAttribute('radius', 0.28);
+      board.setAttribute('rotation', '0 90 0');
+      board.setAttribute('position', '0 1.35 0');
+      board.setAttribute('material', 'roughness: 0.9; side: double');
+      stand.appendChild(board);
+      host.appendChild(stand);
+
+      board.addEventListener('loaded', function () {
+        const mesh = board.getObject3D('mesh');
+        if (mesh) { mesh.material.map = self.targetTexture(); mesh.material.needsUpdate = true; }
+      });
+      self.targets.push({ el: board, stand: stand, down: 0, z: z });
+    });
+  },
+
+  /* ---------- equipping ---------- */
+  equip: function (id) {
+    this.current = id;
+    if (!this.active) { return; }
+    this.unequip();
+
+    const inVR = this.el.sceneEl.is('vr-mode') &&
+                 AFRAME.utils.device.checkHeadsetConnected();
+    const parent = inVR ? document.querySelector('#handRight')
+                        : document.querySelector('#cam');
+    const g = this.GUNS[id];
+    const self = this;
+
+    const holder = document.createElement('a-entity');
+    holder.setAttribute('gltf-model', 'url(' + g.url + ')');
+    if (inVR) {
+      holder.setAttribute('position', '0 -0.01 -0.05');
+    } else {
+      holder.setAttribute('position', '0.22 -0.19 -0.45');
+    }
+    holder.addEventListener('model-loaded', function (e) {
+      const model = e.detail.model;
+      // normalise: three packs, three authoring scales — measure and fit
+      const box = new THREE.Box3().setFromObject(model);
+      const size = new THREE.Vector3(); box.getSize(size);
+      const longest = Math.max(size.x, size.y, size.z);
+      const k = g.length / Math.max(1e-6, longest);
+      model.scale.setScalar(k);
+      box.setFromObject(model);
+      const c = new THREE.Vector3(); box.getCenter(c);
+      model.position.sub(c);
+      // barrel down -z of the holder: the packs' long axes differ, so
+      // rotate the two whose length lies along z already are fine; the
+      // pistol authors along x
+      if (size.x >= size.y && size.x >= size.z) {
+        model.rotation.y = -Math.PI / 2;
+      }
+      model.traverse(function (n) {
+        if (n.isMesh) { n.castShadow = false; n.frustumCulled = false; }
+      });
+      skinGun(model, id);
+    });
+    parent.appendChild(holder);
+    this.holder = holder;
+  },
+
+  unequip: function () {
+    if (this.holder && this.holder.parentNode) {
+      this.holder.parentNode.removeChild(this.holder);
+    }
+    this.holder = null;
+  },
+
+  /* ---------- state ---------- */
+  enter: function () {
+    this.active = true;
+    this.score = 0;
+    this.shots = 0;
+    this.equip(this.current);
+    const ray = document.querySelector('#handRight');
+    if (ray) { ray.setAttribute('raycaster', 'showLine', false); }
+    this.hud();
+    logEvent('range', { on: true });
+  },
+
+  exit: function () {
+    this.active = false;
+    this.unequip();
+    const ray = document.querySelector('#handRight');
+    if (ray) { ray.setAttribute('raycaster', 'showLine', true); }
+    const board = document.querySelector('#rangeScore');
+    if (board) {
+      board.setAttribute('value',
+        this.shots ? 'FINAL  ' + this.score + ' PTS  (' + this.shots + ' SHOTS)' : '');
+    }
+    logEvent('range', { on: false, score: this.score, shots: this.shots });
+  },
+
+  hud: function () {
+    const board = document.querySelector('#rangeScore');
+    if (board) {
+      board.setAttribute('value',
+        this.GUNS[this.current].name.toUpperCase() +
+        '   SCORE ' + this.score + '   SHOTS ' + this.shots);
+    }
+  },
+
+  /* ---------- firing ---------- */
+  fire: function () {
+    if (!this.active) { return; }
+    const inVR = this.el.sceneEl.is('vr-mode');
+    const src = inVR ? document.querySelector('#handRight').object3D
+                     : document.querySelector('#cam').object3D;
+    const origin = new THREE.Vector3();
+    const dir = new THREE.Vector3(0, 0, -1);
+    src.getWorldPosition(origin);
+    dir.applyQuaternion(src.getWorldQuaternion(new THREE.Quaternion()));
+
+    this.shots++;
+    this.recoil = 1;
+
+    const caster = new THREE.Raycaster(origin, dir.normalize(), 0.1, 30);
+    let best = null;
+    const self = this;
+    this.targets.forEach(function (t) {
+      if (t.down > 0) { return; }
+      const mesh = t.el.getObject3D('mesh');
+      if (!mesh) { return; }
+      const hits = caster.intersectObject(mesh, false);
+      if (hits.length && (!best || hits[0].distance < best.dist)) {
+        best = { t: t, dist: hits[0].distance, point: hits[0].point };
+      }
+    });
+
+    if (best) {
+      // score by ring: distance from board centre in board space
+      const centre = new THREE.Vector3();
+      best.t.el.getObject3D('mesh').getWorldPosition(centre);
+      const off = centre.distanceTo(best.point);
+      const pts = off < 0.05 ? 10 : (off < 0.13 ? 5 : 2);
+      this.score += pts;
+      best.t.down = 1.4;                       // seconds until it pops back
+      this.spark(best.point);
+      logEvent('rangeHit', { pts: pts });
+    }
+    this.hud();
+  },
+
+  spark: function (p) {
+    const sc = this.el.sceneEl;
+    const el = document.createElement('a-sphere');
+    el.setAttribute('radius', 0.035);
+    el.setAttribute('material', 'color: #ffd27a; shader: flat');
+    el.setAttribute('position', { x: p.x, y: p.y, z: p.z });
+    sc.appendChild(el);
+    setTimeout(function () { if (el.parentNode) { el.parentNode.removeChild(el); } }, 90);
+  },
+
+  /* ---------- per-frame ---------- */
+  tick: function (dt) {
+    // marker proximity is the entire enter/quit mechanic
+    const cam = this.el.sceneEl.camera;
+    if (cam) {
+      const p = new THREE.Vector3();
+      cam.getWorldPosition(p);
+      const inZone = Math.hypot(p.x - (-4.35), p.z - 2.0) < 0.75;
+      if (inZone && !this.active) { this.enter(); }
+      if (!inZone && this.active) { this.exit(); }
+    }
+
+    // recoil decay on the held gun
+    if (this.holder && this.recoil > 0) {
+      this.recoil = Math.max(0, this.recoil - dt * 6);
+      const k = Math.sin(this.recoil * Math.PI) * 0.12;
+      this.holder.object3D.rotation.x = k;
+      this.holder.object3D.position.z = (this.el.sceneEl.is('vr-mode') ? -0.05 : -0.45) + k * 0.25;
+    }
+
+    // knocked-down targets tip back, wait, pop up
+    this.targets.forEach(function (t) {
+      const o = t.el.object3D;
+      if (t.down > 0) {
+        t.down = Math.max(0, t.down - dt);
+        o.rotation.x = Math.min(o.rotation.x + dt * 9, Math.PI / 2.2);
+        if (t.down === 0) { o.rotation.x = 0; }
+      }
+    });
+  }
+};
+
+/* the component shell that hosts the game singleton */
+AFRAME.registerComponent('range-game', {
+  init: function () {
+    RangeGame.el = this.el;
+    RangeGame.buildTargets();
+    const self = this;
+
+    // the rack shows the three weapons; clicking one takes it
+    document.querySelectorAll('.rack-gun').forEach(function (el) {
+      const id = el.dataset.gun;
+      const g = RangeGame.GUNS[id];
+      const disp = document.createElement('a-entity');
+      disp.setAttribute('gltf-model', 'url(' + g.url + ')');
+      el.appendChild(disp);
+      disp.addEventListener('model-loaded', function (e) {
+        const model = e.detail.model;
+        const box = new THREE.Box3().setFromObject(model);
+        const size = new THREE.Vector3(); box.getSize(size);
+        const longest = Math.max(size.x, size.y, size.z);
+        // display at true size, lying along the rack
+        model.scale.setScalar(g.length / Math.max(1e-6, longest));
+        box.setFromObject(model);
+        const c = new THREE.Vector3(); box.getCenter(c);
+        model.position.sub(c);
+        if (size.y >= size.x && size.y >= size.z) { model.rotation.z = Math.PI / 2; }
+        else if (size.z >= size.x) { model.rotation.y = Math.PI / 2; }
+        model.traverse(function (n) { if (n.isMesh) { n.castShadow = false; } });
+        skinGun(model, id);
+      });
+      el.addEventListener('click', function () {
+        RangeGame.equip(id);
+        RangeGame.hud();
+      });
+    });
+
+    // VR: right trigger fires — unless the laser is on a UI element,
+    // so pointing at the hand menu still clicks instead of shooting
+    const hand = document.querySelector('#handRight');
+    if (hand) {
+      hand.addEventListener('triggerdown', function () {
+        if (!RangeGame.active) { return; }
+        const rc = hand.components.raycaster;
+        if (rc && rc.intersections.length) { return; }
+        RangeGame.fire();
+      });
+    }
+    // desktop: click fires when in the zone
+    window.addEventListener('mousedown', function (e) {
+      if (!RangeGame.active) { return; }
+      if (self.el.sceneEl.is('vr-mode')) { return; }
+      if (e.target && e.target.closest && e.target.closest('#ui')) { return; }
+      RangeGame.fire();
+    });
+  },
+  tick: function (t, dt) { if (dt) { RangeGame.tick(dt / 1000); } }
+});
+
+/* Rack display copies + hand-gun materials share this: the pistol pack has
+   no textures at all, so it gets a plain gunmetal treatment; the other two
+   carry their maps. */
+function skinGun(model, id) {
+  const load = new THREE.TextureLoader();
+  function tex(p, srgb) {
+    const t = load.load(p);
+    if (srgb && THREE.SRGBColorSpace) { t.colorSpace = THREE.SRGBColorSpace; }
+    t.flipY = false; t.anisotropy = 4;
+    return t;
+  }
+  let mat;
+  if (id === 'revolver') {
+    mat = new THREE.MeshStandardMaterial({
+      map: tex('assets/gun-revolver-c.jpg', true),
+      normalMap: tex('assets/gun-revolver-n.jpg', false),
+      roughness: 0.45, metalness: 0.7
+    });
+  } else if (id === 'ak') {
+    mat = new THREE.MeshStandardMaterial({
+      map: tex('assets/gun-ak-c.jpg', true),
+      normalMap: tex('assets/gun-ak-n.jpg', false),
+      roughnessMap: tex('assets/gun-ak-r.jpg', false),
+      metalnessMap: tex('assets/gun-ak-m.jpg', false),
+      roughness: 1, metalness: 1
+    });
+  } else {
+    mat = new THREE.MeshStandardMaterial({
+      color: '#3a3d42', roughness: 0.35, metalness: 0.85
+    });
+  }
+  model.traverse(function (n) {
+    if (!n.isMesh) { return; }
+    // the revolver's muzzle-flash card ships inside the model; hide it
+    if (/muzzle/i.test(n.name || '') || /muzzle/i.test((n.material && n.material.name) || '')) {
+      n.visible = false; return;
+    }
+    n.material = mat;
+  });
+}
 
 /* Waypoint patrol with a procedural diagonal gait.
 
@@ -3932,7 +4346,9 @@ AFRAME.registerComponent('teleport-lite', {
 const WALK_RECTS = [
   { x0: -2.7,  x1: 2.7,  z0: -2.7,  z1: 2.7  },   // living room
   { x0: -2.7,  x1: 2.7,  z0:  3.3,  z1: 7.7  },   // bedroom
-  { x0: -0.55, x1: 0.55, z0:  2.69, z1: 3.31 }    // doorway
+  { x0: -0.55, x1: 0.55, z0:  2.69, z1: 3.31 },   // bedroom doorway
+  { x0: -10.3, x1: -3.3, z0:  0.9,  z1: 3.1  },   // gun range
+  { x0: -3.31, x1: -2.69, z0: 2.0,  z1: 2.8  }    // range doorway
 ];
 
 function walkable(x, z) {
