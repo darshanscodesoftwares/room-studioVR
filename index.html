@@ -3506,7 +3506,13 @@ AFRAME.registerComponent('hand-menu', {
 AFRAME.registerComponent('clip-toggle', {
   schema: {
     seconds: { default: 1.6 },      // time for a full open or close
-    hoverGlow: { default: 0.22 }
+    hoverGlow: { default: 0.22 },
+    /* Fraction of the clip that is the OPENING half. This take is a
+       showcase round trip — the doors reach full open at 1.96s of 4.38s and
+       are shut again by the end — so playing it through always closed them
+       on its own. Only the first 45% is used, and the close is that same
+       stretch run backwards under the click. */
+    openAt: { default: 0.447 }
   },
 
   init: function () {
@@ -3525,7 +3531,7 @@ AFRAME.registerComponent('clip-toggle', {
       }
       self.mixer = new THREE.AnimationMixer(model);
       const clip = clips[0];
-      self.duration = clip.duration;
+      self.duration = clip.duration * self.data.openAt;   // opening half only
       const action = self.mixer.clipAction(clip);
       action.play();
       self.mixer.setTime(0);
