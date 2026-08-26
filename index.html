@@ -313,8 +313,14 @@
       <a-entity class="clickable rack-gun" data-gun="ak"       position="0.58 1.15 0.1"></a-entity>
     </a-entity>
 
-    <a-entity light="type: point; color: #fff2dd; intensity: 0.5; distance: 8"
-              position="-4.9 2.6 2.0"></a-entity>
+    <!-- No light source in here. A real point light bled through the west
+         wall into the living room — lights ignore walls — and pushed every
+         material in the scene onto a costlier shader. The strip fixture is
+         emissive only: the look of a light at zero lighting cost, and the
+         open-sky half is carried by the sun and environment anyway. -->
+    <a-box width="2.6" height="0.04" depth="0.12" position="-4.9 2.96 2.0"
+           material="color: #fff6e4; emissive: #fff2dd; emissiveIntensity: 0.9;
+                     roughness: 1; metalness: 0"></a-box>
 
     <a-entity id="rangeTargets"></a-entity>
   </a-entity>
@@ -3563,7 +3569,8 @@ AFRAME.registerComponent('hand-menu', {
 
   tick: function () {
     if (!this.active) { return; }
-    const handEl = document.querySelector(this.data.hand);
+    if (!this.handEl) { this.handEl = document.querySelector(this.data.hand); }
+    const handEl = this.handEl;
     if (!handEl) { return; }
     const h = handEl.object3D;
     const o = this.el.object3D;
@@ -3681,6 +3688,7 @@ const RangeGame = {
   },
   current: 'pistol',
   active: false,
+  _p: null, _origin: null, _dir: null, _quat: null, _centre: null,
   score: 0,
   shots: 0,
   targets: [],
@@ -3827,10 +3835,16 @@ const RangeGame = {
     const inVR = this.el.sceneEl.is('vr-mode');
     const src = inVR ? document.querySelector('#handRight').object3D
                      : document.querySelector('#cam').object3D;
-    const origin = new THREE.Vector3();
-    const dir = new THREE.Vector3(0, 0, -1);
+    if (!this._origin) {
+      this._origin = new THREE.Vector3();
+      this._dir = new THREE.Vector3();
+      this._quat = new THREE.Quaternion();
+      this._centre = new THREE.Vector3();
+    }
+    const origin = this._origin;
+    const dir = this._dir.set(0, 0, -1);
     src.getWorldPosition(origin);
-    dir.applyQuaternion(src.getWorldQuaternion(new THREE.Quaternion()));
+    dir.applyQuaternion(src.getWorldQuaternion(this._quat));
 
     this.shots++;
     this.recoil = 1;
@@ -3850,7 +3864,7 @@ const RangeGame = {
 
     if (best) {
       // score by ring: distance from board centre in board space
-      const centre = new THREE.Vector3();
+      const centre = this._centre;
       best.t.el.getObject3D('mesh').getWorldPosition(centre);
       const off = centre.distanceTo(best.point);
       const pts = off < 0.05 ? 10 : (off < 0.13 ? 5 : 2);
@@ -3874,10 +3888,11 @@ const RangeGame = {
 
   /* ---------- per-frame ---------- */
   tick: function (dt) {
+    if (!this._p) { this._p = new THREE.Vector3(); }
     // marker proximity is the entire enter/quit mechanic
     const cam = this.el.sceneEl.camera;
     if (cam) {
-      const p = new THREE.Vector3();
+      const p = this._p;
       cam.getWorldPosition(p);
       const inZone = Math.hypot(p.x - (-4.35), p.z - 2.0) < 0.75;
       if (inZone && !this.active) { this.enter(); }
@@ -3964,7 +3979,13 @@ AFRAME.registerComponent('range-game', {
 /* Rack display copies + hand-gun materials share this: the pistol pack has
    no textures at all, so it gets a plain gunmetal treatment; the other two
    carry their maps. */
+const GUN_MATS = {};
 function skinGun(model, id) {
+  // one material per weapon, shared by the rack copy and the held copy.
+  // Rebuilding it per equip re-uploaded the same maps to the GPU every
+  // time a gun was picked up, which is a leak with a frame-rate bill.
+  if (GUN_MATS[id]) { return applyGunMat(model, GUN_MATS[id]); }
+
   const load = new THREE.TextureLoader();
   function tex(p, srgb) {
     const t = load.load(p);
@@ -3992,6 +4013,11 @@ function skinGun(model, id) {
       color: '#3a3d42', roughness: 0.35, metalness: 0.85
     });
   }
+  GUN_MATS[id] = mat;
+  applyGunMat(model, mat);
+}
+
+function applyGunMat(model, mat) {
   model.traverse(function (n) {
     if (!n.isMesh) { return; }
     // the revolver's muzzle-flash card ships inside the model; hide it
@@ -4433,7 +4459,10 @@ function boot() {
   whenModelReady(document.querySelector('#bedroomSet'), function () {
     skinBedroom();
     setDuvet(state.duvet);                 // colour lands after the material swap
-    setShadowFlags('#bedroomSet', true, true);
+    // receive but do not cast: the duvet alone is 44k triangles and was
+    // being re-rendered into the shadow map every frame, for a shadow the
+    // bedroom's soft window light never really shows
+    setShadowFlags('#bedroomSet', false, true);
   });
 
   whenModelReady(document.querySelector('#tvMi'), function () {
