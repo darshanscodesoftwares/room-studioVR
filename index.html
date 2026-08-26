@@ -1890,7 +1890,10 @@ function setDecor(key, on) {
   if (gated[key]) {
     applyModelSlot(gated[key]);
   } else {
-    if (key === 'range') { setRange(!state.range); return; }
+    // setDecor has already written state[key]; passing `on` straight through
+    // is required — re-inverting state.range here flipped it back and the
+    // wing never disappeared
+    if (key === 'range') { setRange(on); return; }
     const ids = { rug: '.rug-surface', art: '#art', cat: '#cat' };
     document.querySelectorAll(ids[key]).forEach(function (el) {
       el.setAttribute('visible', on);
