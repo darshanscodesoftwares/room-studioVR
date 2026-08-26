@@ -4310,6 +4310,10 @@ function skinGun(model, id) {
 }
 
 function applyGunMat(model, mat) {
+  // pinned like the range shell: a gun mirroring the sky env map reads as
+  // chrome, and the global env dimming should leave it alone
+  if (mat.envMapIntensity !== undefined) { mat.envMapIntensity = 0.3; }
+  mat.userData.fixedEnv = true;
   model.traverse(function (n) {
     if (!n.isMesh) { return; }
     // the revolver's muzzle-flash card ships inside the model; hide it
