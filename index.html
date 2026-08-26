@@ -334,6 +334,16 @@
               clip-toggle="seconds: 1.6"
               position="-2.74 0 4.45" rotation="0 90 0"></a-entity>
 
+    <!-- Tall wardrobe on the doorway wall, left of the opening and forming
+         an L with the sideboard in the corner. Same click-to-open handling;
+         its take is another round trip, most open at 2.68s of 5.83s. Its
+         doors and handles already sit on +z, so it needs no rotation to
+         face into the room. -->
+    <a-entity id="wardrobe" class="clickable"
+              gltf-model="url(assets/wardrobe.gltf)"
+              clip-toggle="seconds: 1.8; openAt: 0.460"
+              position="-1.70 0 3.24"></a-entity>
+
     <!-- daylight spill for the bedroom, preset-driven like the first -->
     <a-entity id="windowLight2"
               light="type: point; color: #dceaff; intensity: 0.4; distance: 8"
@@ -3251,8 +3261,8 @@ function skinBedroom() {
    — Fasad the doors, Korpus the carcass, Ru4ki the handles, Podbemnik the
    lift arms, Mexanizm the hinges, which ship no albedo and are simply
    given a metal finish. */
-function skinCupboard() {
-  const el = document.querySelector('#cupboard');
+function skinCupboard(selector) {
+  const el = document.querySelector(selector);
   if (!el) { return; }
 
   const load = new THREE.TextureLoader();
@@ -3266,11 +3276,17 @@ function skinCupboard() {
     return t;
   }
 
+  /* Both Innova units share the Fasad/Korpus/Ru4ki finishes, so those maps
+     are downloaded once and serve either. Podbemnik is the H06's lift arm;
+     Tumb, Napr (drawer runners) and DefaultMaterial belong to the V01. */
   const SETS = {
     Fasad:     'fasad',
     Korpus:    'korpus',
     Ru4ki:     'ru4ki',
-    Podbemnik: 'podbem'
+    Podbemnik: 'podbem',
+    Tumb:      'tumb',
+    Napr:      'deflt',
+    DefaultMaterial: 'deflt'
   };
   const cache = {};
   function build(short) {
@@ -3545,7 +3561,7 @@ AFRAME.registerComponent('clip-toggle', {
 
     this.el.addEventListener('click', function () {
       self.target = self.target > 0.5 ? 0 : 1;
-      logEvent('cupboard', { open: self.target > 0.5 });
+      logEvent('cupboard', { id: self.el.id, open: self.target > 0.5 });
     });
     // the laser already lights up on hit, but a surface that answers the
     // pointer is what tells a visitor this one thing is interactive
@@ -3991,9 +4007,11 @@ function boot() {
     setShadowFlags('#human', true, true);
   });
 
-  whenModelReady(document.querySelector('#cupboard'), function () {
-    skinCupboard();
-    setShadowFlags('#cupboard', true, true);
+  ['#cupboard', '#wardrobe'].forEach(function (sel) {
+    whenModelReady(document.querySelector(sel), function () {
+      skinCupboard(sel);
+      setShadowFlags(sel, true, true);
+    });
   });
 
   whenModelReady(document.querySelector('#bedroomSet'), function () {

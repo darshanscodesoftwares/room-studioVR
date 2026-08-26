@@ -165,6 +165,21 @@ channel was removed at build time so `path-walk` can drive the travel instead.
 - Converted with FBX2glTF; texture references did not resolve, so materials
   are rebuilt at runtime by name. 6.7MB of source became 2.3MB of web assets
 
+---
+
+## wardrobe.gltf — Innova V01
+
+- **Licence: unknown.** No licence file in the pack.
+- **Source pack:** `innova-v01` (7.5MB), FBX + PBR texture sets
+- 0.75 x 2.27 x 0.50m wardrobe with **staggered drawers and doors on a 5.83s
+  animation**, 34 channels — another showcase round trip, most open at 2.68s,
+  found by sampling every channel's deviation from its start pose rather than
+  by eye
+- Shares the Fasad / Korpus / Ru4ki finishes with the H06 unit, so only its
+  own Tumb and DefaultMaterial (drawer runners) sets were added
+- Doors and handles already sit on +z, so it needs no rotation against the
+  doorway wall
+
 ## Replacing these
 
 Prefer glTF/GLB with an explicit licence. [Poly Haven](https://polyhaven.com)

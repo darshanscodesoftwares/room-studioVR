@@ -325,6 +325,15 @@ right-hand laser works on it without any new input plumbing, and it answers
 the pointer with a hover glow — a surface that responds is what tells a
 visitor this one object is interactive.
 
+A tall wardrobe stands on the doorway wall beside it, forming an L in the
+corner, on the same click-to-open handling.
+
+Both units ship showcase round trips rather than openings, so `openAt` marks
+where each is fully open — 44.7% for the sideboard, 46.0% for the wardrobe.
+The wardrobe's was found by sampling all 34 channels and measuring total
+deviation from the start pose, since staggered drawers peak at different
+times and eyeballing one channel would have been wrong.
+
 The clip is not played as a clip. The mixer is seeked by hand each frame from
 a progress value the click flips between 0 and 1, which is what lets the doors
 **reverse mid-swing**: click again halfway and they come back down from where
