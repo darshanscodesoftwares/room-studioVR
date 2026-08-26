@@ -315,6 +315,23 @@ wall instead of stopping dead, which is also what funnels a visitor through
 the doorway naturally. Teleport aims with the same rule, so the arc goes red
 over the doorway wall but lands in either room.
 
+## Interactive furniture
+
+A sideboard with two lift-up doors stands against the bedroom's west wall
+below the portrait. Its FBX carried a genuine 4.38s opening take, so it is
+driven by **click** rather than looped: point at it and pull the trigger to
+open, again to close. It joins the same raycaster the panel uses, so the
+right-hand laser works on it without any new input plumbing, and it answers
+the pointer with a hover glow — a surface that responds is what tells a
+visitor this one object is interactive.
+
+The clip is not played as a clip. The mixer is seeked by hand each frame from
+a progress value the click flips between 0 and 1, which is what lets the doors
+**reverse mid-swing**: click again halfway and they come back down from where
+they are, rather than snapping to an end and restarting. It also decouples the
+pace from the take — the source runs 4.38s, slow to watch twice, so the
+component retimes it to 1.6s without touching the data.
+
 ## The human figure
 
 A 1.69m animated figure stands off the west side of the room, playing a 20.3s

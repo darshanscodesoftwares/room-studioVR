@@ -150,6 +150,21 @@ channel was removed at build time so `path-walk` can drive the travel instead.
   at its .fbm folder), so materials are rebuilt at runtime by name
 - 125MB of source became 3.1MB of web assets
 
+---
+
+## cupboard.gltf + cup-*.jpg — Innova H06
+
+- **Licence: unknown.** No licence file in the pack.
+- **Source pack:** `innova-h06` (6.7MB), FBX + four PBR texture sets
+- 2.15 x 0.60 x 0.50m sideboard with **two lift-up doors and a real 4.38s
+  opening animation** — eight channels, a hinge swing plus a lift travel per
+  door
+- Material names are the Russian originals: Fasad (doors), Korpus (carcass),
+  Ru4ki (handles), Podbemnik (lift arms), Mexanizm (hinges, no albedo — given
+  a plain metal finish)
+- Converted with FBX2glTF; texture references did not resolve, so materials
+  are rebuilt at runtime by name. 6.7MB of source became 2.3MB of web assets
+
 ## Replacing these
 
 Prefer glTF/GLB with an explicit licence. [Poly Haven](https://polyhaven.com)

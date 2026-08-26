@@ -323,6 +323,17 @@
                material="src: url(assets/bedroom-portrait.jpg); roughness: 0.6; metalness: 0"></a-plane>
     </a-entity>
 
+    <!-- Sideboard with two lift-up doors, against the west wall below the
+         portrait. Its FBX carried a real 4.38s opening take — two doors,
+         each a hinge swing plus a lift travel — so it is driven by click
+         rather than looped: point at it and pull the trigger to open, again
+         to close. class="clickable" puts it on the same raycaster the panel
+         uses, so the right-hand laser already works on it. -->
+    <a-entity id="cupboard" class="clickable"
+              gltf-model="url(assets/cupboard.gltf)"
+              clip-toggle="seconds: 1.6"
+              position="-2.74 0 4.45" rotation="0 90 0"></a-entity>
+
     <!-- daylight spill for the bedroom, preset-driven like the first -->
     <a-entity id="windowLight2"
               light="type: point; color: #dceaff; intensity: 0.4; distance: 8"
@@ -3235,6 +3246,60 @@ function skinBedroom() {
   });
 }
 
+/* The sideboard's textures are rebuilt by material name, same as the
+   bedroom: FBX2glTF resolved none of them. Names are the Russian originals
+   — Fasad the doors, Korpus the carcass, Ru4ki the handles, Podbemnik the
+   lift arms, Mexanizm the hinges, which ship no albedo and are simply
+   given a metal finish. */
+function skinCupboard() {
+  const el = document.querySelector('#cupboard');
+  if (!el) { return; }
+
+  const load = new THREE.TextureLoader();
+  function tex(path, srgb) {
+    const t = load.load(path, undefined, undefined, function () {
+      console.warn('[cupboard] texture failed: ' + path);
+    });
+    if (srgb && THREE.SRGBColorSpace) { t.colorSpace = THREE.SRGBColorSpace; }
+    t.flipY = false;
+    t.anisotropy = 4;
+    return t;
+  }
+
+  const SETS = {
+    Fasad:     'fasad',
+    Korpus:    'korpus',
+    Ru4ki:     'ru4ki',
+    Podbemnik: 'podbem'
+  };
+  const cache = {};
+  function build(short) {
+    if (cache[short]) { return cache[short]; }
+    const m = new THREE.MeshStandardMaterial({
+      map:          tex('assets/cup-' + short + '-c.jpg', true),
+      normalMap:    tex('assets/cup-' + short + '-n.jpg', false),
+      roughnessMap: tex('assets/cup-' + short + '-r.jpg', false),
+      metalnessMap: tex('assets/cup-' + short + '-m.jpg', false),
+      roughness: 1,
+      metalness: 1
+    });
+    cache[short] = m;
+    return m;
+  }
+
+  el.object3D.traverse(function (n) {
+    if (!n.isMesh || !n.material) { return; }
+    const name = n.material.name;
+    const short = SETS[name];
+    // one shared material instance per set, so the hover glow lights the
+    // whole unit and the GPU uploads each map once
+    n.material = short ? build(short) : new THREE.MeshStandardMaterial({
+      name: name, color: '#9aa0a6', roughness: 0.35, metalness: 0.85
+    });
+    n.material.name = name;
+  });
+}
+
 /* Runs fn once the entity's model exists, whether it arrived before or after
    this call. Preloaded assets almost always land first, which is the case a
    bare addEventListener silently misses. */
@@ -3425,6 +3490,79 @@ AFRAME.registerComponent('hand-menu', {
     o.position.add(this.off);
     o.quaternion.copy(this.handQ).multiply(this.tiltQ);
     o.scale.setScalar(this.data.scale);
+  }
+});
+
+/* Click-to-open, for models that ship an opening animation.
+
+   The clip is not played as a clip: the mixer is seeked by hand each frame
+   from a progress value the click flips between 0 and 1. That gives an
+   opening that reverses mid-swing — click again halfway and the doors come
+   back down from exactly where they are, instead of snapping to an end and
+   restarting, which is what LoopOnce plus clampWhenFinished would do.
+
+   It also decouples the pace from the take: the source runs 4.38s, which
+   is slow to watch twice, so `seconds` retimes it without touching data. */
+AFRAME.registerComponent('clip-toggle', {
+  schema: {
+    seconds: { default: 1.6 },      // time for a full open or close
+    hoverGlow: { default: 0.22 }
+  },
+
+  init: function () {
+    const self = this;
+    this.progress = 0;              // 0 shut, 1 open
+    this.target = 0;
+    this.mixer = null;
+    this.duration = 0;
+    this.mats = [];
+
+    const bind = function (model) {
+      const clips = model.animations;
+      if (!clips || !clips.length) {
+        console.warn('[clip-toggle] model carries no clip');
+        return;
+      }
+      self.mixer = new THREE.AnimationMixer(model);
+      const clip = clips[0];
+      self.duration = clip.duration;
+      const action = self.mixer.clipAction(clip);
+      action.play();
+      self.mixer.setTime(0);
+      model.traverse(function (n) {
+        if (n.isMesh && n.material) { self.mats.push(n.material); }
+      });
+    };
+    this.el.addEventListener('model-loaded', function (e) { bind(e.detail.model); });
+    const existing = this.el.getObject3D('mesh');
+    if (existing) { bind(existing); }
+
+    this.el.addEventListener('click', function () {
+      self.target = self.target > 0.5 ? 0 : 1;
+      logEvent('cupboard', { open: self.target > 0.5 });
+    });
+    // the laser already lights up on hit, but a surface that answers the
+    // pointer is what tells a visitor this one thing is interactive
+    this.el.addEventListener('mouseenter', function () { self.glow(true); });
+    this.el.addEventListener('mouseleave', function () { self.glow(false); });
+  },
+
+  glow: function (on) {
+    const v = on ? this.data.hoverGlow : 0;
+    this.mats.forEach(function (m) {
+      if (!m.emissive) { return; }
+      m.emissive.setRGB(v, v * 0.92, v * 0.7);
+    });
+  },
+
+  tick: function (time, delta) {
+    if (!this.mixer || !delta) { return; }
+    if (this.progress === this.target) { return; }
+    const step = (delta / 1000) / Math.max(0.05, this.data.seconds);
+    this.progress = this.target > this.progress
+      ? Math.min(this.target, this.progress + step)
+      : Math.max(this.target, this.progress - step);
+    this.mixer.setTime(this.progress * this.duration);
   }
 });
 
@@ -3845,6 +3983,11 @@ function boot() {
   whenModelReady(document.querySelector('#human'), function () {
     skinHuman('#human', 'sophia');
     setShadowFlags('#human', true, true);
+  });
+
+  whenModelReady(document.querySelector('#cupboard'), function () {
+    skinCupboard();
+    setShadowFlags('#cupboard', true, true);
   });
 
   whenModelReady(document.querySelector('#bedroomSet'), function () {
