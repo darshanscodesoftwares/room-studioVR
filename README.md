@@ -317,10 +317,17 @@ over the doorway wall but lands in either room.
 
 ## The gun range
 
-A doorway near the living room's south-west corner leads to a 7.6m shooting
-range — roofed over the firing side, open sky over the target half, concrete
-throughout and deliberately not on the finish palettes. Walkable space gains
-two more regions for it.
+A doorway near the living room's south-west corner opens onto a 6.4m corridor,
+and the shooting range sits at the far end of it — roofed over the firing side,
+open sky over the targets, concrete throughout and deliberately not on the
+finish palettes. The corridor is not decoration: with the range butted straight
+onto the flat's west wall it read as light bleeding in through the doorway, and
+distance turns that into a small lit rectangle at the end of a passage.
+
+The actual bleed was subtler and worth recording: point lights ignore walls
+entirely, and the living room's own window light had a 9m radius from x=2.4,
+so it reached 3.6m *past* the west wall and lit whatever was behind it. Both
+window lights are now sized to stop just inside their own rooms.
 
 **Standing on the glowing ring is the entire game interface.** Step on: the
 last-chosen gun snaps into the right hand (or under the desktop camera), the
