@@ -4537,7 +4537,9 @@ const WALK_HOME = [
   { x0: -0.55, x1: 0.55, z0:  2.69, z1: 3.31 }    // bedroom doorway
 ];
 const WALK_RANGE = [
-  { x0: -9.4,  x1: -3.0, z0:  2.0,  z1: 2.8  },   // corridor
+  // stops at the inside face of the wall, not on the wall plane itself:
+  // ending at -3.0 left a sliver a teleport could land on and skip a shut door
+  { x0: -9.4,  x1: -3.05, z0: 2.0,  z1: 2.8  },   // corridor
   { x0: -16.6, x1: -9.4, z0: -0.5,  z1: 4.5  }    // gun range
 ];
 // the strip through the doorway itself — present only while the door is open,
