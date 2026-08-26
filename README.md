@@ -344,6 +344,19 @@ right in VR. All three guns arrived in different authoring scales (0.45x to
 100x), so each is normalised at load by measuring its bounding box — no
 per-pack transforms.
 
+### The corridor door
+
+A hinged door hangs in the opening, clicked to swing. The pivot sits on the
+jamb with the leaf hung off it, so it moves like a door rather than spinning
+about its own middle, and the swing is eased so it settles into the jamb. It
+opens into the living room because the corridor is only a metre wide.
+
+Shutting it removes the walkable strip through the opening, so it genuinely
+blocks the way rather than looking shut. Two details make that safe: the strip
+is dropped the moment the door starts closing, so nobody walks through a door
+swinging into their face; and the leaf is a solid box, so the laser hits it
+from either side and a visitor in the corridor can always open it again.
+
 ### Switching the range off
 
 The whole wing is a toggle. **Range** off hides the corridor, the range and
