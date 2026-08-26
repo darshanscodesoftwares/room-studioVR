@@ -281,15 +281,23 @@
        far end of a 6.4m corridor: the opening from the flat shows a distant
        lit rectangle instead of a bright room two metres away. -->
   <a-entity id="corridor">
-    <a-plane class="floor-surface" rotation="-90 0 0" width="6.4" height="1.8"
+    <!-- Exactly the width of the doorway it leaves. It used to be 1.8m wide
+         against a 1.0m opening, which left an unwalled strip at each end —
+         that gap was the light coming through, not the range. -->
+    <a-plane class="floor-surface" rotation="-90 0 0" width="6.4" height="1.0"
              position="-6.2 0 2.4"
              material="color: #b98b5e; roughness: 0.55; metalness: 0.02"></a-plane>
-    <a-plane class="ceiling-surface" rotation="90 0 0" width="6.4" height="1.8"
+    <a-plane class="ceiling-surface" rotation="90 0 0" width="6.4" height="1.0"
              position="-6.2 2.5 2.4"
              material="color: #f4f4f2; roughness: 0.98; metalness: 0"></a-plane>
-    <a-plane class="wall" width="6.4" height="2.5" position="-6.2 1.25 1.5"
+    <a-plane class="wall" width="6.4" height="2.5" position="-6.2 1.25 1.9"
              material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
-    <a-plane class="wall" width="6.4" height="2.5" position="-6.2 1.25 3.3" rotation="0 180 0"
+    <a-plane class="wall" width="6.4" height="2.5" position="-6.2 1.25 2.9" rotation="0 180 0"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
+    <!-- caps the slot between the corridor ceiling and the rooms' 3m one -->
+    <a-plane class="wall" width="6.4" height="0.5" position="-6.2 2.75 1.9"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
+    <a-plane class="wall" width="6.4" height="0.5" position="-6.2 2.75 2.9" rotation="0 180 0"
              material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
   </a-entity>
 
@@ -304,11 +312,11 @@
     <a-plane width="7.6" height="3" position="-13.2 1.5 4.6" rotation="0 180 0"
              material="color: #8f8f89; roughness: 0.97; metalness: 0"></a-plane>
     <!-- east wall, with the corridor opening cut into it -->
-    <a-plane width="2.1" height="3" position="-9.4 1.5 0.45" rotation="0 -90 0"
+    <a-plane width="2.5" height="3" position="-9.4 1.5 0.65" rotation="0 -90 0"
              material="color: #8f8f89; roughness: 0.97; metalness: 0"></a-plane>
-    <a-plane width="1.3" height="3" position="-9.4 1.5 3.95" rotation="0 -90 0"
+    <a-plane width="1.7" height="3" position="-9.4 1.5 3.75" rotation="0 -90 0"
              material="color: #8f8f89; roughness: 0.97; metalness: 0"></a-plane>
-    <a-plane width="1.8" height="0.5" position="-9.4 2.75 2.4" rotation="0 -90 0"
+    <a-plane width="1.0" height="0.5" position="-9.4 2.75 2.4" rotation="0 -90 0"
              material="color: #8f8f89; roughness: 0.97; metalness: 0"></a-plane>
 
     <!-- backstop berm at the far end -->
@@ -4446,7 +4454,7 @@ const WALK_HOME = [
   { x0: -0.55, x1: 0.55, z0:  2.69, z1: 3.31 }    // bedroom doorway
 ];
 const WALK_RANGE = [
-  { x0: -9.4,  x1: -3.0, z0:  1.6,  z1: 3.2  },   // corridor
+  { x0: -9.4,  x1: -3.0, z0:  2.0,  z1: 2.8  },   // corridor
   { x0: -16.6, x1: -9.4, z0: -0.5,  z1: 4.5  },   // gun range
   { x0: -3.31, x1: -2.69, z0:  1.95, z1: 2.85 }   // range doorway
 ];
