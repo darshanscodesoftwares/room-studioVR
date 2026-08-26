@@ -25,6 +25,15 @@ open the resulting URL in the headset browser and tap the VR button. Keep
 | Left thumbstick | Smooth walk (can be switched off) |
 | Right thumbstick | Snap turn, 30° |
 | Right trigger | Click the floating panel |
+| Y or B button | Summon / dismiss the customiser on the left controller |
+
+In VR the customiser is controller-attached, X-Plane style: it floats above
+the left controller at 38% scale and travels with the visitor, summoned and
+dismissed with Y/B or its HIDE tab, clicked with the right laser. On desktop it
+keeps its wall pose. The follow runs per-frame on the object3D rather than
+reparenting the DOM, which would re-initialise every dynamically built control,
+and only a real headset pulls it off the wall — desktop fullscreen also fires
+enter-vr and must not.
 
 Both locomotion styles ship together on purpose: the desktop panel can switch
 smooth walking off mid-session, so smooth and teleport can be compared with the

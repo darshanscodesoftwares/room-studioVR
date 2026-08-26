@@ -697,7 +697,9 @@
   </a-entity>
 
   <!-- in-VR control panel; children are generated in JS -->
-  <a-entity id="vrPanel" position="-2.86 1.5 0.7" rotation="0 90 0"></a-entity>
+  <!-- In VR the customiser detaches from this wall pose and floats above
+       the left controller, X-Plane style; on desktop it stays here. -->
+  <a-entity id="vrPanel" hand-menu position="-2.86 1.5 0.7" rotation="0 90 0"></a-entity>
 
   <!-- ============ player ============ -->
   <a-entity id="rig" position="0 0 2.2">
@@ -3321,6 +3323,76 @@ AFRAME.registerComponent('path-walk', {
       this.yaw += diff * Math.min(1, dt * this.data.turnRate);
       obj.rotation.y = this.yaw;
     }
+  }
+});
+
+/* Controller-attached menu, the X-Plane pattern: in VR the customiser
+   floats above the left controller and travels with it, so it is usable
+   from anywhere in the flat instead of living on one wall. The right laser
+   clicks it as before; Y or B still summons and dismisses it.
+
+   The wall pose is kept and restored on exit, so the desktop mouse flow
+   never changes. The follow runs per-frame on the object3D — no DOM
+   reparenting, which would re-initialise every dynamically built control.
+
+   The tilt compensates the wrist: a controller at rest points 35-45
+   degrees downward, and the menu copies that pitch, so tipping its top
+   away by roughly the same angle stands it upright in front of the eyes.
+   If it leans on the real device, tilt is the one number to tune. */
+AFRAME.registerComponent('hand-menu', {
+  schema: {
+    hand: { default: '#handLeft' },
+    scale: { default: 0.38 },
+    offset: { type: 'vec3', default: { x: 0, y: 0.24, z: -0.06 } },
+    tilt: { default: -40 }
+  },
+
+  init: function () {
+    const self = this;
+    this.active = false;
+    this.wallPos = this.el.object3D.position.clone();
+    this.wallRot = this.el.object3D.rotation.clone();
+    this.handQ = new THREE.Quaternion();
+    this.tiltQ = new THREE.Quaternion();
+    this.off = new THREE.Vector3();
+    this.updateTilt();
+
+    const scene = this.el.sceneEl;
+    scene.addEventListener('enter-vr', function () {
+      // fullscreen on a flat desktop also fires enter-vr; only a real
+      // headset should pull the menu off the wall
+      self.active = AFRAME.utils.device.checkHeadsetConnected();
+    });
+    scene.addEventListener('exit-vr', function () {
+      self.active = false;
+      const o = self.el.object3D;
+      o.position.copy(self.wallPos);
+      o.rotation.copy(self.wallRot);
+      o.scale.set(1, 1, 1);
+    });
+  },
+
+  update: function () { this.updateTilt(); },
+
+  updateTilt: function () {
+    this.tiltQ.setFromAxisAngle(new THREE.Vector3(1, 0, 0),
+      THREE.MathUtils.degToRad(this.data.tilt));
+  },
+
+  tick: function () {
+    if (!this.active) { return; }
+    const handEl = document.querySelector(this.data.hand);
+    if (!handEl) { return; }
+    const h = handEl.object3D;
+    const o = this.el.object3D;
+
+    h.getWorldPosition(o.position);
+    h.getWorldQuaternion(this.handQ);
+    this.off.set(this.data.offset.x, this.data.offset.y, this.data.offset.z)
+      .applyQuaternion(this.handQ);
+    o.position.add(this.off);
+    o.quaternion.copy(this.handQ).multiply(this.tiltQ);
+    o.scale.setScalar(this.data.scale);
   }
 });
 
