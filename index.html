@@ -321,26 +321,28 @@
   <a-entity id="range" range-game>
     <!-- 7.6m lane: roofed at the firing end, open sky over the targets -->
     <a-plane rotation="-90 0 0" width="7.6" height="5.2" position="-13.2 0 2.0"
-             material="color: #86867f; roughness: 0.97; metalness: 0"></a-plane>
-    <a-plane rotation="90 0 0" width="2.6" height="5.2" position="-10.7 3 2.0"
-             material="color: #4a4a46; roughness: 1; metalness: 0"></a-plane>
+             material="color: #4c4c48; roughness: 0.97; metalness: 0"></a-plane>
+    <!-- Roofed end to end. Leaving the target half open showed the scene
+         background through it, which reads as a black void rather than sky. -->
+    <a-plane rotation="90 0 0" width="7.6" height="5.2" position="-13.2 3 2.0"
+             material="color: #2e2e2b; roughness: 1; metalness: 0"></a-plane>
     <a-plane width="7.6" height="3" position="-13.2 1.5 -0.6"
-             material="color: #8f8f89; roughness: 0.97; metalness: 0"></a-plane>
+             material="color: #43433f; roughness: 0.97; metalness: 0"></a-plane>
     <a-plane width="7.6" height="3" position="-13.2 1.5 4.6" rotation="0 180 0"
-             material="color: #8f8f89; roughness: 0.97; metalness: 0"></a-plane>
+             material="color: #43433f; roughness: 0.97; metalness: 0"></a-plane>
     <!-- east wall, with the corridor opening cut into it -->
     <a-plane width="2.5" height="3" position="-9.4 1.5 0.65" rotation="0 -90 0"
-             material="color: #56564f; roughness: 0.98; metalness: 0"></a-plane>
+             material="color: #3a3a36; roughness: 0.98; metalness: 0"></a-plane>
     <a-plane width="1.7" height="3" position="-9.4 1.5 3.75" rotation="0 -90 0"
-             material="color: #56564f; roughness: 0.98; metalness: 0"></a-plane>
+             material="color: #3a3a36; roughness: 0.98; metalness: 0"></a-plane>
     <a-plane width="1.0" height="0.5" position="-9.4 2.75 2.4" rotation="0 -90 0"
-             material="color: #56564f; roughness: 0.98; metalness: 0"></a-plane>
+             material="color: #3a3a36; roughness: 0.98; metalness: 0"></a-plane>
 
     <!-- backstop berm at the far end -->
     <a-plane width="5.2" height="3" position="-17.0 1.5 2.0" rotation="0 90 0"
-             material="color: #5d5952; roughness: 1; metalness: 0"></a-plane>
+             material="color: #322f2b; roughness: 1; metalness: 0"></a-plane>
     <a-box width="0.6" height="1.2" depth="5.2" position="-16.6 0.6 2.0" rotation="0 0 16"
-           material="color: #6b675f; roughness: 1; metalness: 0"></a-box>
+           material="color: #3a3733; roughness: 1; metalness: 0"></a-box>
 
     <!-- shooting stand -->
     <a-box width="0.5" height="0.06" depth="2.6" position="-10.65 1.02 2.0"
@@ -388,7 +390,7 @@
                      roughness: 1; metalness: 0"></a-box>
     <!-- washes the backstop so the eye is drawn to the far end -->
     <a-plane width="5.2" height="1.4" position="-16.94 1.9 2.0" rotation="0 90 0"
-             material="color: #8b877f; emissive: #6a6459; emissiveIntensity: 0.5;
+             material="color: #55524b; emissive: #4a453d; emissiveIntensity: 0.45;
                        roughness: 1; metalness: 0"></a-plane>
 
     <a-entity id="rangeTargets"></a-entity>
@@ -2563,6 +2565,7 @@ function setRange(on) {
 
   if (!on) {
     if (typeof RangeGame !== 'undefined' && RangeGame.active) { RangeGame.exit(); }
+    else if (typeof RangeGame !== 'undefined') { RangeGame.atmosphere(false); }
     rangeDoorOpen = true;          // so re-enabling never starts shut-in
     const pivot = document.querySelector('#rangeDoorPivot');
     if (pivot && pivot.components['swing-door']) {
@@ -3918,11 +3921,18 @@ const RangeGame = {
       stand.appendChild(board);
       host.appendChild(stand);
 
+      const rec = { el: board, stand: stand, down: 0, z: z, mat: null };
       board.addEventListener('loaded', function () {
         const mesh = board.getObject3D('mesh');
-        if (mesh) { mesh.material.map = self.targetTexture(); mesh.material.needsUpdate = true; }
+        if (!mesh) { return; }
+        mesh.material.map = self.targetTexture();
+        mesh.material.emissive = new THREE.Color('#ffffff');
+        mesh.material.emissiveMap = self.targetTexture();
+        mesh.material.emissiveIntensity = 0;
+        mesh.material.needsUpdate = true;
+        rec.mat = mesh.material;
       });
-      self.targets.push({ el: board, stand: stand, down: 0, z: z });
+      self.targets.push(rec);
     });
   },
 
@@ -3971,6 +3981,27 @@ const RangeGame = {
   },
 
   /* ---------- state ---------- */
+  /* Stepping onto the marker changes the light, not just the state. The
+     room drops to a low working level and the target faces come up on their
+     own emissive, so the eye goes down the lane instead of at the concrete.
+     Restoring is a straight re-apply of whatever preset the visitor had, so
+     the range can never leave the flat dimmed behind it. */
+  atmosphere: function (on) {
+    const amb = document.querySelector('#ambientLight');
+    const sun = document.querySelector('#sunLight');
+    const scene = document.querySelector('a-scene');
+    if (on) {
+      if (amb) { amb.setAttribute('light', { color: '#8e97a8', intensity: 0.17 }); }
+      if (sun) { sun.setAttribute('light', { color: '#9fb0c8', intensity: 0.13 }); }
+      if (scene) { scene.setAttribute('image-based-lighting', 'intensity', 0.18); }
+    } else {
+      setLighting(state.lighting);       // puts the preset back exactly
+    }
+    this.targets.forEach(function (t) {
+      if (t.mat) { t.mat.emissiveIntensity = on ? 0.55 : 0; }
+    });
+  },
+
   markerColour: function (c) {
     const m = document.querySelector('#rangeMarker');
     if (!m) { return; }
@@ -3985,6 +4016,7 @@ const RangeGame = {
   enter: function () {
     this.active = true;
     this.markerColour('#6fd36f');
+    this.atmosphere(true);
     this.score = 0;
     this.shots = 0;
     this.equip(this.current);
@@ -3997,6 +4029,7 @@ const RangeGame = {
   exit: function () {
     this.active = false;
     this.markerColour('#4cc9f0');
+    this.atmosphere(false);
     this.unequip();
     const ray = document.querySelector('#handRight');
     if (ray) { ray.setAttribute('raycaster', 'showLine', true); }
