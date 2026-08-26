@@ -3948,20 +3948,11 @@ const RangeGame = {
     }
     holder.addEventListener('model-loaded', function (e) {
       const model = e.detail.model;
-      // normalise: three packs, three authoring scales — measure and fit
-      const box = new THREE.Box3().setFromObject(model);
-      const size = new THREE.Vector3(); box.getSize(size);
-      const longest = Math.max(size.x, size.y, size.z);
-      const k = g.length / Math.max(1e-6, longest);
-      model.scale.setScalar(k);
-      box.setFromObject(model);
-      const c = new THREE.Vector3(); box.getCenter(c);
-      model.position.sub(c);
-      // barrel down -z of the holder: the packs' long axes differ, so
-      // rotate the two whose length lies along z already are fine; the
-      // pistol authors along x
-      if (size.x >= size.y && size.x >= size.z) {
-        model.rotation.y = -Math.PI / 2;
+      // measure first with no rotation, then re-fit with the barrel turned
+      // down -z if the pack authored its length along x
+      const probe = fitModel(model, g.length, 0);
+      if (probe.x >= probe.y && probe.x >= probe.z) {
+        fitModel(model, g.length, -Math.PI / 2);
       }
       model.traverse(function (n) {
         if (n.isMesh) { n.castShadow = false; n.frustumCulled = false; }
@@ -3980,8 +3971,20 @@ const RangeGame = {
   },
 
   /* ---------- state ---------- */
+  markerColour: function (c) {
+    const m = document.querySelector('#rangeMarker');
+    if (!m) { return; }
+    m.querySelectorAll('a-ring').forEach(function (r) {
+      r.setAttribute('material', 'color', c);
+    });
+    const t = m.querySelector('a-text');
+    if (t) { t.setAttribute('value', c === '#6fd36f' ? 'FIRING — STEP OFF TO QUIT'
+                                                     : 'STAND HERE TO SHOOT'); }
+  },
+
   enter: function () {
     this.active = true;
+    this.markerColour('#6fd36f');
     this.score = 0;
     this.shots = 0;
     this.equip(this.current);
@@ -3993,6 +3996,7 @@ const RangeGame = {
 
   exit: function () {
     this.active = false;
+    this.markerColour('#4cc9f0');
     this.unequip();
     const ray = document.querySelector('#handRight');
     if (ray) { ray.setAttribute('raycaster', 'showLine', true); }
@@ -4073,6 +4077,7 @@ const RangeGame = {
   /* ---------- per-frame ---------- */
   tick: function (dt) {
     if (!this._p) { this._p = new THREE.Vector3(); }
+    if (!state.range) { return; }        // wing switched off entirely
     // marker proximity is the entire enter/quit mechanic
     const cam = this.el.sceneEl.camera;
     if (cam) {
@@ -4119,16 +4124,11 @@ AFRAME.registerComponent('range-game', {
       el.appendChild(disp);
       disp.addEventListener('model-loaded', function (e) {
         const model = e.detail.model;
-        const box = new THREE.Box3().setFromObject(model);
-        const size = new THREE.Vector3(); box.getSize(size);
-        const longest = Math.max(size.x, size.y, size.z);
-        // display at true size, lying along the rack
-        model.scale.setScalar(g.length / Math.max(1e-6, longest));
-        box.setFromObject(model);
-        const c = new THREE.Vector3(); box.getCenter(c);
-        model.position.sub(c);
-        if (size.y >= size.x && size.y >= size.z) { model.rotation.z = Math.PI / 2; }
-        else if (size.z >= size.x) { model.rotation.y = Math.PI / 2; }
+        const probe = fitModel(model, g.length, 0);
+        // lie it along the rack: turn whichever axis is longest onto x
+        if (probe.z >= probe.x && probe.z >= probe.y) {
+          fitModel(model, g.length, Math.PI / 2);
+        }
         model.traverse(function (n) { if (n.isMesh) { n.castShadow = false; } });
         skinGun(model, id);
       });
@@ -4163,6 +4163,51 @@ AFRAME.registerComponent('range-game', {
 /* Rack display copies + hand-gun materials share this: the pistol pack has
    no textures at all, so it gets a plain gunmetal treatment; the other two
    carry their maps. */
+/* Fit a loaded model to a target length and centre it on its own origin.
+
+   Box3.setFromObject returns a WORLD box, and subtracting a world centre
+   from an object's LOCAL position is only correct when every ancestor sits
+   at the origin. The rack hangs at x -9.7 and the held gun hangs off the
+   camera, so the old code flung both roughly ten metres out of the room —
+   which is why no gun ever appeared.
+
+   This measures the box in the model's own space instead, then converts the
+   centre through the scale and rotation actually applied. */
+function fitModel(model, targetLength, rotY) {
+  model.position.set(0, 0, 0);
+  model.rotation.set(0, 0, 0);
+  model.scale.set(1, 1, 1);
+  model.updateMatrixWorld(true);
+
+  const inv = new THREE.Matrix4().copy(model.matrixWorld).invert();
+  const box = new THREE.Box3();
+  const v = new THREE.Vector3();
+  const m = new THREE.Matrix4();
+  model.traverse(function (n) {
+    if (!n.isMesh || !n.geometry) { return; }
+    if (!n.geometry.boundingBox) { n.geometry.computeBoundingBox(); }
+    const b = n.geometry.boundingBox;
+    m.multiplyMatrices(inv, n.matrixWorld);
+    [[b.min.x, b.min.y, b.min.z], [b.min.x, b.min.y, b.max.z],
+     [b.min.x, b.max.y, b.min.z], [b.min.x, b.max.y, b.max.z],
+     [b.max.x, b.min.y, b.min.z], [b.max.x, b.min.y, b.max.z],
+     [b.max.x, b.max.y, b.min.z], [b.max.x, b.max.y, b.max.z]
+    ].forEach(function (p) { box.expandByPoint(v.set(p[0], p[1], p[2]).applyMatrix4(m)); });
+  });
+  if (box.isEmpty()) { return new THREE.Vector3(1, 1, 1); }
+
+  const size = box.getSize(new THREE.Vector3());
+  const k = targetLength / Math.max(1e-6, Math.max(size.x, size.y, size.z));
+  model.scale.setScalar(k);
+  if (rotY) { model.rotation.y = rotY; }
+
+  // centre, expressed in the parent's frame through the transform just set
+  const c = box.getCenter(new THREE.Vector3()).multiplyScalar(k)
+              .applyEuler(model.rotation);
+  model.position.copy(c).negate();
+  return size;
+}
+
 const GUN_MATS = {};
 function skinGun(model, id) {
   // one material per weapon, shared by the rack copy and the held copy.
