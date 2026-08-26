@@ -2384,7 +2384,14 @@ function setVrPanelVisible(on) {
     body.object3D.position.z = on ? 0 : -999;
   }
   if (bg) { bg.setAttribute('material', 'color', on ? '#2a6df4' : '#4a5568'); }
-  if (txt) { txt.setAttribute('value', on ? 'HIDE' : 'PANEL'); }
+  if (txt) {
+    // open state labels the action; closed state is just a chevron aimed
+    // at where the panel unfolds — an arrow reads instantly at any scale,
+    // a word does not
+    txt.setAttribute('value', on ? 'HIDE' : '<<');
+    txt.setAttribute('rotation', on ? '0 0 90' : '0 0 0');
+    txt.setAttribute('width', on ? 1.1 : 1.6);
+  }
   logEvent('vrPanel', { shown: on });
   syncOverlay();
 }
@@ -3371,7 +3378,7 @@ AFRAME.registerComponent('path-walk', {
 AFRAME.registerComponent('hand-menu', {
   schema: {
     hand: { default: '#handLeft' },
-    scale: { default: 0.38 },
+    scale: { default: 0.26 },
     offset: { type: 'vec3', default: { x: 0, y: 0.24, z: -0.06 } },
     tilt: { default: -40 }
   },
