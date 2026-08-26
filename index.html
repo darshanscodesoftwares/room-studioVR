@@ -2326,14 +2326,16 @@ function buildVrPanel() {
      Stays visible when the body is folded away, at chest height on the edge
      of the board where it does not cover any control. Hiding a panel with no
      way back is worse than not being able to hide it at all. */
-  const handleBg = mkPlane(panel, {
-    w: 0.22, h: 0.46, x: 1.02, y: 0.0, z: 0.01,
-    color: '#2a6df4', clickable: true
-  });
+  const handleBg = document.createElement('a-circle');
   handleBg.setAttribute('id', 'vrPanelHandle');
-  const handleTxt = mkText(panel, 'HIDE', { x: 1.02, y: 0.0, z: 0.022, width: 1.1 });
+  handleBg.setAttribute('radius', 0.085);
+  handleBg.setAttribute('segments', 24);
+  handleBg.setAttribute('position', '1.0 0 0.01');
+  handleBg.setAttribute('material', 'color: #2a6df4; shader: flat');
+  handleBg.classList.add('clickable');
+  panel.appendChild(handleBg);
+  const handleTxt = mkText(panel, '>>', { x: 1.0, y: 0.0, z: 0.022, width: 1.6 });
   handleTxt.setAttribute('id', 'vrPanelHandleText');
-  handleTxt.setAttribute('rotation', '0 0 90');
   handleBg.addEventListener('click', function () {
     setVrPanelVisible(!vrPanelShown);
   });
@@ -2384,14 +2386,8 @@ function setVrPanelVisible(on) {
     body.object3D.position.z = on ? 0 : -999;
   }
   if (bg) { bg.setAttribute('material', 'color', on ? '#2a6df4' : '#4a5568'); }
-  if (txt) {
-    // open state labels the action; closed state is just a chevron aimed
-    // at where the panel unfolds — an arrow reads instantly at any scale,
-    // a word does not
-    txt.setAttribute('value', on ? 'HIDE' : '<<');
-    txt.setAttribute('rotation', on ? '0 0 90' : '0 0 0');
-    txt.setAttribute('width', on ? 1.1 : 1.6);
-  }
+  // arrows only: >> collapses toward the handle, << unfolds back out
+  if (txt) { txt.setAttribute('value', on ? '>>' : '<<'); }
   logEvent('vrPanel', { shown: on });
   syncOverlay();
 }
