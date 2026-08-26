@@ -2332,20 +2332,18 @@ function buildVrPanel() {
   panel.appendChild(body);
 
   // backing board
-  mkPlane(body, { w: 1.8, h: 2.70, x: 0, y: 0, z: 0, color: '#161a22', opacity: 0.94 });
-
-  mkText(body, 'ROOM STUDIO', { x: 0, y: 1.17, width: 2.0, color: '#8fb4ff' });
+  mkPlane(body, { w: 1.8, h: 1.66, x: 0, y: 0, z: 0, color: '#161a22', opacity: 0.94 });
 
   /* --- finish packages --- */
-  mkText(body, 'Finish package', { x: 0, y: 1.00, width: 1.5, color: '#9aa0ad' });
+  mkText(body, 'Finish package', { x: 0, y: 0.80, width: 1.2, color: '#8fb4ff' });
   const pkgIds = Object.keys(PACKAGES);
   pkgIds.forEach(function (id, i) {
     const x = -0.56 + i * 0.56;
     const bg = mkPlane(body, {
-      w: 0.5, h: 0.18, x: x, y: 0.84, z: 0.01,
+      w: 0.5, h: 0.16, x: x, y: 0.67, z: 0.01,
       color: '#2b3242', clickable: true
     });
-    mkText(body, PACKAGES[id].name, { x: x, y: 0.84, z: 0.022, width: 1.5 });
+    mkText(body, PACKAGES[id].name, { x: x, y: 0.67, z: 0.022, width: 1.3 });
     bg.addEventListener('click', function () { applyPackage(id); });
     vrButtons.push({ el: bg, kind: 'package', value: id });
   });
@@ -2354,14 +2352,14 @@ function buildVrPanel() {
      Six palettes will not fit on one reachable panel, so they are split
      across two pages rather than shrinking the tiles: a tile the customer
      cannot reliably hit with a laser is worse than a second tab. */
-  [['room', 'Room'], ['furniture', 'Furniture'],
-   ['bedroom', 'Bedroom'], ['models', 'Models']].forEach(function (t, i) {
-    const x = -0.63 + i * 0.42;
+  [['room', 'Room'], ['furniture', 'Furniture'], ['bedroom', 'Bedroom'],
+   ['decor', 'Decor'], ['models', 'Models']].forEach(function (t, i) {
+    const x = -0.68 + i * 0.34;
     const bg = mkPlane(body, {
-      w: 0.38, h: 0.17, x: x, y: 0.65, z: 0.01,
+      w: 0.31, h: 0.15, x: x, y: 0.495, z: 0.01,
       color: '#2b3242', clickable: true
     });
-    mkText(body, t[1], { x: x, y: 0.65, z: 0.022, width: 1.05 });
+    mkText(body, t[1], { x: x, y: 0.495, z: 0.022, width: 0.9 });
     bg.addEventListener('click', function () { setVrTab(t[0]); });
     vrButtons.push({ el: bg, kind: 'tab', value: t[0] });
   });
@@ -2387,7 +2385,7 @@ function buildVrPanel() {
   };
   // four rows on the room tab now, so the band tightens and the tiles shrink
   // a little — still 18cm targets, comfortably larger than a laser needs
-  const ROW_Y = [0.32, 0.06, -0.20, -0.46];
+  const ROW_Y = [0.24, -0.02, -0.28, -0.54];
 
   Object.keys(TABS).forEach(function (tabId) {
     const group = document.createElement('a-entity');
@@ -2422,12 +2420,12 @@ function buildVrPanel() {
 
   // four slots will not fit on the three swatch rows, so the models tab uses
   // its own tighter spacing
-  const MODEL_ROW_Y = [0.41, 0.19, -0.03, -0.25, -0.47];
+  const MODEL_ROW_Y = [0.262, 0.052, -0.158, -0.368, -0.578];
   Object.keys(MODELS).forEach(function (slot, r) {
     const y = MODEL_ROW_Y[r];
     const vars = MODELS[slot].variants;
     mkText(mGroup, MODELS[slot].label,
-      { x: 0, y: y + 0.115, width: 1.6, color: '#9aa0ad' });
+      { x: 0, y: y + 0.108, width: 1.6, color: '#9aa0ad' });
 
     const w = Math.min(0.8, 1.68 / vars.length - 0.06);
     const step = w + 0.06;
@@ -2443,8 +2441,15 @@ function buildVrPanel() {
     });
   });
 
-  /* --- chair + decor toggles --- */
-  mkText(body, 'Chair & decor', { x: 0, y: -0.60, width: 1.5, color: '#9aa0ad' });
+  /* --- decor tab ---
+     These used to hang below every tab, which is what made the board tall:
+     their height was paid on the Room tab, the Models tab, everywhere. In
+     their own tab they cost nothing anywhere else. */
+  const dGroup = document.createElement('a-entity');
+  body.appendChild(dGroup);
+  vrTabs.decor = dGroup;
+
+  mkText(dGroup, 'Chair & decor', { x: 0, y: 0.385, width: 1.5, color: '#9aa0ad' });
   const toggles = [
     { kind: 'chair', value: 'armchair', label: 'Armchair' },
     { kind: 'decor', value: 'rug',      label: 'Rug' },
@@ -2456,11 +2461,11 @@ function buildVrPanel() {
   ];
   toggles.forEach(function (t, i) {
     const x = -0.75 + i * 0.25;
-    const bg = mkPlane(body, {
-      w: 0.23, h: 0.18, x: x, y: -0.74, z: 0.01,
+    const bg = mkPlane(dGroup, {
+      w: 0.23, h: 0.18, x: x, y: 0.26, z: 0.01,
       color: '#2b3242', clickable: true
     });
-    mkText(body, t.label, { x: x, y: -0.74, z: 0.022, width: 0.95 });
+    mkText(dGroup, t.label, { x: x, y: 0.26, z: 0.022, width: 0.95 });
     bg.addEventListener('click', function () {
       if (t.kind === 'chair') {
         setChairStyle(state.chair === 'armchair' ? 'modern' : 'armchair');
@@ -2473,24 +2478,24 @@ function buildVrPanel() {
   });
 
   /* --- lighting --- */
-  mkText(body, 'Lighting', { x: 0, y: -0.89, width: 1.1, color: '#9aa0ad' });
+  mkText(dGroup, 'Lighting', { x: 0, y: 0.09, width: 1.1, color: '#9aa0ad' });
   const lightIds = Object.keys(LIGHTING);
   lightIds.forEach(function (id, i) {
     const x = -0.6 + i * 0.4;
-    const bg = mkPlane(body, {
-      w: 0.36, h: 0.18, x: x, y: -1.02, z: 0.01,
+    const bg = mkPlane(dGroup, {
+      w: 0.36, h: 0.18, x: x, y: -0.04, z: 0.01,
       color: '#2b3242', clickable: true
     });
-    mkText(body, LIGHTING[id].name, { x: x, y: -1.02, z: 0.022, width: 1.35 });
+    mkText(dGroup, LIGHTING[id].name, { x: x, y: -0.04, z: 0.022, width: 1.35 });
     bg.addEventListener('click', function () { setLighting(id); syncUI(); });
     vrButtons.push({ el: bg, kind: 'lighting', value: id });
   });
   const lampX = -0.6 + lightIds.length * 0.4;
-  const lampBg = mkPlane(body, {
-    w: 0.36, h: 0.18, x: lampX, y: -1.02, z: 0.01,
+  const lampBg = mkPlane(dGroup, {
+    w: 0.36, h: 0.18, x: lampX, y: -0.04, z: 0.01,
     color: '#2b3242', clickable: true
   });
-  mkText(body, 'Lamp', { x: lampX, y: -1.02, z: 0.022, width: 1.35 });
+  mkText(dGroup, 'Lamp', { x: lampX, y: -0.04, z: 0.022, width: 1.35 });
   lampBg.addEventListener('click', function () { setLamp(!state.lamp); syncUI(); });
   vrButtons.push({ el: lampBg, kind: 'lamp', value: 'lamp' });
 
@@ -2514,10 +2519,10 @@ function buildVrPanel() {
 
   /* --- reset --- */
   const resetBg = mkPlane(body, {
-    w: 1.5, h: 0.2, x: 0, y: -1.23, z: 0.01,
+    w: 1.5, h: 0.18, x: 0, y: -0.735, z: 0.01,
     color: '#3a2b2b', clickable: true
   });
-  mkText(body, 'RESET TO DEFAULT', { x: 0, y: -1.23, z: 0.022, width: 2.0 });
+  mkText(body, 'RESET TO DEFAULT', { x: 0, y: -0.735, z: 0.022, width: 1.6 });
   resetBg.addEventListener('click', function () { resetRoom(); });
 }
 
