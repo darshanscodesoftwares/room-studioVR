@@ -229,12 +229,19 @@
              material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
     <a-plane class="wall" width="1.0" height="0.9" position="-3 2.55 2.4" rotation="0 90 0"
              material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
-    <a-box width="0.14" height="2.16" depth="0.09" position="-3 1.06 1.9"
-           material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
-    <a-box width="0.14" height="2.16" depth="0.09" position="-3 1.06 2.9"
-           material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
-    <a-box width="0.14" height="0.09" depth="1.09" position="-3 2.145 2.4"
-           material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
+    <a-entity id="rangeDoorCase">
+      <a-box width="0.14" height="2.16" depth="0.09" position="-3 1.06 1.9"
+             material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
+      <a-box width="0.14" height="2.16" depth="0.09" position="-3 1.06 2.9"
+             material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
+      <a-box width="0.14" height="0.09" depth="1.09" position="-3 2.145 2.4"
+             material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
+    </a-entity>
+    <!-- Seals the opening when the range is switched off. class="wall" so it
+         paints with the rest and the west wall reads as one solid surface. -->
+    <a-plane id="rangeDoorFill" class="wall" width="1.0" height="2.1"
+             position="-3 1.05 2.4" rotation="0 90 0" visible="false"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
     <a-plane class="wall" width="6" height="3" position="3 1.5 0" rotation="0 -90 0"
              material="color: #ece7e1; roughness: 0.94; metalness: 0"></a-plane>
 
@@ -1070,6 +1077,8 @@ const DEFAULT_STATE = Object.assign({}, PACKAGES.studio, {
   // the figure is a scale reference rather than decor, so finish packages
   // deliberately leave it alone; only the toggle and reset touch it
   human: true,
+  // the range is a wing, not decor — packages leave it alone like the figures
+  range: true,
   models: { sofa: 'primitive', plant: 'bonsai', cat: 'realistic',
             people: 'woman', tv: 'mi' }
 });
@@ -1881,6 +1890,7 @@ function setDecor(key, on) {
   if (gated[key]) {
     applyModelSlot(gated[key]);
   } else {
+    if (key === 'range') { setRange(!state.range); return; }
     const ids = { rug: '.rug-surface', art: '#art', cat: '#cat' };
     document.querySelectorAll(ids[key]).forEach(function (el) {
       el.setAttribute('visible', on);
@@ -2114,7 +2124,7 @@ function buildOverlay() {
   // decor toggles
   const decorBtns = document.querySelector('#decorBtns');
   [['rug', 'Rug'], ['plant', 'Plant'], ['art', 'Wall art'],
-   ['cat', 'Cat'], ['human', 'People']].forEach(function (d) {
+   ['cat', 'Cat'], ['human', 'People'], ['range', 'Range']].forEach(function (d) {
     const b = document.createElement('button');
     b.textContent = d[1];
     b.dataset.decor = d[0];
@@ -2399,15 +2409,16 @@ function buildVrPanel() {
     { kind: 'decor', value: 'plant',    label: 'Plant' },
     { kind: 'decor', value: 'art',      label: 'Art' },
     { kind: 'decor', value: 'cat',      label: 'Cat' },
-    { kind: 'decor', value: 'human',    label: 'People' }
+    { kind: 'decor', value: 'human',    label: 'People' },
+    { kind: 'decor', value: 'range',    label: 'Range' }
   ];
   toggles.forEach(function (t, i) {
-    const x = -0.7 + i * 0.28;
+    const x = -0.75 + i * 0.25;
     const bg = mkPlane(body, {
-      w: 0.26, h: 0.18, x: x, y: -0.74, z: 0.01,
+      w: 0.23, h: 0.18, x: x, y: -0.74, z: 0.01,
       color: '#2b3242', clickable: true
     });
-    mkText(body, t.label, { x: x, y: -0.74, z: 0.022, width: 1.05 });
+    mkText(body, t.label, { x: x, y: -0.74, z: 0.022, width: 0.95 });
     bg.addEventListener('click', function () {
       if (t.kind === 'chair') {
         setChairStyle(state.chair === 'armchair' ? 'modern' : 'armchair');
@@ -2485,6 +2496,38 @@ function syncVrPanel() {
     else { on = !!state[b.value]; }
     b.el.setAttribute('material', 'color', on ? '#2a6df4' : '#2b3242');
   });
+}
+
+/* The range is a whole wing that can be switched off: corridor, range and
+   the doorway itself go, the west wall seals, and the flat is back to two
+   rooms. Off is the safe direction, so it also ends any game in progress and
+   walks a visitor who is out there back inside — otherwise they would be
+   standing in a region that no longer exists, unable to move. */
+function setRange(on) {
+  state.range = on;
+  ['#corridor', '#range', '#rangeDoorCase'].forEach(function (sel) {
+    const el = document.querySelector(sel);
+    if (el) { el.setAttribute('visible', on); }
+  });
+  const fill = document.querySelector('#rangeDoorFill');
+  if (fill) { fill.setAttribute('visible', !on); }
+
+  WALK_RECTS = on ? WALK_HOME.concat(WALK_RANGE) : WALK_HOME;
+
+  if (!on) {
+    if (typeof RangeGame !== 'undefined' && RangeGame.active) { RangeGame.exit(); }
+    const rig = document.querySelector('#rig');
+    const cam = document.querySelector('#cam');
+    if (rig) {
+      const ox = cam ? cam.object3D.position.x : 0;
+      const oz = cam ? cam.object3D.position.z : 0;
+      if (rig.object3D.position.x + ox < -2.75) {
+        rig.object3D.position.set(-2.2 - ox, 0, 2.4 - oz);
+      }
+    }
+  }
+  logEvent('range', { enabled: on });
+  syncUI();
 }
 
 let vrPanelShown = true;
@@ -4394,14 +4437,18 @@ AFRAME.registerComponent('teleport-lite', {
    doorway strip that joins them. Rects overlap by a centimetre at the seam
    so floating-point drift can never leave a visitor stranded between two
    regions that both reject them. */
-const WALK_RECTS = [
+const WALK_HOME = [
   { x0: -2.7,  x1: 2.7,  z0: -2.7,  z1: 2.7  },   // living room
   { x0: -2.7,  x1: 2.7,  z0:  3.3,  z1: 7.7  },   // bedroom
-  { x0: -0.55, x1: 0.55, z0:  2.69, z1: 3.31 },   // bedroom doorway
+  { x0: -0.55, x1: 0.55, z0:  2.69, z1: 3.31 }    // bedroom doorway
+];
+const WALK_RANGE = [
   { x0: -9.4,  x1: -3.0, z0:  1.6,  z1: 3.2  },   // corridor
   { x0: -16.6, x1: -9.4, z0: -0.5,  z1: 4.5  },   // gun range
   { x0: -3.31, x1: -2.69, z0:  1.95, z1: 2.85 }   // range doorway
 ];
+// recomputed on toggle rather than per step: walkable() runs every frame
+let WALK_RECTS = WALK_HOME.concat(WALK_RANGE);
 
 function walkable(x, z) {
   return WALK_RECTS.some(function (r) {
@@ -4517,6 +4564,7 @@ function boot() {
   setLighting('day');
   setLamp(true);
   setSmoothMove(true);
+  setRange(state.range);
   logging = wasLogging;
 
   Telemetry.startedAt = Date.now();

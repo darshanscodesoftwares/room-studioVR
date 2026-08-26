@@ -344,6 +344,19 @@ right in VR. All three guns arrived in different authoring scales (0.45x to
 100x), so each is normalised at load by measuring its bounding box — no
 per-pack transforms.
 
+### Switching the range off
+
+The whole wing is a toggle. **Range** off hides the corridor, the range and
+the doorway casing, reveals a fill panel that seals the west wall — on the
+wall palette, so it paints with everything else — and drops the range's
+walkable regions, leaving the flat exactly as it was before. Off is the safe
+direction, so it also ends any game in progress and walks a visitor who is out
+there back inside: otherwise they would be standing in a region that no longer
+exists, unable to move in any direction.
+
+Like the figures, the range is a wing rather than decor, so finish packages
+leave it alone.
+
 ## Interactive furniture
 
 A sideboard with two lift-up doors stands against the bedroom's west wall
