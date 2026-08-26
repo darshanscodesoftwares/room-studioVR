@@ -2246,7 +2246,12 @@ function setVrPanelVisible(on) {
   const body = document.querySelector('#vrPanelBody');
   const bg = document.querySelector('#vrPanelHandle');
   const txt = document.querySelector('#vrPanelHandleText');
-  if (body) { body.setAttribute('visible', on); }
+  if (body) {
+    body.setAttribute('visible', on);
+    // same raycaster trap as the tabs: a folded panel must not keep a wall
+    // of invisible buttons floating in front of the actual wall
+    body.object3D.position.z = on ? 0 : -999;
+  }
   if (bg) { bg.setAttribute('material', 'color', on ? '#2a6df4' : '#4a5568'); }
   if (txt) { txt.setAttribute('value', on ? 'HIDE' : 'PANEL'); }
   logEvent('vrPanel', { shown: on });
@@ -2256,7 +2261,14 @@ function setVrPanelVisible(on) {
 function setVrTab(id) {
   activeTab = id;
   Object.keys(vrTabs).forEach(function (k) {
-    vrTabs[k].setAttribute('visible', k === id);
+    const on = (k === id);
+    vrTabs[k].setAttribute('visible', on);
+    /* visible:false hides the pixels but NOT the click targets — invisible
+       meshes still intersect the raycaster. All three tabs share the same
+       board positions, so a hidden tab's tile sits exactly on top of the
+       visible one and steals its clicks. Shoving hidden groups far behind
+       the wall takes them out of the laser's reach entirely. */
+    vrTabs[k].object3D.position.z = on ? 0 : -999;
   });
   syncVrPanel();
 }
