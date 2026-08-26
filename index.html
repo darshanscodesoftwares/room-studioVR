@@ -312,6 +312,17 @@
                 material="color: #d8d2c4; roughness: 0.92; metalness: 0"></a-entity>
     </a-entity>
 
+    <!-- The portrait, re-hung. The model's version hung on a marble pier we
+         hide, leaving it floating edge-on. Its picture was extracted from
+         the painting atlas, rotated upright, and framed like the living
+         room's art — flush on the west wall above the chair. -->
+    <a-entity position="-2.96 1.58 6.04" rotation="0 90 0">
+      <a-box width="1.02" height="1.22" depth="0.045"
+             material="color: #17181b; roughness: 0.4; metalness: 0.2"></a-box>
+      <a-plane width="0.92" height="1.12" position="0 0 0.028"
+               material="src: url(assets/bedroom-portrait.jpg); roughness: 0.6; metalness: 0"></a-plane>
+    </a-entity>
+
     <!-- daylight spill for the bedroom, preset-driven like the first -->
     <a-entity id="windowLight2"
               light="type: point; color: #dceaff; intensity: 0.4; distance: 8"
@@ -3134,7 +3145,9 @@ function skinBedroom() {
     Carpet:    null,   // replaced by our palette-driven rug; the model's
                        // carpet also rendered wrong after the axis change
 
-    Painting:  { c: 'bedroom-painting-c.jpg', rough: 0.6 },
+    Painting:  null,   // hung on a marble pier that no longer exists; it
+                       // floated edge-on, so it is re-hung as our own frame
+
     EndTables: { c: 'bedroom-endtables-c.jpg', rough: 0.4, metal: 0.15 },
     EndLamps:  { c: 'bedroom-endlamps-c.jpg', rough: 0.4, metal: 0.3,
                  emissive: '#ffe6c0', emissiveIntensity: 0.55 },
