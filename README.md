@@ -277,6 +277,27 @@ This is the direct answer to the brief's *"one showroom presents multiple
 configurations"*: finish packages change the surfaces, model variants change the
 furniture itself, and both are logged.
 
+## The second room
+
+A 6×5m bedroom now adjoins the living room through a cased doorway in the
+south wall. The shell — walls, ceiling, floor, and a matching east window — is
+built in-scene rather than taken from the bedroom model, which is what keeps
+every surface on the same palettes as the living room: one wall colour, one
+flooring, one ceiling finish across the flat.
+
+The furniture is the Modern Bedroom pack: bed, duvet, pillows, end tables,
+lamps, chair, carpet and a painting, placed so the bed faces the doorway. The
+model's own architecture and curtains are hidden at runtime. Its **duvet
+shipped as an untextured material**, so it takes a true colour palette —
+six options on the desktop panel and the VR furniture tab — while the
+photo-textured pieces are tintable and toggleable per piece by material name.
+
+Walkable space is now a union of regions — living room, bedroom, and the
+doorway strip — rather than one clamped square. Blocked moves slide along the
+wall instead of stopping dead, which is also what funnels a visitor through
+the doorway naturally. Teleport aims with the same rule, so the arc goes red
+over the doorway wall but lands in either room.
+
 ## The human figure
 
 A 1.69m animated figure stands off the west side of the room, playing a 20.3s

@@ -132,6 +132,24 @@ channel was removed at build time so `path-walk` can drive the travel instead.
 - Its FBX never referenced the bundled `Texture.jpg`, so the screen texture is
   applied at runtime.
 
+---
+
+## bedroom.gltf + bedroom-*.jpg — Modern Bedroom
+
+- **Licence: not verified.** The pack has a Sketchfab-style layout (source zip
+  + textures) but shipped no licence file — check the download page it came
+  from before any public deploy.
+- **Source pack:** `modern-bedroom` (125MB), FBX + per-piece PBR texture sets
+- Ten primitives with named materials: Structure, Meshes, Pillows, BedFrame,
+  Chair, Carpet, Painting, EndTables, EndLamps, Duvet
+- Structure (the model's own architecture) and Meshes (its curtains) are
+  hidden at runtime — the room shell is built in-scene instead, so the
+  bedroom's walls, floor and ceiling stay on the shared palettes
+- The Duvet material shipped untextured, so it takes a real colour palette
+- Converted with FBX2glTF; texture references did not survive (the FBX pointed
+  at its .fbm folder), so materials are rebuilt at runtime by name
+- 125MB of source became 3.1MB of web assets
+
 ## Replacing these
 
 Prefer glTF/GLB with an explicit licence. [Poly Haven](https://polyhaven.com)

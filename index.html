@@ -96,6 +96,9 @@
   <h2>Table top</h2>
   <div class="swatches" id="tableWoodSw"></div>
 
+  <h2>Bedroom duvet</h2>
+  <div class="swatches" id="duvetSw"></div>
+
   <h2>Accent chair</h2>
   <div class="btns" id="chairBtns"></div>
 
@@ -170,9 +173,9 @@
             light="type: directional; color: #fff6e8; intensity: 0.75;
                    castShadow: true;
                    shadowMapWidth: 2048; shadowMapHeight: 2048;
-                   shadowCameraLeft: -5; shadowCameraRight: 5;
-                   shadowCameraTop: 5; shadowCameraBottom: -5;
-                   shadowCameraNear: 0.5; shadowCameraFar: 18;
+                   shadowCameraLeft: -8; shadowCameraRight: 8;
+                   shadowCameraTop: 8; shadowCameraBottom: -8;
+                   shadowCameraNear: 0.5; shadowCameraFar: 26;
                    shadowBias: -0.0012; shadowRadius: 2"
             position="2.5 4 1.5"></a-entity>
   <!-- daylight spill from the window -->
@@ -184,19 +187,33 @@
   <a-entity id="room">
     <!-- Sealed wood floor: low roughness is what lets the environment map
          show up as a soft sheen. A matte floor kills every reflection. -->
-    <a-plane id="floor" class="wall-surface"
+    <a-plane id="floor" class="floor-surface"
              rotation="-90 0 0" width="6" height="6" position="0 0 0"
              material="color: #b98b5e; roughness: 0.55; metalness: 0.02"></a-plane>
 
-    <a-plane id="ceiling"
+    <a-plane id="ceiling" class="ceiling-surface"
              rotation="90 0 0" width="6" height="6" position="0 3 0"
              material="color: #f4f4f2; roughness: 0.98; metalness: 0"></a-plane>
 
     <!-- matte plaster -->
     <a-plane class="wall" width="6" height="3" position="0 1.5 -3"
              material="color: #ece7e1; roughness: 0.94; metalness: 0"></a-plane>
-    <a-plane class="wall" width="6" height="3" position="0 1.5 3" rotation="0 180 0"
-             material="color: #ece7e1; roughness: 0.94; metalness: 0"></a-plane>
+    <!-- South wall carries the doorway to the bedroom: two flanks and a
+         lintel instead of one plane. side: double, because the same surfaces
+         are the bedroom's north wall seen from the other side. -->
+    <a-plane class="wall" width="2.35" height="3" position="-1.825 1.5 3" rotation="0 180 0"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
+    <a-plane class="wall" width="2.35" height="3" position="1.825 1.5 3" rotation="0 180 0"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
+    <a-plane class="wall" width="1.3" height="0.9" position="0 2.55 3" rotation="0 180 0"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
+    <!-- door casing -->
+    <a-box width="0.09" height="2.16" depth="0.14" position="-0.66 1.06 3"
+           material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
+    <a-box width="0.09" height="2.16" depth="0.14" position="0.66 1.06 3"
+           material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
+    <a-box width="1.41" height="0.09" depth="0.14" position="0 2.145 3"
+           material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
     <a-plane class="wall" width="6" height="3" position="-3 1.5 0" rotation="0 90 0"
              material="color: #ece7e1; roughness: 0.94; metalness: 0"></a-plane>
     <a-plane class="wall" width="6" height="3" position="3 1.5 0" rotation="0 -90 0"
@@ -204,7 +221,7 @@
 
     <!-- window on the east wall -->
     <a-entity position="2.97 1.6 0" rotation="0 -90 0">
-      <a-plane id="windowGlass" width="1.9" height="1.3"
+      <a-plane id="windowGlass" class="window-glass" width="1.9" height="1.3"
                material="color: #cfe4f7; shader: flat; opacity: 0.95"></a-plane>
       <a-box width="2.05" height="0.08" depth="0.06" position="0  0.69 0.01"
              material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
@@ -218,6 +235,54 @@
              material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
     </a-entity>
   </a-entity>
+
+  <!-- ============ bedroom (6 x 5 x 3 m, z from 3 to 8) ============
+       The shell is ours, not the model's: the pack's own architecture is
+       hidden, so walls, ceiling and floor take the same palettes as the
+       living room and stay fully customisable. -->
+  <a-entity id="room2">
+    <a-plane class="floor-surface"
+             rotation="-90 0 0" width="6" height="5" position="0 0 5.5"
+             material="color: #b98b5e; roughness: 0.55; metalness: 0.02"></a-plane>
+    <a-plane class="ceiling-surface"
+             rotation="90 0 0" width="6" height="5" position="0 3 5.5"
+             material="color: #f4f4f2; roughness: 0.98; metalness: 0"></a-plane>
+    <a-plane class="wall" width="6" height="3" position="0 1.5 8"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0"></a-plane>
+    <a-plane class="wall" width="5" height="3" position="-3 1.5 5.5" rotation="0 90 0"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0"></a-plane>
+    <a-plane class="wall" width="5" height="3" position="3 1.5 5.5" rotation="0 -90 0"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0"></a-plane>
+
+    <!-- window on the bedroom's east wall, matching the living room's -->
+    <a-entity position="2.97 1.6 5.5" rotation="0 -90 0">
+      <a-plane class="window-glass" width="1.9" height="1.3"
+               material="color: #cfe4f7; shader: flat; opacity: 0.95"></a-plane>
+      <a-box width="2.05" height="0.08" depth="0.06" position="0  0.69 0.01"
+             material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
+      <a-box width="2.05" height="0.08" depth="0.06" position="0 -0.69 0.01"
+             material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
+      <a-box width="0.08" height="1.46" depth="0.06" position="-0.99 0 0.01"
+             material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
+      <a-box width="0.08" height="1.46" depth="0.06" position=" 0.99 0 0.01"
+             material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
+      <a-box width="0.06" height="1.3" depth="0.05" position="0 0 0.01"
+             material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
+    </a-entity>
+
+    <!-- daylight spill for the bedroom, preset-driven like the first -->
+    <a-entity id="windowLight2"
+              light="type: point; color: #dceaff; intensity: 0.4; distance: 8"
+              position="2.4 1.8 5.5"></a-entity>
+  </a-entity>
+
+  <!-- The bedroom set: one glTF whose ten pieces carry their own named
+       materials. Its own walls/floor (Structure) and curtain meshes are
+       hidden in skinBedroom() — the shell above replaces them — and the
+       furniture is placed so the bed faces the doorway. Scale and offsets
+       computed from the composed node transform, not the raw accessors. -->
+  <a-entity id="bedroomSet" gltf-model="url(assets/bedroom.gltf)"
+            position="0.78 0.015 4.72" scale="0.27 0.27 0.27"></a-entity>
 
   <!-- ============ furniture ============ -->
 
@@ -625,6 +690,17 @@ const PALETTE = {
     { id: 'mist',    name: 'Cool Mist',   hex: '#d5dbe0', proc: 'plaster' },
     { id: 'ink',     name: 'Deep Ink',    hex: '#4a5568', proc: 'plaster' }
   ],
+  /* The bedroom duvet shipped as a plain untextured material, which makes it
+     the one piece of the set that takes a full colour palette rather than a
+     tint over a photo. */
+  duvet: [
+    { id: 'snow',     name: 'Snow',       hex: '#e8e6e1' },
+    { id: 'sandD',    name: 'Sand',       hex: '#d9c8a8' },
+    { id: 'sageD',    name: 'Sage',       hex: '#a8b59a' },
+    { id: 'denim',    name: 'Denim',      hex: '#5d7291' },
+    { id: 'terraD',   name: 'Terracotta', hex: '#b5714f' },
+    { id: 'charD',    name: 'Charcoal',   hex: '#4b4e55' }
+  ],
   ceiling: [
     { id: 'chalkC',  name: 'White',      hex: '#f4f4f2', proc: 'plaster' },
     { id: 'warmC',   name: 'Warm White', hex: '#f2ece1', proc: 'plaster' },
@@ -691,19 +767,19 @@ const PALETTE = {
 const PACKAGES = {
   studio: {
     name: 'Studio',
-    wall: 'chalk', ceiling: 'chalkC', floor: 'oak', sofa: 'steel',
+    wall: 'chalk', ceiling: 'chalkC', duvet: 'snow', floor: 'oak', sofa: 'steel',
     chairFabric: 'rust', rugColor: 'mistrug', tableWood: 'walnuttop',
     chair: 'modern', rug: true, plant: true, art: true, cat: true
   },
   warmOak: {
     name: 'Warm Oak',
-    wall: 'sand', ceiling: 'warmC', floor: 'walnut', sofa: 'terra',
+    wall: 'sand', ceiling: 'warmC', duvet: 'sandD', floor: 'walnut', sofa: 'terra',
     chairFabric: 'leather', rugColor: 'wool', tableWood: 'oaktop',
     chair: 'armchair', rug: true, plant: true, art: true, cat: true
   },
   coolMinimal: {
     name: 'Cool Minimal',
-    wall: 'mist', ceiling: 'coolC', floor: 'concrete', sofa: 'charcoal',
+    wall: 'mist', ceiling: 'coolC', duvet: 'charD', floor: 'concrete', sofa: 'charcoal',
     chairFabric: 'slateup', rugColor: 'graphite', tableWood: 'marble',
     chair: 'modern', rug: false, plant: false, art: true, cat: true
   }
@@ -1469,24 +1545,42 @@ const SURFACE = {
 function setWallColor(id) {
   state.wall = id;
   const entry = entryOf('wall', id);
-  document.querySelectorAll('#room .wall').forEach(function (el) {
+  document.querySelectorAll('.wall').forEach(function (el) {
     applyFinish(el, entry, SURFACE.wall);
   });
   state.package = null;
   logEvent('finish', { kind: 'wall', id: id });
 }
 
+function setDuvet(id) {
+  state.duvet = id;
+  const entry = entryOf('duvet', id);
+  const el = document.querySelector('#bedroomSet');
+  if (el) {
+    el.object3D.traverse(function (n) {
+      if (n.isMesh && n.material && n.material.name === 'Duvet') {
+        n.material.color.set(entry.hex);
+      }
+    });
+  }
+  state.package = null;
+  logEvent('finish', { kind: 'duvet', id: id });
+}
+
 function setCeilingColor(id) {
   state.ceiling = id;
-  applyFinish(document.querySelector('#ceiling'), entryOf('ceiling', id),
-              SURFACE.ceiling);
+  document.querySelectorAll('.ceiling-surface').forEach(function (el) {
+    applyFinish(el, entryOf('ceiling', id), SURFACE.ceiling);
+  });
   state.package = null;
   logEvent('finish', { kind: 'ceiling', id: id });
 }
 
 function setFloorColor(id) {
   state.floor = id;
-  applyFinish(document.querySelector('#floor'), entryOf('floor', id), SURFACE.floor);
+  document.querySelectorAll('.floor-surface').forEach(function (el) {
+    applyFinish(el, entryOf('floor', id), SURFACE.floor);
+  });
   state.package = null;
   logEvent('finish', { kind: 'floor', id: id });
 }
@@ -1604,8 +1698,11 @@ function setLighting(id) {
     .setAttribute('light', { color: p.sun.color, intensity: p.sun.intensity });
   document.querySelector('#windowLight')
     .setAttribute('light', { color: p.window.color, intensity: p.window.intensity });
-  document.querySelector('#windowGlass')
-    .setAttribute('material', 'color', p.glass);
+  document.querySelector('#windowLight2')
+    .setAttribute('light', { color: p.window.color, intensity: p.window.intensity * 0.8 });
+  document.querySelectorAll('.window-glass').forEach(function (el) {
+    el.setAttribute('material', 'color', p.glass);
+  });
   document.querySelector('a-scene')
     .setAttribute('background', 'color', p.sky);
   // reflections must dim with the room, or night looks like a lit set
@@ -1645,6 +1742,7 @@ function applyPackage(pkgId, silent) {
   logging = false;
   setWallColor(p.wall);
   setCeilingColor(p.ceiling);
+  setDuvet(p.duvet);
   setFloorColor(p.floor);
   setSofaColor(p.sofa);
   setChairFabric(p.chairFabric);
@@ -1742,7 +1840,8 @@ function buildOverlay() {
    ['rugColor', '#rugColorSw', setRugColor],
    ['sofa', '#sofaSw', setSofaColor],
    ['chairFabric', '#chairFabricSw', setChairFabric],
-   ['tableWood', '#tableWoodSw', setTableWood]].forEach(function (row) {
+   ['tableWood', '#tableWoodSw', setTableWood],
+   ['duvet', '#duvetSw', setDuvet]].forEach(function (row) {
     const kind = row[0], sel = row[1], fn = row[2];
     const host = document.querySelector(sel);
     PALETTE[kind].forEach(function (c) {
@@ -1896,7 +1995,7 @@ function renderTelemetry() {
    ========================================================================= */
 const vrTiles = {
   wall: [], ceiling: [], floor: [], rugColor: [],
-  sofa: [], chairFabric: [], tableWood: []
+  sofa: [], chairFabric: [], tableWood: [], duvet: []
 };
 const vrTabs = {};
 let activeTab = 'room';
@@ -1980,7 +2079,8 @@ function buildVrPanel() {
     furniture: [
       { kind: 'sofa',        label: 'Sofa',        fn: setSofaColor },
       { kind: 'chairFabric', label: 'Chair fabric', fn: setChairFabric },
-      { kind: 'tableWood',   label: 'Table top',   fn: setTableWood }
+      { kind: 'tableWood',   label: 'Table top',   fn: setTableWood },
+      { kind: 'duvet',       label: 'Duvet',       fn: setDuvet }
     ]
   };
   // four rows on the room tab now, so the band tightens and the tiles shrink
@@ -2895,6 +2995,66 @@ function skinTv(selector, screenTexture) {
   });
 }
 
+/* The bedroom set: ten primitives, each with its own named material. The
+   converter lost the texture references (the FBX pointed at its .fbm folder),
+   so surfaces are rebuilt here by material name.
+
+   Structure and Meshes — the model's own walls, floor and curtains — are
+   hidden outright: the room shell is ours, which is what keeps the bedroom's
+   walls and floor on the same palettes as the rest of the flat. The Duvet
+   ships untextured, so it takes the duvet palette as a true colour. */
+function skinBedroom() {
+  const el = document.querySelector('#bedroomSet');
+  if (!el) { return; }
+
+  const load = new THREE.TextureLoader();
+  function tex(path) {
+    const t = load.load(path, undefined, undefined, function () {
+      console.warn('[bedroom] texture failed: ' + path);
+    });
+    if (THREE.SRGBColorSpace) { t.colorSpace = THREE.SRGBColorSpace; }
+    t.flipY = false;
+    t.anisotropy = 4;
+    return t;
+  }
+  function ntex(path) {
+    const t = load.load(path);
+    t.flipY = false;
+    t.anisotropy = 4;
+    return t;
+  }
+
+  const RECIPES = {
+    Structure: null,                       // hidden: the shell is ours
+    Meshes:    null,                       // hidden: curtains hung on those walls
+    Pillows:   { c: 'bedroom-pillows-c.jpg', n: 'bedroom-pillows-n.jpg', rough: 0.95 },
+    BedFrame:  { c: 'bedroom-bed-c.jpg', rough: 0.55, metal: 0.1 },
+    Chair:     { c: 'bedroom-chair-c.jpg', n: 'bedroom-chair-n.jpg', rough: 0.9 },
+    Carpet:    { c: 'bedroom-carpet-c.jpg', n: 'bedroom-carpet-n.jpg', rough: 1 },
+    Painting:  { c: 'bedroom-painting-c.jpg', rough: 0.6 },
+    EndTables: { c: 'bedroom-endtables-c.jpg', rough: 0.4, metal: 0.15 },
+    EndLamps:  { c: 'bedroom-endlamps-c.jpg', rough: 0.4, metal: 0.3 },
+    Duvet:     { plain: true, rough: 0.92 }
+  };
+
+  el.object3D.traverse(function (n) {
+    if (!n.isMesh || !n.material) { return; }
+    const name = n.material.name;
+    if (!(name in RECIPES)) { return; }
+    const r = RECIPES[name];
+    if (!r) { n.visible = false; return; }
+
+    const mat = new THREE.MeshStandardMaterial({
+      name: name,
+      roughness: r.rough,
+      metalness: r.metal || 0
+    });
+    if (r.c) { mat.map = tex('assets/' + r.c); }
+    if (r.n) { mat.normalMap = ntex('assets/' + r.n); }
+    n.material = mat;
+  });
+}
+
 /* Runs fn once the entity's model exists, whether it arrived before or after
    this call. Preloaded assets almost always land first, which is the case a
    bare addEventListener silently misses. */
@@ -2911,7 +3071,12 @@ function setupShadows() {
    '#catPrimitive'].forEach(function (s) {
     setShadowFlags(s, true, true);
   });
-  setShadowFlags('#windowGlass', false, false);
+  setShadowFlags('#room2', false, true);
+  document.querySelectorAll('.window-glass').forEach(function (el) {
+    el.object3D.traverse(function (n) {
+      if (n.isMesh) { n.castShadow = false; n.receiveShadow = false; }
+    });
+  });
   setShadowFlags('#vrPanel', false, false);
 }
 
@@ -3134,8 +3299,7 @@ AFRAME.registerComponent('thumbstick-locomotion', {
     enabled: { default: true },
     // Forward/back stick sign differs between runtimes. If pushing forward
     // walks backwards on the headset, flip this to true.
-    invertForward: { default: false },
-    bounds: { default: 2.7 }
+    invertForward: { default: false }
   },
 
   init: function () {
@@ -3183,9 +3347,11 @@ AFRAME.registerComponent('thumbstick-locomotion', {
     if (this.move.lengthSq() > 1) { this.move.normalize(); }
 
     const step = this.data.speed * (delta / 1000);
+    const prevX = rig.object3D.position.x;
+    const prevZ = rig.object3D.position.z;
     rig.object3D.position.x += this.move.x * step;
     rig.object3D.position.z += this.move.z * step;
-    clampToRoom(rig, this.data.bounds);
+    clampToRoom(rig, prevX, prevZ);
   }
 });
 
@@ -3216,7 +3382,6 @@ AFRAME.registerComponent('teleport-lite', {
     speed: { default: 6 },        // launch speed of the arc, m/s
     gravity: { default: -9.8 },
     steps: { default: 40 },
-    bounds: { default: 2.7 },     // half-extent of the walkable floor
     colorValid: { default: '#4cc9f0' },
     colorInvalid: { default: '#e05252' }
   },
@@ -3310,8 +3475,7 @@ AFRAME.registerComponent('teleport-lite', {
     pos.needsUpdate = true;
     this.line.geometry.computeBoundingSphere();
 
-    this.valid = landed &&
-      Math.abs(this.hit.x) <= d.bounds && Math.abs(this.hit.z) <= d.bounds;
+    this.valid = landed && walkable(this.hit.x, this.hit.z);
 
     const color = this.valid ? d.colorValid : d.colorInvalid;
     this.line.material.color.set(color);
@@ -3338,9 +3502,11 @@ AFRAME.registerComponent('teleport-lite', {
       ox = this.camLocal.x;
       oz = this.camLocal.z;
     }
+    const prevX = rig.object3D.position.x;
+    const prevZ = rig.object3D.position.z;
     rig.object3D.position.x = this.hit.x - ox;
     rig.object3D.position.z = this.hit.z - oz;
-    clampToRoom(rig, this.data.bounds);
+    clampToRoom(rig, prevX, prevZ);
 
     logEvent('teleport', {
       x: Math.round(this.hit.x * 100) / 100,
@@ -3349,16 +3515,38 @@ AFRAME.registerComponent('teleport-lite', {
   }
 });
 
-/* Keep the visitor inside the room, accounting for their offset within the
-   play area. Shared by both locomotion paths. */
-function clampToRoom(rig, bounds) {
+/* The walkable area is no longer one square: living room, bedroom, and the
+   doorway strip that joins them. Rects overlap by a centimetre at the seam
+   so floating-point drift can never leave a visitor stranded between two
+   regions that both reject them. */
+const WALK_RECTS = [
+  { x0: -2.7,  x1: 2.7,  z0: -2.7,  z1: 2.7  },   // living room
+  { x0: -2.7,  x1: 2.7,  z0:  3.3,  z1: 7.7  },   // bedroom
+  { x0: -0.55, x1: 0.55, z0:  2.69, z1: 3.31 }    // doorway
+];
+
+function walkable(x, z) {
+  return WALK_RECTS.some(function (r) {
+    return x >= r.x0 && x <= r.x1 && z >= r.z0 && z <= r.z1;
+  });
+}
+
+/* Keep the visitor's head inside the walkable area. A hard clamp to one box
+   no longer works, so this slides instead: if the full move is blocked, try
+   each axis alone — walking diagonally into a wall glides along it, and the
+   doorway funnels naturally. Shared by both locomotion paths. */
+function clampToRoom(rig, prevX, prevZ) {
   const scene = rig.sceneEl || document.querySelector('a-scene');
   const camEl = scene.camera && scene.camera.el;
   let ox = 0, oz = 0;
   if (camEl) { ox = camEl.object3D.position.x; oz = camEl.object3D.position.z; }
   const p = rig.object3D.position;
-  p.x = Math.min(bounds - ox, Math.max(-bounds - ox, p.x));
-  p.z = Math.min(bounds - oz, Math.max(-bounds - oz, p.z));
+
+  if (walkable(p.x + ox, p.z + oz)) { return; }
+  if (walkable(p.x + ox, prevZ + oz)) { p.z = prevZ; return; }
+  if (walkable(prevX + ox, p.z + oz)) { p.x = prevX; return; }
+  p.x = prevX;
+  p.z = prevZ;
 }
 
 /* =========================================================================
@@ -3407,6 +3595,12 @@ function boot() {
   whenModelReady(document.querySelector('#human'), function () {
     skinHuman('#human', 'sophia');
     setShadowFlags('#human', true, true);
+  });
+
+  whenModelReady(document.querySelector('#bedroomSet'), function () {
+    skinBedroom();
+    setDuvet(state.duvet);                 // colour lands after the material swap
+    setShadowFlags('#bedroomSet', true, true);
   });
 
   whenModelReady(document.querySelector('#tvMi'), function () {
