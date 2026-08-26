@@ -290,12 +290,12 @@
          marble wall, rebuilt as a paintable panel centred on the bed. Sits a
          touch proud of the wall so it reads as a fitted panel, not paint. -->
     <a-plane class="accent-surface" width="3.6" height="2.7"
-             position="0.78 1.38 7.985" rotation="0 180 0"
+             position="0 1.38 7.985" rotation="0 180 0"
              material="color: #23262b; roughness: 0.9; metalness: 0"></a-plane>
 
     <!-- bedroom rug, driven by the same rug palette as the living room -->
     <a-plane id="rug2" class="rug-surface" rotation="-90 0 0" width="3.0" height="2.2"
-             position="0.78 0.012 5.6"
+             position="0 0.012 5.2"
              material="color: #8d99ae; roughness: 1; metalness: 0"></a-plane>
 
     <!-- curtains: the model's were baked into its walls, these are ours -->
@@ -3154,10 +3154,35 @@ function skinBedroom() {
     Duvet:     { plain: true, rough: 0.92 }
   };
 
+  /* Layout pass. The pack arranged its furniture for its own architecture:
+     bed off-centre, chair under a marble pier. Re-arranged for our room —
+     bed and side tables centred on the accent wall with the headboard
+     against it, chair to the window corner turned toward the bed.
+
+     Every primitive shares one node carrying scale 850 and a -90 X
+     rotation, so offsets are expressed in mesh-local space: local x tracks
+     world x, local -y tracks world z, and local z is world up — meaning a
+     world-Y turn is a local-Z turn, same angle. Values precomputed from
+     the measured piece centres. */
+  const BED_SHIFT = { x: -0.003399, y: -0.004009, z: 0 };   // -0.78m x, +0.92m z
+  const MOVES = {
+    BedFrame:  BED_SHIFT,
+    Duvet:     BED_SHIFT,
+    Pillows:   BED_SHIFT,
+    EndTables: BED_SHIFT,
+    EndLamps:  BED_SHIFT,
+    Chair:     { x: -0.008807, y: 0.007931, z: 0, rotZ: 2.4435 }
+  };
+
   el.object3D.traverse(function (n) {
     if (!n.isMesh || !n.material) { return; }
     const name = n.material.name;
     if (!(name in RECIPES)) { return; }
+    const mv = MOVES[name];
+    if (mv) {
+      n.position.set(mv.x, mv.y, mv.z);
+      if (mv.rotZ) { n.rotation.z = mv.rotZ; }
+    }
     const r = RECIPES[name];
     if (!r) { n.visible = false; return; }
 
