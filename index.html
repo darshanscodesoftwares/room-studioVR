@@ -2584,6 +2584,7 @@ function setRange(on) {
       }
     }
   }
+  if (on) { setTimeout(skinRange, 0); }
   logEvent('range', { enabled: on });
   syncUI();
 }
@@ -2649,6 +2650,8 @@ function syncUI() {
    equirectangular JPG in assets/ to replace it with a real captured
    environment — an LDR JPG works with the plain TextureLoader, so no extra
    loader has to be bundled. */
+let ENV_INTENSITY = 1;
+
 AFRAME.registerComponent('image-based-lighting', {
   schema: {
     src: { default: '' },
@@ -2671,10 +2674,19 @@ AFRAME.registerComponent('image-based-lighting', {
 
   setIntensity: function () {
     const root = this.el.object3D;
-    // three exposes environmentIntensity from r163; older builds ignore it
-    if ('environmentIntensity' in root) {
-      root.environmentIntensity = this.data.intensity;
-    }
+    const k = this.data.intensity;
+    // Scene.environmentIntensity only exists from three r163. envMapIntensity
+    // on the material has worked forever, so both are set — otherwise on an
+    // older build the environment keeps lighting the scene at full strength
+    // and dimming the lamps changes almost nothing.
+    if ('environmentIntensity' in root) { root.environmentIntensity = k; }
+    ENV_INTENSITY = k;
+    root.traverse(function (n) {
+      if (n.isMesh && n.material && n.material.envMapIntensity !== undefined
+          && !n.material.userData.fixedEnv) {
+        n.material.envMapIntensity = k;
+      }
+    });
   },
 
   build: function () {
@@ -3512,6 +3524,24 @@ function skinCupboard(selector) {
       name: name, color: '#9aa0a6', roughness: 0.35, metalness: 0.85
     });
     n.material.name = name;
+  });
+}
+
+/* The range reads as concrete regardless of what the flat's lighting is
+   doing. Its surfaces take almost nothing from the environment map, which
+   is what was washing them to white: a bright procedural sky reflected in
+   large pale planes saturates them no matter how low the lamps go. Marked
+   fixedEnv so the global environment dimming leaves them alone. */
+function skinRange() {
+  const el = document.querySelector('#range');
+  if (!el) { return; }
+  el.object3D.traverse(function (n) {
+    if (!n.isMesh || !n.material) { return; }
+    const m = n.material;
+    if (m.emissive && m.emissiveIntensity > 0) { return; }   // the fixtures
+    if (m.envMapIntensity !== undefined) { m.envMapIntensity = 0.12; }
+    m.userData.fixedEnv = true;
+    m.needsUpdate = true;
   });
 }
 
