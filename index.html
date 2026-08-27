@@ -2307,6 +2307,7 @@ const vrTiles = {
 const vrTabs = {};
 let activeTab = 'room';
 const vrButtons = [];
+let vrLightCycleText = null;   // the always-visible time-of-day button's label
 
 function mkPlane(parent, opts) {
   const el = document.createElement('a-plane');
@@ -2526,16 +2527,38 @@ function buildVrPanel() {
     setVrPanelVisible(!vrPanelShown);
   });
 
-  /* --- reset --- */
+  /* --- reset, and the time of day beside it ---
+     Day/Evening/Night is the one control a customer reaches for constantly —
+     it is how a room gets judged — and putting it inside the Decor tab to
+     buy panel height effectively hid it. It comes back out here as a single
+     button that cycles, showing the preset it is currently on, which costs
+     no extra height at all: the reset bar simply gives up the width. The
+     three separate buttons stay on the Decor tab for picking one directly. */
   const resetBg = mkPlane(body, {
-    w: 1.5, h: 0.18, x: 0, y: -0.735, z: 0.01,
+    w: 1.02, h: 0.18, x: -0.38, y: -0.735, z: 0.01,
     color: '#3a2b2b', clickable: true
   });
-  mkText(body, 'RESET TO DEFAULT', { x: 0, y: -0.735, z: 0.022, width: 1.6 });
+  mkText(body, 'RESET TO DEFAULT', { x: -0.38, y: -0.735, z: 0.022, width: 1.5 });
   resetBg.addEventListener('click', function () { resetRoom(); });
+
+  const cycleBg = mkPlane(body, {
+    w: 0.62, h: 0.18, x: 0.53, y: -0.735, z: 0.01,
+    color: '#2b3242', clickable: true
+  });
+  vrLightCycleText = mkText(cycleBg, LIGHTING[state.lighting].name + ' >',
+    { x: 0, y: 0, z: 0.012, width: 1.3 });
+  cycleBg.addEventListener('click', function () {
+    const ids = Object.keys(LIGHTING);
+    const next = ids[(ids.indexOf(state.lighting) + 1) % ids.length];
+    setLighting(next);
+    syncUI();
+  });
 }
 
 function syncVrPanel() {
+  if (vrLightCycleText) {
+    vrLightCycleText.setAttribute('value', LIGHTING[state.lighting].name + ' >');
+  }
   Object.keys(vrTiles).forEach(function (kind) {
     vrTiles[kind].forEach(function (t) {
       t.ring.setAttribute('material', 'color',

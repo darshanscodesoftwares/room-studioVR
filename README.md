@@ -55,6 +55,13 @@ and directional lights, the window glass and the daylight spill together, plus a
 separate floor-lamp switch. Lighting is deliberately independent of the finish
 package, so one finish can be judged across the day without losing the package.
 
+Because time of day is the control people reach for most, the VR panel carries
+it **twice**: three buttons on the Decor tab for picking one directly, and a
+single button beside Reset — always visible, whatever tab is open — that shows
+the current preset and cycles on each press. That second one exists because
+moving the presets into a tab to save panel height had effectively hidden
+them; the cycle button restores the access without regrowing the board.
+
 ## Visual fidelity
 
 The ceiling here is the headset GPU, not the framework — A-Frame *is* Three.js,
