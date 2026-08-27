@@ -2679,8 +2679,15 @@ AFRAME.registerComponent('image-based-lighting', {
     // on the material has worked forever, so both are set — otherwise on an
     // older build the environment keeps lighting the scene at full strength
     // and dimming the lamps changes almost nothing.
-    if ('environmentIntensity' in root) { root.environmentIntensity = k; }
     ENV_INTENSITY = k;
+    if ('environmentIntensity' in root) {
+      root.environmentIntensity = k;
+      return;                      // scene-level is enough; see below
+    }
+    /* Only reached on a three build older than r163, where the scene-level
+       control does not exist. Doing both at once dimmed the environment
+       twice over and crushed the flat's own lighting, which is why every
+       room looked worse after this was first added. */
     root.traverse(function (n) {
       if (n.isMesh && n.material && n.material.envMapIntensity !== undefined
           && !n.material.userData.fixedEnv) {
@@ -3538,8 +3545,12 @@ function skinRange() {
   el.object3D.traverse(function (n) {
     if (!n.isMesh || !n.material) { return; }
     const m = n.material;
-    if (m.emissive && m.emissiveIntensity > 0) { return; }   // the fixtures
-    if (m.envMapIntensity !== undefined) { m.envMapIntensity = 0.12; }
+    // Test the emissive COLOUR, not its intensity: every standard material
+    // ships emissiveIntensity 1 with a black emissive, so the old check was
+    // true for everything and this function pinned nothing at all.
+    const e = m.emissive;
+    if (e && (e.r + e.g + e.b) > 0.02) { return; }          // the fixtures
+    if (m.envMapIntensity !== undefined) { m.envMapIntensity = 0.2; }
     m.userData.fixedEnv = true;
     m.needsUpdate = true;
   });
@@ -3991,8 +4002,10 @@ const RangeGame = {
       // measure first with no rotation, then re-fit with the barrel turned
       // down -z if the pack authored its length along x
       const probe = fitModel(model, g.length, 0);
+      // +90 about Y sends local +x to -z, which is forward from the eye;
+      // -90 sent it to +z and the gun pointed back at the visitor
       if (probe.x >= probe.y && probe.x >= probe.z) {
-        fitModel(model, g.length, -Math.PI / 2);
+        fitModel(model, g.length, Math.PI / 2);
       }
       model.traverse(function (n) {
         if (n.isMesh) { n.castShadow = false; n.frustumCulled = false; }
@@ -4728,6 +4741,7 @@ function boot() {
   setVrTab('room');
   buildBlossoms();
   skinFixtures();
+  skinRange();          // pin the range's materials whether the wing is on or not
   setupShadows();
 
   /* Upper face button on either controller folds the panel away — B on the
