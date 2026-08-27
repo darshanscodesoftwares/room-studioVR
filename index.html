@@ -297,76 +297,94 @@
        it read as light bleeding in through the doorway. It now sits at the
        far end of a 6.4m corridor: the opening from the flat shows a distant
        lit rectangle instead of a bright room two metres away. -->
+  <!-- ============ corridor, in two legs ============
+       West from the flat, then a right turn south. The dog-leg is the point:
+       with a straight run the living room could see all the way down to the
+       range, and no amount of dimming stops a lit room being visible. Round
+       a corner there is no sight line at all. -->
   <a-entity id="corridor">
-    <!-- Exactly the width of the doorway it leaves. It used to be 1.8m wide
-         against a 1.0m opening, which left an unwalled strip at each end —
-         that gap was the light coming through, not the range. -->
-    <a-plane class="floor-surface" rotation="-90 0 0" width="6.4" height="1.0"
-             position="-6.2 0 2.4"
+    <!-- leg A: west from the doorway -->
+    <a-plane class="floor-surface" rotation="-90 0 0" width="6.9" height="1.0"
+             position="-6.45 0 2.4"
              material="color: #b98b5e; roughness: 0.55; metalness: 0.02"></a-plane>
-    <a-plane class="ceiling-surface" rotation="90 0 0" width="6.4" height="1.0"
-             position="-6.2 2.5 2.4"
+    <a-plane class="ceiling-surface" rotation="90 0 0" width="6.9" height="1.0"
+             position="-6.45 2.5 2.4"
              material="color: #f4f4f2; roughness: 0.98; metalness: 0"></a-plane>
-    <a-plane class="wall" width="6.4" height="2.5" position="-6.2 1.25 1.9"
+    <!-- the z=1.9 side is broken where leg B turns off it -->
+    <a-plane class="wall" width="5.9" height="2.5" position="-5.95 1.25 1.9"
              material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
-    <a-plane class="wall" width="6.4" height="2.5" position="-6.2 1.25 2.9" rotation="0 180 0"
+    <a-plane class="wall" width="6.9" height="2.5" position="-6.45 1.25 2.9" rotation="0 180 0"
              material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
-    <!-- caps the slot between the corridor ceiling and the rooms' 3m one -->
-    <a-plane class="wall" width="6.4" height="0.5" position="-6.2 2.75 1.9"
+    <a-plane class="wall" width="5.9" height="0.5" position="-5.95 2.75 1.9"
              material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
-    <a-plane class="wall" width="6.4" height="0.5" position="-6.2 2.75 2.9" rotation="0 180 0"
+    <a-plane class="wall" width="6.9" height="0.5" position="-6.45 2.75 2.9" rotation="0 180 0"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
+
+    <!-- leg B: south to the range -->
+    <a-plane class="floor-surface" rotation="-90 0 0" width="1.0" height="7.5"
+             position="-9.4 0 -1.85"
+             material="color: #b98b5e; roughness: 0.55; metalness: 0.02"></a-plane>
+    <a-plane class="ceiling-surface" rotation="90 0 0" width="1.0" height="7.5"
+             position="-9.4 2.5 -1.85"
+             material="color: #f4f4f2; roughness: 0.98; metalness: 0"></a-plane>
+    <a-plane class="wall" width="8.5" height="2.5" position="-9.9 1.25 -1.35" rotation="0 90 0"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
+    <a-plane class="wall" width="7.5" height="2.5" position="-8.9 1.25 -1.85" rotation="0 -90 0"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
+    <a-plane class="wall" width="8.5" height="0.5" position="-9.9 2.75 -1.35" rotation="0 90 0"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
+    <a-plane class="wall" width="7.5" height="0.5" position="-8.9 2.75 -1.85" rotation="0 -90 0"
              material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
   </a-entity>
 
+  <!-- ============ gun range, at the end of leg B ============ -->
   <a-entity id="range" range-game>
-    <!-- 7.6m lane: roofed at the firing end, open sky over the targets -->
-    <a-plane rotation="-90 0 0" width="7.6" height="5.2" position="-13.2 0 2.0"
+    <a-plane rotation="-90 0 0" width="7.2" height="6.4" position="-9.4 0 -8.8"
              material="color: #4c4c48; roughness: 0.97; metalness: 0"></a-plane>
-    <!-- Roofed end to end. Leaving the target half open showed the scene
-         background through it, which reads as a black void rather than sky. -->
-    <a-plane rotation="90 0 0" width="7.6" height="5.2" position="-13.2 3 2.0"
+    <a-plane rotation="90 0 0" width="7.2" height="6.4" position="-9.4 3 -8.8"
              material="color: #2e2e2b; roughness: 1; metalness: 0"></a-plane>
-    <a-plane width="7.6" height="3" position="-13.2 1.5 -0.6"
-             material="color: #43433f; roughness: 0.97; metalness: 0"></a-plane>
-    <a-plane width="7.6" height="3" position="-13.2 1.5 4.6" rotation="0 180 0"
-             material="color: #43433f; roughness: 0.97; metalness: 0"></a-plane>
-    <!-- east wall, with the corridor opening cut into it -->
-    <a-plane width="2.5" height="3" position="-9.4 1.5 0.65" rotation="0 -90 0"
-             material="color: #3a3a36; roughness: 0.98; metalness: 0"></a-plane>
-    <a-plane width="1.7" height="3" position="-9.4 1.5 3.75" rotation="0 -90 0"
-             material="color: #3a3a36; roughness: 0.98; metalness: 0"></a-plane>
-    <a-plane width="1.0" height="0.5" position="-9.4 2.75 2.4" rotation="0 -90 0"
-             material="color: #3a3a36; roughness: 0.98; metalness: 0"></a-plane>
 
-    <!-- backstop berm at the far end -->
-    <a-plane width="5.2" height="3" position="-17.0 1.5 2.0" rotation="0 90 0"
+    <!-- entrance wall, with leg B's opening cut into it -->
+    <a-plane width="3.1" height="3" position="-11.45 1.5 -5.6" rotation="0 180 0"
+             material="color: #43433f; roughness: 0.97; metalness: 0"></a-plane>
+    <a-plane width="3.1" height="3" position="-7.35 1.5 -5.6" rotation="0 180 0"
+             material="color: #43433f; roughness: 0.97; metalness: 0"></a-plane>
+    <a-plane width="1.0" height="0.5" position="-9.4 2.75 -5.6" rotation="0 180 0"
+             material="color: #43433f; roughness: 0.97; metalness: 0"></a-plane>
+
+    <a-plane width="6.4" height="3" position="-13.0 1.5 -8.8" rotation="0 90 0"
+             material="color: #43433f; roughness: 0.97; metalness: 0"></a-plane>
+    <a-plane width="6.4" height="3" position="-5.8 1.5 -8.8" rotation="0 -90 0"
+             material="color: #43433f; roughness: 0.97; metalness: 0"></a-plane>
+
+    <!-- backstop at the far end -->
+    <a-plane width="7.2" height="3" position="-9.4 1.5 -12.0"
              material="color: #322f2b; roughness: 1; metalness: 0"></a-plane>
-    <a-box width="0.6" height="1.2" depth="5.2" position="-16.6 0.6 2.0" rotation="0 0 16"
+    <a-box width="7.2" height="1.2" depth="0.6" position="-9.4 0.6 -11.6" rotation="16 0 0"
            material="color: #3a3733; roughness: 1; metalness: 0"></a-box>
 
     <!-- shooting stand -->
-    <a-box width="0.5" height="0.06" depth="2.6" position="-10.65 1.02 2.0"
+    <a-box width="2.6" height="0.06" depth="0.5" position="-9.4 1.02 -6.9"
            material="color: #6f4e37; roughness: 0.5; metalness: 0"></a-box>
-    <a-box width="0.5" height="1.0" depth="0.08" position="-10.65 0.5 0.75"
+    <a-box width="0.08" height="1.0" depth="0.5" position="-10.65 0.5 -6.9"
            material="color: #4a4640; roughness: 0.8; metalness: 0.2"></a-box>
-    <a-box width="0.5" height="1.0" depth="0.08" position="-10.65 0.5 3.25"
+    <a-box width="0.08" height="1.0" depth="0.5" position="-8.15 0.5 -6.9"
            material="color: #4a4640; roughness: 0.8; metalness: 0.2"></a-box>
 
-    <a-entity id="rangeMarker" position="-10.15 0 2.0">
+    <a-entity id="rangeMarker" position="-9.4 0 -6.4">
       <a-ring rotation="-90 0 0" radius-inner="0.30" radius-outer="0.42" position="0 0.012 0"
               material="color: #4cc9f0; shader: flat; opacity: 0.85; side: double"></a-ring>
       <a-ring rotation="-90 0 0" radius-inner="0.05" radius-outer="0.10" position="0 0.012 0"
               material="color: #4cc9f0; shader: flat; opacity: 0.6; side: double"></a-ring>
       <a-text value="STAND HERE TO SHOOT" align="center" color="#dff3fb" width="2.2"
-              position="0 1.9 0" rotation="0 -90 0"></a-text>
+              position="0 1.9 0"></a-text>
     </a-entity>
 
-    <!-- score above the targets, where the eye already is -->
     <a-text id="rangeScore" value="" align="center" color="#eef2f5" width="3.4"
-            position="-16.95 2.35 2.0" rotation="0 90 0"></a-text>
+            position="-9.4 2.35 -11.96"></a-text>
 
-    <!-- gun rack beside the entrance -->
-    <a-entity id="gunRack" position="-9.75 0 4.55" rotation="0 180 0">
+    <!-- gun rack on the east wall, beside the way in -->
+    <a-entity id="gunRack" position="-5.85 0 -6.6" rotation="0 -90 0">
       <a-box width="1.7" height="1.0" depth="0.06" position="0 1.25 -0.05"
              material="color: #4a4038; roughness: 0.8; metalness: 0"></a-box>
       <a-entity class="clickable rack-gun" data-gun="pistol"   position="-0.55 1.45 0.1"></a-entity>
@@ -374,24 +392,13 @@
       <a-entity class="clickable rack-gun" data-gun="ak"       position="0.58 1.15 0.1"></a-entity>
     </a-entity>
 
-    <!-- Emissive only, never a real light: a point light here reached
-         through the walls and lit the flat, and raised the light count for
-         every material in the scene. -->
-    <!-- Lighting points down the lane, not back at the flat. The fixtures
-         sit over the target end and face the backstop; the firing end stays
-         deliberately dim, so anyone looking through the corridor sees a dark
-         near wall rather than a lit room. Still emissive-only — a real light
-         here reached through the walls. -->
-    <a-box width="0.12" height="0.04" depth="4.4" position="-15.2 2.92 2.0"
+    <!-- fixtures run down the lane toward the targets, emissive only -->
+    <a-box width="0.12" height="0.04" depth="4.6" position="-10.3 2.92 -9.3"
            material="color: #fff6e4; emissive: #fff2dd; emissiveIntensity: 1.0;
                      roughness: 1; metalness: 0"></a-box>
-    <a-box width="0.12" height="0.04" depth="4.4" position="-13.0 2.92 2.0"
+    <a-box width="0.12" height="0.04" depth="4.6" position="-8.5 2.92 -9.3"
            material="color: #fff6e4; emissive: #fff2dd; emissiveIntensity: 0.65;
                      roughness: 1; metalness: 0"></a-box>
-    <!-- washes the backstop so the eye is drawn to the far end -->
-    <a-plane width="5.2" height="1.4" position="-16.94 1.9 2.0" rotation="0 90 0"
-             material="color: #55524b; emissive: #4a453d; emissiveIntensity: 0.45;
-                       roughness: 1; metalness: 0"></a-plane>
 
     <a-entity id="rangeTargets"></a-entity>
   </a-entity>
@@ -3943,9 +3950,9 @@ const RangeGame = {
   buildTargets: function () {
     const host = document.querySelector('#rangeTargets');
     const self = this;
-    [1.0, 2.0, 3.0].forEach(function (z) {
+    [-10.4, -9.4, -8.4].forEach(function (x) {
       const stand = document.createElement('a-entity');
-      stand.setAttribute('position', { x: -15.9, y: 0, z: z });
+      stand.setAttribute('position', { x: x, y: 0, z: -11.3 });
 
       const post = document.createElement('a-cylinder');
       post.setAttribute('radius', 0.03);
@@ -3956,13 +3963,13 @@ const RangeGame = {
 
       const board = document.createElement('a-circle');
       board.setAttribute('radius', 0.28);
-      board.setAttribute('rotation', '0 90 0');
+      // faces back up the lane at the shooter
       board.setAttribute('position', '0 1.35 0');
       board.setAttribute('material', 'roughness: 0.9; side: double');
       stand.appendChild(board);
       host.appendChild(stand);
 
-      const rec = { el: board, stand: stand, down: 0, z: z, mat: null };
+      const rec = { el: board, stand: stand, down: 0, mat: null };
       board.addEventListener('loaded', function () {
         const mesh = board.getObject3D('mesh');
         if (!mesh) { return; }
@@ -3973,6 +3980,7 @@ const RangeGame = {
         mesh.material.needsUpdate = true;
         rec.mat = mesh.material;
       });
+      rec.x = x;
       self.targets.push(rec);
     });
   },
@@ -4159,7 +4167,7 @@ const RangeGame = {
     if (cam) {
       const p = this._p;
       cam.getWorldPosition(p);
-      const inZone = Math.hypot(p.x - (-10.15), p.z - 2.0) < 0.75;
+      const inZone = Math.hypot(p.x - (-9.4), p.z - (-6.4)) < 0.75;
       if (inZone && !this.active) { this.enter(); }
       if (!inZone && this.active) { this.exit(); }
     }
@@ -4685,9 +4693,10 @@ const WALK_HOME = [
 ];
 const WALK_RANGE = [
   // stops at the inside face of the wall, not on the wall plane itself:
-  // ending at -3.0 left a sliver a teleport could land on and skip a shut door
-  { x0: -9.4,  x1: -3.05, z0: 2.0,  z1: 2.8  },   // corridor
-  { x0: -16.6, x1: -9.4, z0: -0.5,  z1: 4.5  }    // gun range
+  // ending on the plane left a sliver a teleport could land on to skip a door
+  { x0: -9.8,  x1: -3.05, z0:  2.0,   z1: 2.8  },   // corridor leg A
+  { x0: -9.8,  x1: -9.0,  z0: -5.6,   z1: 2.8  },   // corridor leg B
+  { x0: -12.7, x1: -6.1,  z0: -11.8,  z1: -5.6 }    // gun range
 ];
 // the strip through the doorway itself — present only while the door is open,
 // which is what makes a shut door genuinely block the way rather than just

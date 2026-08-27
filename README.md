@@ -317,12 +317,14 @@ over the doorway wall but lands in either room.
 
 ## The gun range
 
-A doorway near the living room's south-west corner opens onto a 6.4m corridor,
-and the shooting range sits at the far end of it — roofed over the firing side,
+A doorway near the living room's south-west corner opens onto a corridor that
+runs 6.9m west and then turns right for another 7.5m, with the shooting range
+at the end of that second leg — roofed over the firing side,
 open sky over the targets, concrete throughout and deliberately not on the
-finish palettes. The corridor is not decoration: with the range butted straight
-onto the flat's west wall it read as light bleeding in through the doorway, and
-distance turns that into a small lit rectangle at the end of a passage.
+finish palettes. The dog-leg is the point. A straight run let the living room see all the way
+down to the range, and no amount of dimming stops a lit room being visible at
+the end of a tube. Around a corner there is no sight line at all — which is a
+geometry answer to a lighting problem, and the only one that cannot regress.
 
 The actual bleed was subtler and worth recording: point lights ignore walls
 entirely, and the living room's own window light had a 9m radius from x=2.4,
