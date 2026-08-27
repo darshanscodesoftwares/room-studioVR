@@ -75,6 +75,12 @@ Read these before debugging anything similar.
    rendered behind the wall. Always compose the node hierarchy.
 8. **In A-Frame text, a larger `width` means larger glyphs.** Raising it to
    "shrink" labels does the opposite.
+9. **A duplicate component name throws and kills the whole script.** A-Frame
+   already owns `grabbable`; registering a second one threw at that line, so
+   every definition after it — including `boot()` — never ran. The scene still
+   rendered, just raw and unskinned, which reads like a lighting bug rather
+   than a fatal error. Check a new component name against `aframe.min.js`
+   first, and read the console before theorising.
 
 The method that made these tractable: **measure, don't guess.** Vertex
 clustering to find which way a cat faces, keyframe sampling for animation

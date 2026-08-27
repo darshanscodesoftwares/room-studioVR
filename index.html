@@ -386,7 +386,7 @@
          points its muzzle down -z, established from its cross-section. -->
     <a-entity id="akRifle" class="clickable"
               gltf-model="url(assets/ak.gltf)"
-              grabbable="length: 0.88"
+              pickup="length: 0.88"
               position="-9.4 1.16 -6.9" rotation="0 90 0"></a-entity>
 
     <!-- One small ceiling light. A real point light is safe here now only
@@ -3949,7 +3949,10 @@ const GRAB = {
   }
 };
 
-AFRAME.registerComponent('grabbable', {
+/* Named `pickup`, not `grabbable`: A-Frame 1.7 already registers a component
+   of that name for hand-tracking-grab-controls, and re-registering it throws
+   at parse time — which silently killed every line of script after this one. */
+AFRAME.registerComponent('pickup', {
   schema: {
     length: { default: 0.88 },        // metres, longest axis
     reach: { default: 0.4 },

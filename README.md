@@ -344,6 +344,11 @@ rifle hanging in space reads as a bug rather than as a dropped object.
 Teleport asks the grab system before firing, so reaching for the rifle with
 the left hand does not also fling the visitor across the room.
 
+The component behind it is called `pickup`, deliberately not `grabbable` —
+A-Frame already registers a component of that name for its hand-tracking grab
+controls, and registering a second one throws where the script is parsed,
+taking every line after it down with it.
+
 ### The corridor door
 
 A hinged door hangs in the opening, clicked to swing. The pivot sits on the
