@@ -180,24 +180,6 @@ channel was removed at build time so `path-walk` can drive the travel instead.
 - Doors and handles already sit on +z, so it needs no rotation against the
   doorway wall
 
----
-
-## gun-pistol / gun-revolver / gun-ak — range weapons
-
-- **Licences: unknown.** None of the three packs shipped a licence file.
-- **Source packs:** `hand-gun` (riflegun.fbx, no textures), 
-  `free-animated-revolver` (FBX + baseColor/normal + muzzle cards),
-  `ak-47` (FBX + full PBR set)
-- All three are used as **static props with procedural recoil**: the pistol's
-  FBX takes fragmented into 150+ one-channel clips on conversion, so gun
-  animations were dropped across the board for consistency. The revolver's
-  built-in muzzle-flash card is hidden by name.
-- Authoring scales ranged from 0.45x to 100x, so guns are normalised at load:
-  Box3 measured, longest axis scaled to a target length, recentred.
-- The fourth pack, `animated-target-3-shooting-area`, was a .blend-only
-  source with a checker-grid placeholder texture and was not used — the
-  targets are drawn on a canvas instead.
-
 ## Replacing these
 
 Prefer glTF/GLB with an explicit licence. [Poly Haven](https://polyhaven.com)
