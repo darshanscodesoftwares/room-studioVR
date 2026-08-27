@@ -331,9 +331,18 @@ entirely, and the living room's own window light had a 9m radius from x=2.4,
 so it reached 3.6m *past* the west wall and lit whatever was behind it. Both
 window lights are now sized to stop just inside their own rooms.
 
-The space is built but not playable: there is a shooting stand, a backstop
-with paper target faces, and a lane to walk — no weapons, no scoring. The
-game was removed; the architecture it needed was worth keeping.
+There is no game: a shooting stand, a backstop with paper target faces, a
+lane to walk, and one rifle that can be picked up.
+
+The rifle is **grabbable from either hand** and needs no second raycaster for
+it: pull a trigger while that hand is within reach and it comes to that hand.
+The right laser and the desktop mouse also work through a plain click, so the
+same object is reachable in a headset and at a desk. Releasing returns it to
+the bench rather than dropping it in mid air — there is no physics here, and a
+rifle hanging in space reads as a bug rather than as a dropped object.
+
+Teleport asks the grab system before firing, so reaching for the rifle with
+the left hand does not also fling the visitor across the room.
 
 ### The corridor door
 

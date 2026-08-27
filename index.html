@@ -381,6 +381,14 @@
     <a-circle radius="0.28" position="-8.4 1.45 -11.94"
               material="color: #d8d5cd; roughness: 0.9; side: double"></a-circle>
 
+    <!-- The rifle, resting across the bench. Laid along the bench because
+         it is 0.88m long and the bench only 0.5m deep; the model already
+         points its muzzle down -z, established from its cross-section. -->
+    <a-entity id="akRifle" class="clickable"
+              gltf-model="url(assets/ak.gltf)"
+              grabbable="length: 0.88"
+              position="-9.4 1.16 -6.9" rotation="0 90 0"></a-entity>
+
     <!-- One small ceiling light. A real point light is safe here now only
          because of the dog-leg: lights ignore walls, but the nearest point
          of the flat is 8.7m away and this reaches 6m, so it physically
@@ -3553,6 +3561,32 @@ function skinRange() {
   });
 }
 
+/* The AK ships a full PBR set; its environment is pinned like the range
+   shell so it reads as gunmetal instead of chrome. */
+function skinAk(model) {
+  const load = new THREE.TextureLoader();
+  function tex(p, srgb) {
+    const t = load.load(p, undefined, undefined, function () {
+      console.warn('[ak] texture failed: ' + p);
+    });
+    if (srgb && THREE.SRGBColorSpace) { t.colorSpace = THREE.SRGBColorSpace; }
+    t.flipY = false; t.anisotropy = 4;
+    return t;
+  }
+  const mat = new THREE.MeshStandardMaterial({
+    map: tex('assets/ak-c.jpg', true),
+    normalMap: tex('assets/ak-n.jpg', false),
+    roughnessMap: tex('assets/ak-r.jpg', false),
+    metalnessMap: tex('assets/ak-m.jpg', false),
+    roughness: 1, metalness: 1
+  });
+  mat.envMapIntensity = 0.3;
+  mat.userData.fixedEnv = true;
+  model.traverse(function (n) {
+    if (n.isMesh) { n.material = mat; n.castShadow = false; }
+  });
+}
+
 /* Runs fn once the entity's model exists, whether it arrived before or after
    this call. Preloaded assets almost always land first, which is the case a
    bare addEventListener silently misses. */
@@ -3889,6 +3923,141 @@ AFRAME.registerComponent('clip-toggle', {
   }
 });
 
+/* Pick-up-able objects.
+
+   Grabbing works from either hand and needs no second raycaster: pull a
+   trigger while that hand is within reach and the object comes to it. The
+   right laser and the desktop mouse also work through a plain click, so the
+   same object is reachable in a headset and at a desk.
+
+   Releasing returns it to where it started rather than dropping it in mid
+   air — there is no physics here, and a rifle hanging in space reads as a
+   bug rather than as a dropped object.
+
+   Held pose is copied per frame from the holder rather than reparenting the
+   DOM, the same approach the hand menu uses. */
+const GRAB = {
+  items: [],
+
+  /* True when this hand is holding something or close enough to take it.
+     Teleport asks before firing, so reaching for the rifle with the left
+     hand does not also fling the visitor across the room. */
+  handBusy: function (handEl) {
+    return this.items.some(function (g) {
+      return g.heldBy === handEl || g.withinReach(handEl);
+    });
+  }
+};
+
+AFRAME.registerComponent('grabbable', {
+  schema: {
+    length: { default: 0.88 },        // metres, longest axis
+    reach: { default: 0.4 },
+    grip: { type: 'vec3', default: { x: 0, y: -0.03, z: -0.10 } }
+  },
+
+  init: function () {
+    const self = this;
+    this.heldBy = null;
+    this.homePos = this.el.object3D.position.clone();
+    this.homeQuat = this.el.object3D.quaternion.clone();
+    this._v = new THREE.Vector3();
+    this._w = new THREE.Vector3();
+    this._q = new THREE.Quaternion();
+    GRAB.items.push(this);
+
+    this.el.addEventListener('model-loaded', function (e) { self.fit(e.detail.model); });
+    const existing = this.el.getObject3D('mesh');
+    if (existing) { this.fit(existing); }
+
+    // right laser in VR, mouse on desktop
+    this.el.addEventListener('click', function () { self.toggle(self.defaultHolder()); });
+
+    // either trigger, when that hand is near enough
+    this.el.sceneEl.addEventListener('loaded', function () {
+      ['#handLeft', '#handRight'].forEach(function (sel) {
+        const hand = document.querySelector(sel);
+        if (!hand) { return; }
+        hand.addEventListener('triggerdown', function () {
+          if (self.heldBy === hand) { self.release(); }
+          else if (self.withinReach(hand)) { self.grab(hand); }
+        });
+      });
+    });
+  },
+
+  /* Scale to a real length and centre on the entity's origin, measured in
+     the model's own space — a world-space box would be offset by everything
+     the object is parented under. */
+  fit: function (model) {
+    model.position.set(0, 0, 0);
+    model.scale.set(1, 1, 1);
+    model.updateMatrixWorld(true);
+    const inv = new THREE.Matrix4().copy(model.matrixWorld).invert();
+    const box = new THREE.Box3();
+    const v = new THREE.Vector3();
+    const m = new THREE.Matrix4();
+    model.traverse(function (n) {
+      if (!n.isMesh || !n.geometry) { return; }
+      if (!n.geometry.boundingBox) { n.geometry.computeBoundingBox(); }
+      const b = n.geometry.boundingBox;
+      m.multiplyMatrices(inv, n.matrixWorld);
+      [[b.min.x, b.min.y, b.min.z], [b.max.x, b.max.y, b.max.z],
+       [b.min.x, b.max.y, b.min.z], [b.max.x, b.min.y, b.max.z],
+       [b.min.x, b.min.y, b.max.z], [b.max.x, b.max.y, b.min.z]
+      ].forEach(function (p) { box.expandByPoint(v.set(p[0], p[1], p[2]).applyMatrix4(m)); });
+    });
+    if (box.isEmpty()) { return; }
+    const size = box.getSize(new THREE.Vector3());
+    const k = this.data.length / Math.max(1e-6, Math.max(size.x, size.y, size.z));
+    model.scale.setScalar(k);
+    model.position.copy(box.getCenter(new THREE.Vector3()).multiplyScalar(-k));
+    skinAk(model);
+  },
+
+  defaultHolder: function () {
+    const inVR = this.el.sceneEl.is('vr-mode') &&
+                 AFRAME.utils.device.checkHeadsetConnected();
+    return document.querySelector(inVR ? '#handRight' : '#cam');
+  },
+
+  withinReach: function (handEl) {
+    if (!handEl || !handEl.object3D) { return false; }
+    handEl.object3D.getWorldPosition(this._v);
+    this.el.object3D.getWorldPosition(this._w);
+    return this._v.distanceTo(this._w) < this.data.reach;
+  },
+
+  toggle: function (holder) {
+    if (this.heldBy) { this.release(); } else { this.grab(holder); }
+  },
+
+  grab: function (holder) {
+    if (!holder) { return; }
+    this.heldBy = holder;
+    logEvent('grab', { id: this.el.id, held: true });
+  },
+
+  release: function () {
+    this.heldBy = null;
+    this.el.object3D.position.copy(this.homePos);
+    this.el.object3D.quaternion.copy(this.homeQuat);
+    logEvent('grab', { id: this.el.id, held: false });
+  },
+
+  tick: function () {
+    if (!this.heldBy) { return; }
+    const h = this.heldBy.object3D;
+    const o = this.el.object3D;
+    h.getWorldPosition(o.position);
+    h.getWorldQuaternion(this._q);
+    o.quaternion.copy(this._q);
+    this._v.set(this.data.grip.x, this.data.grip.y, this.data.grip.z)
+      .applyQuaternion(this._q);
+    o.position.add(this._v);
+  }
+});
+
 /* Waypoint patrol with a procedural diagonal gait.
 
    The path is hardcoded to thread the clear floor lanes of this room —
@@ -4128,7 +4297,12 @@ AFRAME.registerComponent('teleport-lite', {
     this.marker.visible = false;
     scene.add(this.marker);
 
-    this.onDown = function () { self.active = true; };
+    this.onDown = function () {
+      // reaching for the rifle should not also fling the visitor across
+      // the room — the grab has first claim on this trigger
+      if (typeof GRAB !== 'undefined' && GRAB.handBusy(self.el)) { return; }
+      self.active = true;
+    };
     this.onUp = function () { self.finish(); };
     this.el.addEventListener('triggerdown', this.onDown);
     this.el.addEventListener('triggerup', this.onUp);

@@ -180,6 +180,19 @@ channel was removed at build time so `path-walk` can drive the travel instead.
 - Doors and handles already sit on +z, so it needs no rotation against the
   doorway wall
 
+---
+
+## ak.gltf + ak-*.jpg — AK-47
+
+- **Licence: unknown.** No licence file in the pack.
+- **Source pack:** `ak-47`, FBX + full PBR set
+- Carries a 0.5s **`ak47|shooting`** animation — root recoil, bolt travel and
+  trigger, on named nodes — not yet used
+- Authored 100x with the muzzle on -z, established from its cross-section
+  (the barrel end is thin and sparse, the receiver end fat and dense) rather
+  than guessed
+- 11MB of source became 0.9MB of web assets
+
 ## Replacing these
 
 Prefer glTF/GLB with an explicit licence. [Poly Haven](https://polyhaven.com)
