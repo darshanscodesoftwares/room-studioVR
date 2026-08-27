@@ -93,10 +93,9 @@ plan-view clearance check for every furniture placement and walking route.
   redistributing the 3D data; the house plant is marked not-for-commercial-use;
   several packs shipped no licence at all. Fine for local and same-network
   headset demos. See [assets/CREDITS.md](assets/CREDITS.md).
-- **AK firing animation is converted but unwired.** `ak47|shooting`, 0.5s,
-  driving `root` (recoil), `shutter` (bolt) and `trigger`. Next step is playing
-  it on trigger-pull while held.
-- **Rifle grip offset is a guess** — check how it sits in the hand.
+- **Rifle grip offset is a guess** — check how it sits in the hand. The firing
+  animation is wired now (trigger fires while held, grip releases); the offset
+  is the one number left that needs a headset to judge.
 - Roadmap leftovers: guided sales mode, saveable configuration links.
 - The shooting mini-game was removed in `a5aceb8`; the space came back in
   `d179c28`. History has both if it returns.

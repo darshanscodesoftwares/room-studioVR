@@ -3967,26 +3967,73 @@ AFRAME.registerComponent('pickup', {
     this._v = new THREE.Vector3();
     this._w = new THREE.Vector3();
     this._q = new THREE.Quaternion();
+    this.mixer = null;
+    this.shot = null;
     GRAB.items.push(this);
 
     this.el.addEventListener('model-loaded', function (e) { self.fit(e.detail.model); });
     const existing = this.el.getObject3D('mesh');
     if (existing) { this.fit(existing); }
 
-    // right laser in VR, mouse on desktop
-    this.el.addEventListener('click', function () { self.toggle(self.defaultHolder()); });
+    // right laser in VR, mouse on desktop. Picks the rifle up; once it is in
+    // hand the same click fires it, because at that point it is filling the
+    // view and there is nothing else the cursor can be aimed at.
+    this.el.addEventListener('click', function () {
+      if (self.heldBy) { self.fire(); } else { self.grab(self.defaultHolder()); }
+    });
 
-    // either trigger, when that hand is near enough
     this.el.sceneEl.addEventListener('loaded', function () {
       ['#handLeft', '#handRight'].forEach(function (sel) {
         const hand = document.querySelector(sel);
         if (!hand) { return; }
+        // Trigger takes it when the hand is near enough, and fires it once
+        // it is held — the natural mapping, and it leaves grip free to be
+        // the one thing that puts it down.
         hand.addEventListener('triggerdown', function () {
-          if (self.heldBy === hand) { self.release(); }
+          if (self.heldBy === hand) { self.fire(); }
           else if (self.withinReach(hand)) { self.grab(hand); }
+        });
+        hand.addEventListener('gripdown', function () {
+          if (self.heldBy === hand) { self.release(); }
         });
       });
     });
+
+    // Desktop needs a key to put it down, since the click now shoots.
+    window.addEventListener('keydown', function (e) {
+      if (!self.heldBy) { return; }
+      const k = e.key.toLowerCase();
+      if (k === 'g' || k === 'escape') { self.release(); }
+      else if (k === 'f') { self.fire(); }
+    });
+  },
+
+  /* The pack ships one clip — root recoil, bolt travel and trigger pull on
+     named nodes. It plays once per pull rather than looping, and restarts
+     from zero on a fast second pull so holding down the trigger reads as
+     repeated shots instead of one long stretched one. */
+  setupClip: function (model) {
+    const clips = model.animations || [];
+    if (!clips.length) { return; }
+    let clip = clips.find(function (c) { return /shoot|fire/i.test(c.name); });
+    if (!clip) { clip = clips[0]; }
+    this.mixer = new THREE.AnimationMixer(model);
+    this.shot = this.mixer.clipAction(clip);
+    this.shot.setLoop(THREE.LoopOnce, 1);
+    this.shot.clampWhenFinished = false;
+    // A finished LoopOnce action leaves its last frame written into the
+    // bound properties, which would park the bolt back and the trigger
+    // pulled. stop() deactivates the bindings, and three restores the pose
+    // they held before the clip touched them.
+    const self = this;
+    this.mixer.addEventListener('finished', function () { self.shot.stop(); });
+  },
+
+  fire: function () {
+    if (!this.shot) { return; }
+    this.shot.reset();
+    this.shot.play();
+    logEvent('fire', { id: this.el.id });
   },
 
   /* Scale to a real length and centre on the entity's origin, measured in
@@ -4016,6 +4063,7 @@ AFRAME.registerComponent('pickup', {
     model.scale.setScalar(k);
     model.position.copy(box.getCenter(new THREE.Vector3()).multiplyScalar(-k));
     skinAk(model);
+    this.setupClip(model);
   },
 
   defaultHolder: function () {
@@ -4031,10 +4079,6 @@ AFRAME.registerComponent('pickup', {
     return this._v.distanceTo(this._w) < this.data.reach;
   },
 
-  toggle: function (holder) {
-    if (this.heldBy) { this.release(); } else { this.grab(holder); }
-  },
-
   grab: function (holder) {
     if (!holder) { return; }
     this.heldBy = holder;
@@ -4048,7 +4092,12 @@ AFRAME.registerComponent('pickup', {
     logEvent('grab', { id: this.el.id, held: false });
   },
 
-  tick: function () {
+  tick: function (t, dt) {
+    // The recoil has to keep running while the rifle sits on the bench too,
+    // otherwise a shot fired and then dropped freezes the bolt open.
+    if (this.mixer && this.shot && this.shot.isRunning()) {
+      this.mixer.update((dt || 16) / 1000);
+    }
     if (!this.heldBy) { return; }
     const h = this.heldBy.object3D;
     const o = this.el.object3D;

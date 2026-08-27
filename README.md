@@ -341,6 +341,18 @@ same object is reachable in a headset and at a desk. Releasing returns it to
 the bench rather than dropping it in mid air — there is no physics here, and a
 rifle hanging in space reads as a bug rather than as a dropped object.
 
+**Once it is held, the trigger fires it** and grip puts it down. That is the
+natural mapping, and it leaves exactly one button for release; on desktop the
+click fires and `G` puts it down, since by then the rifle fills the view and
+there is nothing else the cursor could be aimed at. The pack's own 0.5s
+`ak47|shooting` clip plays once per pull — 84mm of bolt travel, 3 degrees of
+muzzle rise and a 26-degree trigger break, measured rather than guessed. A
+second pull restarts it from zero, so holding the trigger reads as repeated
+shots rather than one stretched one, and when the clip ends the action is
+stopped outright so three restores the rest pose: a finished `LoopOnce` action
+otherwise leaves its last frame written in, parking the bolt open. Nothing is
+fired *at* — there are no projectiles and no targets to hit.
+
 Teleport asks the grab system before firing, so reaching for the rifle with
 the left hand does not also fling the visitor across the room.
 
