@@ -381,9 +381,17 @@
     <a-circle radius="0.28" position="-8.4 1.45 -11.94"
               material="color: #d8d5cd; roughness: 0.9; side: double"></a-circle>
 
-    <!-- No fixtures. The range carries no light of its own at all — the
-         strips were the last bright surfaces in here, and the targets glow
-         on their own emissive once the game starts. -->
+    <!-- One small ceiling light. A real point light is safe here now only
+         because of the dog-leg: lights ignore walls, but the nearest point
+         of the flat is 8.7m away and this reaches 6m, so it physically
+         cannot spill into the rooms the way the first one did. The plate
+         above it is the visible fixture. -->
+    <a-plane rotation="90 0 0" width="0.55" height="0.55" position="-9.4 2.97 -8.8"
+             material="color: #fff6e4; emissive: #fff2dd; emissiveIntensity: 0.85;
+                       roughness: 1; metalness: 0; side: double"></a-plane>
+    <a-entity id="rangeLight"
+              light="type: point; color: #ffeccd; intensity: 0.75; distance: 6"
+              position="-9.4 2.75 -8.8"></a-entity>
 
   </a-entity>
 
