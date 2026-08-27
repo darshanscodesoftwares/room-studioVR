@@ -392,13 +392,9 @@
       <a-entity class="clickable rack-gun" data-gun="ak"       position="0.58 1.15 0.1"></a-entity>
     </a-entity>
 
-    <!-- fixtures run down the lane toward the targets, emissive only -->
-    <a-box width="0.12" height="0.04" depth="4.6" position="-10.3 2.92 -9.3"
-           material="color: #fff6e4; emissive: #fff2dd; emissiveIntensity: 1.0;
-                     roughness: 1; metalness: 0"></a-box>
-    <a-box width="0.12" height="0.04" depth="4.6" position="-8.5 2.92 -9.3"
-           material="color: #fff6e4; emissive: #fff2dd; emissiveIntensity: 0.65;
-                     roughness: 1; metalness: 0"></a-box>
+    <!-- No fixtures. The range carries no light of its own at all — the
+         strips were the last bright surfaces in here, and the targets glow
+         on their own emissive once the game starts. -->
 
     <a-entity id="rangeTargets"></a-entity>
   </a-entity>
@@ -4049,7 +4045,9 @@ const RangeGame = {
       setLighting(state.lighting);       // puts the preset back exactly
     }
     this.targets.forEach(function (t) {
-      if (t.mat) { t.mat.emissiveIntensity = on ? 0.55 : 0; }
+      // the range has no fixtures, so the targets are the only lit thing in
+      // it — they carry the whole read and are pushed harder than before
+      if (t.mat) { t.mat.emissiveIntensity = on ? 0.9 : 0.25; }
     });
   },
 
