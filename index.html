@@ -220,8 +220,45 @@
            material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
     <a-box width="1.41" height="0.09" depth="0.14" position="0 2.145 3"
            material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
-    <a-plane class="wall" width="6" height="3" position="-3 1.5 0" rotation="0 90 0"
-             material="color: #ece7e1; roughness: 0.94; metalness: 0"></a-plane>
+    <!-- West wall carries the way to the range: solid run, then a cased
+         opening near the south corner. side: double — these faces are also
+         the range's east wall. -->
+    <a-plane class="wall" width="4.9" height="3" position="-3 1.5 -0.55" rotation="0 90 0"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
+    <a-plane class="wall" width="0.1" height="3" position="-3 1.5 2.95" rotation="0 90 0"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
+    <a-plane class="wall" width="1.0" height="0.9" position="-3 2.55 2.4" rotation="0 90 0"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
+    <a-entity id="rangeDoorCase">
+      <a-box width="0.14" height="2.16" depth="0.09" position="-3 1.06 1.9"
+             material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
+      <a-box width="0.14" height="2.16" depth="0.09" position="-3 1.06 2.9"
+             material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
+      <a-box width="0.14" height="0.09" depth="1.09" position="-3 2.145 2.4"
+             material="color: #f2f2ef; roughness: 0.45; metalness: 0.02"></a-box>
+
+      <!-- Hinged leaf. The pivot sits on the jamb and the leaf hangs off it,
+           so rotating the pivot swings the door the way a real one moves —
+           rotating the leaf itself would spin it about its middle. Swings
+           into the living room because the corridor is only a metre wide. -->
+      <a-entity id="rangeDoorPivot" position="-3 1.05 1.90" swing-door>
+        <!-- fills the opening edge to edge: the leaf used to stop 4cm short
+             of the lintel and 2cm shy of each jamb, and that slot was the
+             strip of light showing over a shut door -->
+        <a-box class="clickable" width="0.05" height="2.10" depth="1.0"
+               position="0 0 0.50"
+               material="color: #eceae4; roughness: 0.55; metalness: 0.05"></a-box>
+        <a-box width="0.05" height="0.04" depth="0.14" position="0.05 0.02 0.88"
+               material="color: #b9bcc2; roughness: 0.3; metalness: 0.9"></a-box>
+        <a-box width="0.05" height="0.04" depth="0.14" position="-0.05 0.02 0.88"
+               material="color: #b9bcc2; roughness: 0.3; metalness: 0.9"></a-box>
+      </a-entity>
+    </a-entity>
+    <!-- Seals the opening when the range is switched off. class="wall" so it
+         paints with the rest and the west wall reads as one solid surface. -->
+    <a-plane id="rangeDoorFill" class="wall" width="1.0" height="2.1"
+             position="-3 1.05 2.4" rotation="0 90 0" visible="false"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
     <a-plane class="wall" width="6" height="3" position="3 1.5 0" rotation="0 -90 0"
              material="color: #ece7e1; roughness: 0.94; metalness: 0"></a-plane>
 
@@ -260,6 +297,96 @@
        it read as light bleeding in through the doorway. It now sits at the
        far end of a 6.4m corridor: the opening from the flat shows a distant
        lit rectangle instead of a bright room two metres away. -->
+  <!-- ============ corridor, in two legs ============
+       West from the flat, then a right turn south. The dog-leg is the point:
+       with a straight run the living room could see all the way down to the
+       range, and no amount of dimming stops a lit room being visible. Round
+       a corner there is no sight line at all. -->
+  <a-entity id="corridor">
+    <!-- leg A: west from the doorway -->
+    <a-plane class="floor-surface" rotation="-90 0 0" width="6.9" height="1.0"
+             position="-6.45 0 2.4"
+             material="color: #b98b5e; roughness: 0.55; metalness: 0.02"></a-plane>
+    <a-plane class="ceiling-surface" rotation="90 0 0" width="6.9" height="1.0"
+             position="-6.45 2.5 2.4"
+             material="color: #f4f4f2; roughness: 0.98; metalness: 0"></a-plane>
+    <!-- the z=1.9 side is broken where leg B turns off it -->
+    <a-plane class="wall" width="5.9" height="2.5" position="-5.95 1.25 1.9"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
+    <a-plane class="wall" width="6.9" height="2.5" position="-6.45 1.25 2.9" rotation="0 180 0"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
+    <a-plane class="wall" width="5.9" height="0.5" position="-5.95 2.75 1.9"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
+    <a-plane class="wall" width="6.9" height="0.5" position="-6.45 2.75 2.9" rotation="0 180 0"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
+
+    <!-- leg B: south to the range -->
+    <a-plane class="floor-surface" rotation="-90 0 0" width="1.0" height="7.5"
+             position="-9.4 0 -1.85"
+             material="color: #b98b5e; roughness: 0.55; metalness: 0.02"></a-plane>
+    <a-plane class="ceiling-surface" rotation="90 0 0" width="1.0" height="7.5"
+             position="-9.4 2.5 -1.85"
+             material="color: #f4f4f2; roughness: 0.98; metalness: 0"></a-plane>
+    <a-plane class="wall" width="8.5" height="2.5" position="-9.9 1.25 -1.35" rotation="0 90 0"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
+    <a-plane class="wall" width="7.5" height="2.5" position="-8.9 1.25 -1.85" rotation="0 -90 0"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
+    <a-plane class="wall" width="8.5" height="0.5" position="-9.9 2.75 -1.35" rotation="0 90 0"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
+    <a-plane class="wall" width="7.5" height="0.5" position="-8.9 2.75 -1.85" rotation="0 -90 0"
+             material="color: #ece7e1; roughness: 0.94; metalness: 0; side: double"></a-plane>
+  </a-entity>
+
+  <!-- ============ gun range, at the end of leg B ============ -->
+  <a-entity id="range">
+    <a-plane rotation="-90 0 0" width="7.2" height="6.4" position="-9.4 0 -8.8"
+             material="color: #4c4c48; roughness: 0.97; metalness: 0"></a-plane>
+    <a-plane rotation="90 0 0" width="7.2" height="6.4" position="-9.4 3 -8.8"
+             material="color: #2e2e2b; roughness: 1; metalness: 0"></a-plane>
+
+    <!-- entrance wall, with leg B's opening cut into it -->
+    <a-plane width="3.1" height="3" position="-11.45 1.5 -5.6" rotation="0 180 0"
+             material="color: #43433f; roughness: 0.97; metalness: 0"></a-plane>
+    <a-plane width="3.1" height="3" position="-7.35 1.5 -5.6" rotation="0 180 0"
+             material="color: #43433f; roughness: 0.97; metalness: 0"></a-plane>
+    <a-plane width="1.0" height="0.5" position="-9.4 2.75 -5.6" rotation="0 180 0"
+             material="color: #43433f; roughness: 0.97; metalness: 0"></a-plane>
+
+    <a-plane width="6.4" height="3" position="-13.0 1.5 -8.8" rotation="0 90 0"
+             material="color: #43433f; roughness: 0.97; metalness: 0"></a-plane>
+    <a-plane width="6.4" height="3" position="-5.8 1.5 -8.8" rotation="0 -90 0"
+             material="color: #43433f; roughness: 0.97; metalness: 0"></a-plane>
+
+    <!-- backstop at the far end -->
+    <a-plane width="7.2" height="3" position="-9.4 1.5 -12.0"
+             material="color: #322f2b; roughness: 1; metalness: 0"></a-plane>
+    <a-box width="7.2" height="1.2" depth="0.6" position="-9.4 0.6 -11.6" rotation="16 0 0"
+           material="color: #3a3733; roughness: 1; metalness: 0"></a-box>
+
+    <!-- shooting stand -->
+    <a-box width="2.6" height="0.06" depth="0.5" position="-9.4 1.02 -6.9"
+           material="color: #6f4e37; roughness: 0.5; metalness: 0"></a-box>
+    <a-box width="0.08" height="1.0" depth="0.5" position="-10.65 0.5 -6.9"
+           material="color: #4a4640; roughness: 0.8; metalness: 0.2"></a-box>
+    <a-box width="0.08" height="1.0" depth="0.5" position="-8.15 0.5 -6.9"
+           material="color: #4a4640; roughness: 0.8; metalness: 0.2"></a-box>
+
+    <!-- Paper target faces on the backstop. With the game gone there is
+         nothing to shoot, but a range with a blank end wall reads as an
+         empty cell — these keep the space legible. -->
+    <a-circle radius="0.28" position="-10.4 1.45 -11.94"
+              material="color: #d8d5cd; roughness: 0.9; side: double"></a-circle>
+    <a-circle radius="0.28" position="-9.4 1.45 -11.94"
+              material="color: #d8d5cd; roughness: 0.9; side: double"></a-circle>
+    <a-circle radius="0.28" position="-8.4 1.45 -11.94"
+              material="color: #d8d5cd; roughness: 0.9; side: double"></a-circle>
+
+    <!-- No fixtures. The range carries no light of its own at all — the
+         strips were the last bright surfaces in here, and the targets glow
+         on their own emissive once the game starts. -->
+
+  </a-entity>
+
   <!-- ============ bedroom (6 x 5 x 3 m, z from 3 to 8) ============
        The shell is ours, not the model's: the pack's own architecture is
        hidden, so walls, ceiling and floor take the same palettes as the
@@ -980,6 +1107,10 @@ const DEFAULT_STATE = Object.assign({}, PACKAGES.studio, {
   // the figure is a scale reference rather than decor, so finish packages
   // deliberately leave it alone; only the toggle and reset touch it
   human: true,
+  // the range is a wing, not decor — packages leave it alone like the figures.
+  // Off by default: a flat that opens as two rooms is the product, and the
+  // range is something a visitor chooses to add.
+  range: false,
   models: { sofa: 'primitive', plant: 'bonsai', cat: 'realistic',
             people: 'woman', tv: 'mi' }
 });
@@ -1791,6 +1922,10 @@ function setDecor(key, on) {
   if (gated[key]) {
     applyModelSlot(gated[key]);
   } else {
+    // setDecor has already written state[key]; passing `on` straight through
+    // is required — re-inverting state.range here flipped it back and the
+    // wing never disappeared
+    if (key === 'range') { setRange(on); return; }
     const ids = { rug: '.rug-surface', art: '#art', cat: '#cat' };
     document.querySelectorAll(ids[key]).forEach(function (el) {
       el.setAttribute('visible', on);
@@ -2024,7 +2159,7 @@ function buildOverlay() {
   // decor toggles
   const decorBtns = document.querySelector('#decorBtns');
   [['rug', 'Rug'], ['plant', 'Plant'], ['art', 'Wall art'],
-   ['cat', 'Cat'], ['human', 'People']].forEach(function (d) {
+   ['cat', 'Cat'], ['human', 'People'], ['range', 'Range']].forEach(function (d) {
     const b = document.createElement('button');
     b.textContent = d[1];
     b.dataset.decor = d[0];
@@ -2314,7 +2449,8 @@ function buildVrPanel() {
     { kind: 'decor', value: 'plant',    label: 'Plant' },
     { kind: 'decor', value: 'art',      label: 'Art' },
     { kind: 'decor', value: 'cat',      label: 'Cat' },
-    { kind: 'decor', value: 'human',    label: 'People' }
+    { kind: 'decor', value: 'human',    label: 'People' },
+    { kind: 'decor', value: 'range',    label: 'Range' }
   ];
   toggles.forEach(function (t, i) {
     const x = -0.75 + i * 0.25;
@@ -2400,6 +2536,46 @@ function syncVrPanel() {
     else { on = !!state[b.value]; }
     b.el.setAttribute('material', 'color', on ? '#2a6df4' : '#2b3242');
   });
+}
+
+/* The range is a whole wing that can be switched off: corridor, range and
+   the doorway itself go, the west wall seals, and the flat is back to two
+   rooms. Off is the safe direction, so it also ends any game in progress and
+   walks a visitor who is out there back inside — otherwise they would be
+   standing in a region that no longer exists, unable to move. */
+function setRange(on) {
+  state.range = on;
+  ['#corridor', '#range', '#rangeDoorCase'].forEach(function (sel) {
+    const el = document.querySelector(sel);
+    if (el) { el.setAttribute('visible', on); }
+  });
+  const fill = document.querySelector('#rangeDoorFill');
+  if (fill) { fill.setAttribute('visible', !on); }
+
+  rebuildWalkRects();
+
+  if (!on) {
+    rangeDoorOpen = true;          // so re-enabling never starts shut-in
+    const pivot = document.querySelector('#rangeDoorPivot');
+    if (pivot && pivot.components['swing-door']) {
+      const d = pivot.components['swing-door'];
+      d.progress = 1; d.target = 1;
+      pivot.object3D.rotation.y = THREE.MathUtils.degToRad(d.data.angle);
+    }
+    rebuildWalkRects();
+    const rig = document.querySelector('#rig');
+    const cam = document.querySelector('#cam');
+    if (rig) {
+      const ox = cam ? cam.object3D.position.x : 0;
+      const oz = cam ? cam.object3D.position.z : 0;
+      if (rig.object3D.position.x + ox < -2.75) {
+        rig.object3D.position.set(-2.2 - ox, 0, 2.4 - oz);
+      }
+    }
+  }
+  if (on) { setTimeout(skinRange, 0); }
+  logEvent('range', { enabled: on });
+  syncUI();
 }
 
 let vrPanelShown = true;
@@ -3347,6 +3523,28 @@ function skinCupboard(selector) {
   });
 }
 
+/* The range reads as concrete regardless of what the flat's lighting is
+   doing. Its surfaces take almost nothing from the environment map, which
+   is what was washing them to white: a bright procedural sky reflected in
+   large pale planes saturates them no matter how low the lamps go. Marked
+   fixedEnv so the global environment dimming leaves them alone. */
+function skinRange() {
+  const el = document.querySelector('#range');
+  if (!el) { return; }
+  el.object3D.traverse(function (n) {
+    if (!n.isMesh || !n.material) { return; }
+    const m = n.material;
+    // Test the emissive COLOUR, not its intensity: every standard material
+    // ships emissiveIntensity 1 with a black emissive, so the old check was
+    // true for everything and this function pinned nothing at all.
+    const e = m.emissive;
+    if (e && (e.r + e.g + e.b) > 0.02) { return; }          // the fixtures
+    if (m.envMapIntensity !== undefined) { m.envMapIntensity = 0.2; }
+    m.userData.fixedEnv = true;
+    m.needsUpdate = true;
+  });
+}
+
 /* Runs fn once the entity's model exists, whether it arrived before or after
    this call. Preloaded assets almost always land first, which is the case a
    bare addEventListener silently misses. */
@@ -3540,6 +3738,67 @@ AFRAME.registerComponent('hand-menu', {
     o.position.add(this.off);
     o.quaternion.copy(this.handQ).multiply(this.tiltQ);
     o.scale.setScalar(this.data.scale);
+  }
+});
+
+/* A door that actually shuts.
+
+   Clicking swings it; the swing is eased rather than snapped so it reads as
+   a door rather than a state flip. Closing it removes the walkable strip
+   through the opening, so it blocks passage instead of merely looking shut —
+   and it blocks from either side, since the leaf is a solid box the laser
+   hits whichever way it is facing.
+
+   The strip is dropped the moment the door starts closing rather than when
+   it finishes, so nobody can sprint through a door that is visibly swinging
+   into their face. It is restored only once the door is properly open. */
+AFRAME.registerComponent('swing-door', {
+  schema: {
+    angle: { default: 95 },      // degrees, positive swings into the room
+    seconds: { default: 0.75 },
+    hoverGlow: { default: 0.16 }
+  },
+
+  init: function () {
+    const self = this;
+    this.progress = 1;           // starts open, so the range is discoverable
+    this.target = 1;
+    this.mats = [];
+    this.el.object3D.rotation.y = THREE.MathUtils.degToRad(this.data.angle);
+
+    this.el.addEventListener('loaded', function () {
+      self.el.object3D.traverse(function (n) {
+        if (n.isMesh && n.material) { self.mats.push(n.material); }
+      });
+    });
+
+    this.el.addEventListener('click', function () {
+      self.target = self.target > 0.5 ? 0 : 1;
+      // walkability follows intent immediately, not the animation
+      rangeDoorOpen = self.target > 0.5;
+      rebuildWalkRects();
+      logEvent('rangeDoor', { open: rangeDoorOpen });
+    });
+    this.el.addEventListener('mouseenter', function () { self.glow(true); });
+    this.el.addEventListener('mouseleave', function () { self.glow(false); });
+  },
+
+  glow: function (on) {
+    const v = on ? this.data.hoverGlow : 0;
+    this.mats.forEach(function (m) {
+      if (m.emissive) { m.emissive.setRGB(v, v, v * 0.9); }
+    });
+  },
+
+  tick: function (time, delta) {
+    if (!delta || this.progress === this.target) { return; }
+    const step = (delta / 1000) / Math.max(0.05, this.data.seconds);
+    this.progress = this.target > this.progress
+      ? Math.min(this.target, this.progress + step)
+      : Math.max(this.target, this.progress - step);
+    // ease so it slows into the jamb
+    const e = this.progress * this.progress * (3 - 2 * this.progress);
+    this.el.object3D.rotation.y = THREE.MathUtils.degToRad(this.data.angle * e);
   }
 });
 
@@ -3963,11 +4222,36 @@ AFRAME.registerComponent('teleport-lite', {
    doorway strip that joins them. Rects overlap by a centimetre at the seam
    so floating-point drift can never leave a visitor stranded between two
    regions that both reject them. */
-const WALK_RECTS = [
+const WALK_HOME = [
   { x0: -2.7,  x1: 2.7,  z0: -2.7,  z1: 2.7  },   // living room
   { x0: -2.7,  x1: 2.7,  z0:  3.3,  z1: 7.7  },   // bedroom
-  { x0: -0.55, x1: 0.55, z0:  2.69, z1: 3.31 }    // doorway
+  { x0: -0.55, x1: 0.55, z0:  2.69, z1: 3.31 }    // bedroom doorway
 ];
+const WALK_RANGE = [
+  // stops at the inside face of the wall, not on the wall plane itself:
+  // ending on the plane left a sliver a teleport could land on to skip a door
+  { x0: -9.8,  x1: -3.05, z0:  2.0,   z1: 2.8  },   // corridor leg A
+  { x0: -9.8,  x1: -9.0,  z0: -5.6,   z1: 2.8  },   // corridor leg B
+  { x0: -12.7, x1: -6.1,  z0: -11.8,  z1: -5.6 }    // gun range
+];
+// the strip through the doorway itself — present only while the door is open,
+// which is what makes a shut door genuinely block the way rather than just
+// look shut
+const WALK_DOOR = [
+  { x0: -3.31, x1: -2.69, z0: 1.95, z1: 2.85 }
+];
+// recomputed on toggle rather than per step: walkable() runs every frame
+let WALK_RECTS = WALK_HOME.concat(WALK_RANGE, WALK_DOOR);
+let rangeDoorOpen = true;
+
+function rebuildWalkRects() {
+  let r = WALK_HOME.slice();
+  if (state.range) {
+    r = r.concat(WALK_RANGE);
+    if (rangeDoorOpen) { r = r.concat(WALK_DOOR); }
+  }
+  WALK_RECTS = r;
+}
 
 function walkable(x, z) {
   return WALK_RECTS.some(function (r) {
@@ -4002,6 +4286,7 @@ function boot() {
   setVrTab('room');
   buildBlossoms();
   skinFixtures();
+  skinRange();          // pin the range's materials whether the wing is on or not
   setupShadows();
 
   /* Upper face button on either controller folds the panel away — B on the
@@ -4083,6 +4368,8 @@ function boot() {
   setLighting('day');
   setLamp(true);
   setSmoothMove(true);
+  // applied after the panels exist so the toggle renders in its real state
+  setRange(state.range);
   logging = wasLogging;
 
   Telemetry.startedAt = Date.now();

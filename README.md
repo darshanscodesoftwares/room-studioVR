@@ -315,6 +315,52 @@ wall instead of stopping dead, which is also what funnels a visitor through
 the doorway naturally. Teleport aims with the same rule, so the arc goes red
 over the doorway wall but lands in either room.
 
+## The gun range
+
+A doorway near the living room's south-west corner opens onto a corridor that
+runs 6.9m west and then turns right for another 7.5m, with the shooting range
+at the end of that second leg — roofed over the firing side,
+open sky over the targets, concrete throughout and deliberately not on the
+finish palettes. The dog-leg is the point. A straight run let the living room see all the way
+down to the range, and no amount of dimming stops a lit room being visible at
+the end of a tube. Around a corner there is no sight line at all — which is a
+geometry answer to a lighting problem, and the only one that cannot regress.
+
+The actual bleed was subtler and worth recording: point lights ignore walls
+entirely, and the living room's own window light had a 9m radius from x=2.4,
+so it reached 3.6m *past* the west wall and lit whatever was behind it. Both
+window lights are now sized to stop just inside their own rooms.
+
+The space is built but not playable: there is a shooting stand, a backstop
+with paper target faces, and a lane to walk — no weapons, no scoring. The
+game was removed; the architecture it needed was worth keeping.
+
+### The corridor door
+
+A hinged door hangs in the opening, clicked to swing. The pivot sits on the
+jamb with the leaf hung off it, so it moves like a door rather than spinning
+about its own middle, and the swing is eased so it settles into the jamb. It
+opens into the living room because the corridor is only a metre wide.
+
+Shutting it removes the walkable strip through the opening, so it genuinely
+blocks the way rather than looking shut. Two details make that safe: the strip
+is dropped the moment the door starts closing, so nobody walks through a door
+swinging into their face; and the leaf is a solid box, so the laser hits it
+from either side and a visitor in the corridor can always open it again.
+
+### Switching the range off
+
+The whole wing is a toggle. **Range** off hides the corridor, the range and
+the doorway casing, reveals a fill panel that seals the west wall — on the
+wall palette, so it paints with everything else — and drops the range's
+walkable regions, leaving the flat exactly as it was before. Off is the safe
+direction, so it also ends any game in progress and walks a visitor who is out
+there back inside: otherwise they would be standing in a region that no longer
+exists, unable to move in any direction.
+
+Like the figures, the range is a wing rather than decor, so finish packages
+leave it alone.
+
 ## Interactive furniture
 
 A sideboard with two lift-up doors stands against the bedroom's west wall
