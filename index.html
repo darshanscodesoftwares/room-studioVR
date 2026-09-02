@@ -1052,8 +1052,8 @@ const MODELS = {
   sofa: {
     label: 'Sofa',
     variants: [
-      { id: 'primitive', name: 'Studio 3-Seat', el: '#sofa',  icon: 'sofaBox' },
-      { id: 'koltuk',    name: 'Koltuk Loaded', el: '#sofa2', icon: 'sofaTufted' }
+      { id: 'primitive', name: 'Studio 3-Seat', el: '#sofa',  icon: 'sofaRounded' },
+      { id: 'koltuk',    name: 'Koltuk Loaded', el: '#sofa2', icon: 'sofaBoxy' }
     ]
   },
   plant: {
@@ -2559,26 +2559,32 @@ const ICONS = {
      Drawn from the model each stands for, so a row of options can be read
      without labels: a boxy three-seater is not a tufted one, and a flat
      bonsai canopy is not a tall houseplant. */
-  /* The two sofas are told apart by silhouette, not by detail: this one is
-     square and stands on legs, the other is rounded and skirted. Interior
-     lines vanish at row size; an outline does not. */
-  sofaBox: function (g) {
-    g.strokeRect(14, 30, 68, 20);
+  /* The two sofas, drawn from the models rather than from their names — the
+     names are no guide at all here, since "Studio 3-Seat" is the one with
+     two cushions. Told apart by silhouette first, cushion count second:
+     rounded shoulders and thick rolled arms against a low square body, two
+     seat cushions against three, stubby legs against thin splayed ones. */
+  sofaRounded: function (g) {
     g.beginPath();
-    g.moveTo(14, 42); g.lineTo(14, 70); g.lineTo(82, 70); g.lineTo(82, 42); g.stroke();
-    g.beginPath(); g.moveTo(28, 56); g.lineTo(68, 56); g.stroke();
+    g.moveTo(8, 74); g.lineTo(8, 46); g.quadraticCurveTo(8, 30, 24, 30);
+    g.lineTo(72, 30); g.quadraticCurveTo(88, 30, 88, 46); g.lineTo(88, 74);
+    g.stroke();
     g.beginPath();
-    g.moveTo(22, 70); g.lineTo(22, 82); g.moveTo(74, 70); g.lineTo(74, 82); g.stroke();
+    g.moveTo(26, 50); g.lineTo(26, 74); g.moveTo(70, 50); g.lineTo(70, 74); g.stroke();
+    g.beginPath(); g.moveTo(26, 52); g.lineTo(70, 52); g.stroke();
+    g.beginPath(); g.moveTo(48, 52); g.lineTo(48, 74); g.stroke();
+    g.beginPath();
+    g.moveTo(18, 74); g.lineTo(18, 84); g.moveTo(78, 74); g.lineTo(78, 84); g.stroke();
   },
-  sofaTufted: function (g) {
+  sofaBoxy: function (g) {
+    g.strokeRect(8, 34, 80, 38);
     g.beginPath();
-    g.moveTo(10, 76); g.lineTo(10, 46); g.quadraticCurveTo(10, 26, 32, 26);
-    g.lineTo(64, 26); g.quadraticCurveTo(86, 26, 86, 46); g.lineTo(86, 76);
-    g.closePath(); g.stroke();
-    g.beginPath(); g.moveTo(10, 58); g.quadraticCurveTo(48, 68, 86, 58); g.stroke();
-    [[33, 42], [48, 39], [63, 42]].forEach(function (p) {
-      g.beginPath(); g.arc(p[0], p[1], 3.5, 0, 6.3); g.fill();
-    });
+    g.moveTo(22, 34); g.lineTo(22, 72); g.moveTo(74, 34); g.lineTo(74, 72); g.stroke();
+    g.beginPath(); g.moveTo(22, 52); g.lineTo(74, 52); g.stroke();
+    g.beginPath();
+    g.moveTo(39, 52); g.lineTo(39, 72); g.moveTo(57, 52); g.lineTo(57, 72); g.stroke();
+    g.beginPath();
+    g.moveTo(16, 72); g.lineTo(12, 86); g.moveTo(80, 72); g.lineTo(84, 86); g.stroke();
   },
   /* Bonsai against houseplant, again by silhouette: a wide flat canopy on a
      bent trunk over a shallow dish, against tall leaves rising out of a

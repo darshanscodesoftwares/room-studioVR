@@ -65,17 +65,22 @@ immediately and leaves the page open, so a buyer can walk the palette without
 going in and out. A tab press is also a way out of it.
 
 **Model options are pictures, not words.** Each variant carries an icon drawn
-from the model it stands for — the boxy three-seater against the tufted one,
-the flat bonsai canopy against the tall houseplant, the bare wall panel against
-the TV standing on its foot. They differ by *silhouette* rather than by
+from the model it stands for — the rounded sofa with its thick rolled arms
+against the low square one, the flat bonsai canopy against the tall houseplant,
+the bare wall panel against the TV standing on its foot. They differ by
+*silhouette* rather than by
 interior detail, because detail disappears at row size and an outline does not.
 "Koltuk Loaded" never told anyone which sofa they were about to get; the
 picture does, and the name is still one press away on the chevron's page.
 
 Draw them from the model as it appears **in this scene**, not from its name.
-The first pass had the two TVs the wrong way round: the MI unit shipped as a
-pedestal and had its base stripped at build time, so here it is the panel that
-hangs, while the one called "Slim Wall" is the one standing on a foot.
+This caught two rows out. The MI unit shipped as a pedestal and had its base
+stripped at build time, so here it is the panel that *hangs*, while the one
+called "Slim Wall" is the one standing on a foot. And "Studio 3-Seat" is the
+sofa with **two** cushions and thick rolled arms, while "Koltuk Loaded" is the
+low square three-cushion one. Both sets of icons had followed the names.
+
+Render the variant and look at it. It costs one screenshot and the names lie.
 
 **The accent chair is a model row too.** Swapping the armchair for the modern
 one exchanges one model for another exactly as the sofa row does; it sat under
