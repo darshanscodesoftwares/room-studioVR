@@ -1077,8 +1077,8 @@ const MODELS = {
   tv: {
     label: 'TV',
     variants: [
-      { id: 'mi',    name: 'MI Smart',  el: '#tvMi',    icon: 'tvStand' },
-      { id: 'smart', name: 'Slim Wall', el: '#tvSmart', icon: 'tvWall' }
+      { id: 'mi',    name: 'MI Smart',  el: '#tvMi',    icon: 'tvPanel' },
+      { id: 'smart', name: 'Slim Wall', el: '#tvSmart', icon: 'tvFooted' }
     ]
   },
   cat: {
@@ -2601,17 +2601,17 @@ const ICONS = {
     g.beginPath(); g.moveTo(48, 60); g.quadraticCurveTo(28, 42, 22, 22); g.stroke();
     g.beginPath(); g.moveTo(48, 60); g.quadraticCurveTo(68, 44, 76, 26); g.stroke();
   },
-  tvStand: function (g) {
-    roundPath(g, 10, 16, 76, 42, 5); g.stroke();
-    g.beginPath();
-    g.moveTo(48, 58); g.lineTo(48, 74); g.moveTo(28, 78); g.lineTo(68, 78); g.stroke();
+  /* Named for what each one actually is, checked against the models rather
+     than against their names: the MI unit shipped as a pedestal and had its
+     base stripped at build time, so in this room it is the bare panel. The
+     SmartTV keeps its wide foot. */
+  tvPanel: function (g) {
+    roundPath(g, 8, 22, 80, 50, 6); g.stroke();
   },
-  // hangs from a rail with nothing under it; the stand version has a base
-  // and no rail, so the two differ in silhouette rather than in detail
-  tvWall: function (g) {
-    g.beginPath(); g.moveTo(34, 16); g.lineTo(62, 16); g.stroke();
-    g.beginPath(); g.moveTo(48, 16); g.lineTo(48, 30); g.stroke();
-    roundPath(g, 12, 30, 72, 42, 4); g.stroke();
+  tvFooted: function (g) {
+    roundPath(g, 10, 18, 76, 46, 5); g.stroke();
+    g.beginPath(); g.moveTo(48, 64); g.lineTo(48, 74); g.stroke();
+    g.beginPath(); g.moveTo(18, 78); g.lineTo(78, 78); g.stroke();
   },
   woman: function (g) {
     g.beginPath(); g.arc(48, 26, 12, 0, 6.3); g.stroke();
