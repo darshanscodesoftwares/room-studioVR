@@ -47,6 +47,17 @@ This replaced a grid whose labels sat centred *above* each band of swatches,
 which cost a line of height per row and left the eye no column to follow. The
 same board now carries more in less space.
 
+**Rows lay their options out from a shared left edge**, not each from its own
+centre. The controls are different widths — swatches, icon tiles, worded
+buttons — so centring them started every row on a different column and the
+panel read as ragged even though each row was internally tidy. One number,
+`ROW.x0`, now sets that edge for all of them.
+
+The board is **1.80 x 1.32** and everything on it is sized for a headset rather
+than for a monitor: the panel hangs an arm's length from the eye, so controls
+that look small in a desktop screenshot are comfortably large in VR. Four rows
+is the most any tab holds, so the board is cut to four and not to five.
+
 The chevron opens that one category full-panel, every option at four times the
 area with **its name under it**. That is the only way a colour or a model can
 have a name in a headset: there is nothing to hover over. Picking there applies
@@ -197,11 +208,10 @@ Seven palettes now drive the room — walls, **ceiling**, flooring, rug, sofa,
 chair fabric and table top. Ceiling is its own finish rather than following the
 walls, so a timber or charcoal ceiling can be tried against any wall colour.
 
-In VR they are split across **Room** and **Furniture** tabs. The room tab needed
-a fourth row for the ceiling, so the whole panel was re-laid out and the board
-grew to 2.70m. Both tab layouts are verified against a collision check that
-walks the panel top to bottom, since a 2cm text overlap is invisible in code and
-obvious in a headset.
+In VR they are split across **Room** and **Living** tabs, four rows and three.
+Every tab layout is verified by a check that walks the panel and reports both
+anything crossing the board edge and any two click targets that overlap — a 2cm
+overlap is invisible in code and obvious in a headset.
 
 These are a floor, not a ceiling. Scanned PBR sets slot in over them via the
 `tex` path below.
