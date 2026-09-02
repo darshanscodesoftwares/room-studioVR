@@ -77,6 +77,13 @@ The first pass had the two TVs the wrong way round: the MI unit shipped as a
 pedestal and had its base stripped at build time, so here it is the panel that
 hangs, while the one called "Slim Wall" is the one standing on a foot.
 
+**The accent chair is a model row too.** Swapping the armchair for the modern
+one exchanges one model for another exactly as the sofa row does; it sat under
+Decor only because that is where the toggles happened to be. It has no `MODELS`
+entry because it predates that table and runs through `setChairStyle`, so the
+Models tab describes it inline. Its two icons differ by arms or no arms, which
+is the actual difference between the two chairs and survives being small.
+
 ### Life is not decor
 
 The cat and the figures used to be split across two tabs — switched on under

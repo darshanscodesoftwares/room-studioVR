@@ -74,6 +74,7 @@
 
   <h2>Models</h2>
   <div id="modelSelects"></div>
+  <div class="btns" id="chairBtns" style="margin-top:6px"></div>
 
   <h2>Finish package</h2>
   <div class="btns" id="pkgBtns"></div>
@@ -107,9 +108,6 @@
 
   <h2>Curtains</h2>
   <div class="swatches" id="curtainSw"></div>
-
-  <h2>Accent chair</h2>
-  <div class="btns" id="chairBtns"></div>
 
   <h2>Decor</h2>
   <div class="btns" id="decorBtns"></div>
@@ -2650,6 +2648,25 @@ const ICONS = {
     });
     g.beginPath(); g.moveTo(69, 62); g.quadraticCurveTo(86, 68, 80, 86); g.stroke();
   },
+  /* The accent chair, front-on, as each one actually looks: the modern one
+     is a narrow back on four thin legs with nothing at the sides; the
+     armchair is the same seat with a thick rolled arm either side. Arms or
+     no arms is the whole difference and it survives being small. */
+  chairModern: function (g) {
+    roundPath(g, 30, 12, 36, 46, 6); g.stroke();
+    g.beginPath(); g.moveTo(24, 60); g.lineTo(72, 60); g.stroke();
+    g.beginPath();
+    g.moveTo(30, 63); g.lineTo(27, 86); g.moveTo(66, 63); g.lineTo(69, 86); g.stroke();
+  },
+  chairArm: function (g) {
+    roundPath(g, 26, 12, 44, 42, 8); g.stroke();
+    roundPath(g, 8, 40, 18, 30, 8); g.stroke();
+    roundPath(g, 70, 40, 18, 30, 8); g.stroke();
+    g.beginPath(); g.moveTo(26, 62); g.lineTo(70, 62); g.stroke();
+    g.beginPath();
+    g.moveTo(20, 70); g.lineTo(20, 82); g.moveTo(76, 70); g.lineTo(76, 82); g.stroke();
+  },
+
   // the standard power glyph: this is a thing being switched off, not removed
   off: function (g) {
     g.beginPath(); g.arc(48, 54, 22, -1.05, Math.PI + 1.05); g.stroke();
@@ -2900,20 +2917,45 @@ function buildVrPanel() {
   body.appendChild(mGroup);
   vrTabs.models = mGroup;
 
-  const OBJECT_SLOTS = ['sofa', 'plant', 'tv'];
   const SLOT_ICON = {
     sofa: 'sofa', plant: 'plant', people: 'people', tv: 'tv', cat: 'cat'
   };
-  OBJECT_SLOTS.forEach(function (slot, r) {
+  /* The accent chair swaps one model for another, exactly as the sofa row
+     does — it was only ever in Decor because that is where the toggles
+     were. It has no MODELS entry because it predates that table and is
+     driven by setChairStyle, so it is described here instead. */
+  const CHAIR = [
+    { id: 'armchair', name: 'Armchair', icon: 'chairArm' },
+    { id: 'modern',   name: 'Modern',   icon: 'chairModern' }
+  ];
+  const OBJECT_ROWS = [
+    { slot: 'sofa' },
+    { chair: true },
+    { slot: 'plant' },
+    { slot: 'tv' }
+  ];
+  OBJECT_ROWS.forEach(function (row, r) {
     const y = ROW.tops[r];
-    const vars = MODELS[slot].variants;
-    mkRowFrame(mGroup, y, SLOT_ICON[slot], MODELS[slot].label, {
-      title: MODELS[slot].label, items: vars, slot: slot
-    }, r === OBJECT_SLOTS.length - 1);
+    const last = r === OBJECT_ROWS.length - 1;
+    if (row.chair) {
+      mkRowFrame(mGroup, y, 'chair', 'Chair', {
+        title: 'Chair', items: CHAIR, fn: setChairStyle, kind: 'chair'
+      }, last);
+      CHAIR.forEach(function (v, i) {
+        const bg = mkIconOption(mGroup, { x: stripX(i, 0.15), y: y, icon: v.icon });
+        bg.addEventListener('click', function () { setChairStyle(v.id); syncUI(); });
+        vrButtons.push({ el: bg, kind: 'chair', value: v.id });
+      });
+      return;
+    }
+    const vars = MODELS[row.slot].variants;
+    mkRowFrame(mGroup, y, SLOT_ICON[row.slot], MODELS[row.slot].label, {
+      title: MODELS[row.slot].label, items: vars, slot: row.slot
+    }, last);
     vars.forEach(function (v, i) {
       const bg = mkIconOption(mGroup, { x: stripX(i, 0.15), y: y, icon: v.icon });
-      bg.addEventListener('click', function () { setModel(slot, v.id); syncUI(); });
-      vrButtons.push({ el: bg, kind: 'model', slot: slot, value: v.id });
+      bg.addEventListener('click', function () { setModel(row.slot, v.id); syncUI(); });
+      vrButtons.push({ el: bg, kind: 'model', slot: row.slot, value: v.id });
     });
   });
 
@@ -2948,48 +2990,39 @@ function buildVrPanel() {
   body.appendChild(dGroup);
   vrTabs.decor = dGroup;
 
-  mkRowFrame(dGroup, ROW.tops[0], 'chair', 'Chair', null);
-  [['armchair', 'Armchair'], ['modern', 'Modern']].forEach(function (c, i) {
-    const x = stripX(i, 0.32);
-    const bg = mkTile(dGroup, {
-      x: x, y: ROW.tops[0], w: 0.32, h: ROW.h, color: '#2b3242', clickable: true, r: 14
-    });
-    mkText(dGroup, c[1], { x: x, y: ROW.tops[0], z: 0.016, width: 0.86 });
-    bg.addEventListener('click', function () { setChairStyle(c[0]); syncUI(); });
-    vrButtons.push({ el: bg, kind: 'chair', value: c[0] });
-  });
-
-  // the cat and the figures used to sit in this row; they live in Life now
-  mkRowFrame(dGroup, ROW.tops[1], 'decor', 'Decor', null);
+  /* What is left here is genuinely decor: things that are present or not,
+     and the light. The chair went to Models — swapping it is a model change
+     — and the cat and the figures went to Life. */
+  mkRowFrame(dGroup, ROW.tops[0], 'decor', 'Decor', null);
   [['rug', 'Rug'], ['plant', 'Plant'], ['art', 'Art'],
    ['range', 'Range']].forEach(function (t, i) {
     const x = stripX(i, 0.21);
     const bg = mkTile(dGroup, {
-      x: x, y: ROW.tops[1], w: 0.21, h: ROW.h, color: '#2b3242', clickable: true, r: 14
+      x: x, y: ROW.tops[0], w: 0.21, h: ROW.h, color: '#2b3242', clickable: true, r: 14
     });
-    mkText(dGroup, t[1], { x: x, y: ROW.tops[1], z: 0.016, width: 0.66 });
+    mkText(dGroup, t[1], { x: x, y: ROW.tops[0], z: 0.016, width: 0.66 });
     bg.addEventListener('click', function () { setDecor(t[0], !state[t[0]]); syncUI(); });
     vrButtons.push({ el: bg, kind: 'decor', value: t[0] });
   });
 
-  mkRowFrame(dGroup, ROW.tops[2], 'time', 'Time', null);
+  mkRowFrame(dGroup, ROW.tops[1], 'time', 'Time', null);
   Object.keys(LIGHTING).forEach(function (id, i) {
     const x = stripX(i, 0.28);
     const bg = mkTile(dGroup, {
-      x: x, y: ROW.tops[2], w: 0.28, h: ROW.h, color: '#2b3242', clickable: true, r: 14
+      x: x, y: ROW.tops[1], w: 0.28, h: ROW.h, color: '#2b3242', clickable: true, r: 14
     });
-    mkText(dGroup, LIGHTING[id].name, { x: x, y: ROW.tops[2], z: 0.016, width: 0.76 });
+    mkText(dGroup, LIGHTING[id].name, { x: x, y: ROW.tops[1], z: 0.016, width: 0.76 });
     bg.addEventListener('click', function () { setLighting(id); syncUI(); });
     vrButtons.push({ el: bg, kind: 'lighting', value: id });
   });
 
-  mkRowFrame(dGroup, ROW.tops[3], 'lamp', 'Lamp', null, true);
+  mkRowFrame(dGroup, ROW.tops[2], 'lamp', 'Lamp', null, true);
   const lampX = stripX(0, 0.32);
   const lampBg = mkTile(dGroup, {
-    x: lampX, y: ROW.tops[3], w: 0.32, h: ROW.h,
+    x: lampX, y: ROW.tops[2], w: 0.32, h: ROW.h,
     color: '#2b3242', clickable: true, r: 14
   });
-  mkText(dGroup, 'Floor lamp', { x: lampX, y: ROW.tops[3], z: 0.016, width: 0.76 });
+  mkText(dGroup, 'Floor lamp', { x: lampX, y: ROW.tops[2], z: 0.016, width: 0.76 });
   lampBg.addEventListener('click', function () { setLamp(!state.lamp); syncUI(); });
   vrButtons.push({ el: lampBg, kind: 'lamp', value: 'lamp' });
 
