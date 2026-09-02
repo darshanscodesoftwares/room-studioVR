@@ -48,10 +48,32 @@ which cost a line of height per row and left the eye no column to follow. The
 same board now carries more in less space.
 
 The chevron opens that one category full-panel, every option at four times the
-area with **its name under it**. That is the only way a colour can have a name
-in a headset: there is nothing to hover over. Picking there applies immediately
-and leaves the page open, so a buyer can walk the palette without going in and
-out. A tab press is also a way out of it.
+area with **its name under it**. That is the only way a colour or a model can
+have a name in a headset: there is nothing to hover over. Picking there applies
+immediately and leaves the page open, so a buyer can walk the palette without
+going in and out. A tab press is also a way out of it.
+
+**Model options are pictures, not words.** Each variant carries an icon drawn
+from the model it stands for — the boxy three-seater against the tufted one,
+the flat bonsai canopy against the tall houseplant, the TV on its stand against
+the one hanging from a rail. They differ by *silhouette* rather than by
+interior detail, because detail disappears at row size and an outline does not.
+"Koltuk Loaded" never told anyone which sofa they were about to get; the
+picture does, and the name is still one press away on the chevron's page.
+
+### Life is not decor
+
+The cat and the figures used to be split across two tabs — switched on under
+Decor, chosen under Models. They are neither furnishing nor architecture, and
+nobody looking for the cat was going to look under "decor", so they have their
+own **Life** tab in VR and their own section in the desktop panel.
+
+Their two controls also became one. A row now reads as a single choice — **off,
+or which one** — which removes a state nobody wanted, where a slot was switched
+on while the choice of what to show lived on a different tab. Picking a variant
+switches the slot on as well: choosing the cat you want and then finding it
+absent is not a state worth being able to reach. Both panels build these rows
+from the same `MODELS` definition, so they cannot drift apart.
 
 The board, its rounded tiles and every row icon are **canvas textures drawn at
 runtime**, the same way the room's materials are: no downloads, and rounded

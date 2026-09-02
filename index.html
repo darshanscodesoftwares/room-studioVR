@@ -41,6 +41,9 @@
   button.on { background: #2a6df4; border-color: #2a6df4; }
   button.wide { width: 100%; }
   button.reset { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.22); }
+  .lifeLabel {
+    flex: 0 0 46px; font-size: 11px; color: #9aa0ad; align-self: center;
+  }
   .note { font-size: 11px; color: #7d8492; margin-top: 12px; line-height: 1.45; }
   .tele {
     font: 11px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -110,6 +113,9 @@
 
   <h2>Decor</h2>
   <div class="btns" id="decorBtns"></div>
+
+  <h2>Life</h2>
+  <div id="lifeBtns"></div>
 
   <h2>Lighting</h2>
   <div class="btns" id="lightBtns"></div>
@@ -1039,42 +1045,47 @@ const PACKAGES = {
    rotation and scale that differ from its siblings. To add a variant: put
    its entity inside the slot's container in the markup, add a row here, and
    both panels pick it up with no further wiring. */
+/* Each variant carries the name of its own icon. They are drawn from the
+   model they stand for — the boxy three-seater against the tufted one, the
+   flat bonsai canopy against the tall houseplant — because a row of
+   identical sofa glyphs tells a visitor nothing about which sofa they are
+   about to get. */
 const MODELS = {
   sofa: {
     label: 'Sofa',
     variants: [
-      { id: 'primitive', name: 'Studio 3-Seat', el: '#sofa' },
-      { id: 'koltuk',    name: 'Koltuk Loaded', el: '#sofa2' }
+      { id: 'primitive', name: 'Studio 3-Seat', el: '#sofa',  icon: 'sofaBox' },
+      { id: 'koltuk',    name: 'Koltuk Loaded', el: '#sofa2', icon: 'sofaTufted' }
     ]
   },
   plant: {
     label: 'Plant',
     variants: [
-      { id: 'bonsai',    name: 'Flowering Bonsai', el: '#plant' },
-      { id: 'house',     name: 'House Plant',      el: '#plant2' }
+      { id: 'bonsai',    name: 'Flowering Bonsai', el: '#plant',  icon: 'bonsai' },
+      { id: 'house',     name: 'House Plant',      el: '#plant2', icon: 'houseplant' }
     ]
   },
   people: {
     label: 'People',
     variants: [
-      { id: 'woman', name: 'Woman', el: '#human' },
-      { id: 'man',   name: 'Man',   el: '#human2' },
+      { id: 'woman', name: 'Woman', el: '#human',  icon: 'woman' },
+      { id: 'man',   name: 'Man',   el: '#human2', icon: 'man' },
       // a variant may name more than one entity; the slot shows them all
-      { id: 'both',  name: 'Both',  el: '#human, #human2' }
+      { id: 'both',  name: 'Both',  el: '#human, #human2', icon: 'both' }
     ]
   },
   tv: {
     label: 'TV',
     variants: [
-      { id: 'mi',    name: 'MI Smart',  el: '#tvMi' },
-      { id: 'smart', name: 'Slim Wall', el: '#tvSmart' }
+      { id: 'mi',    name: 'MI Smart',  el: '#tvMi',    icon: 'tvStand' },
+      { id: 'smart', name: 'Slim Wall', el: '#tvSmart', icon: 'tvWall' }
     ]
   },
   cat: {
     label: 'Cat',
     variants: [
-      { id: 'realistic', name: 'Scanned',  el: '#catModel' },
-      { id: 'stylised',  name: 'Stylised', el: '#catPrimitive' }
+      { id: 'realistic', name: 'Scanned',  el: '#catModel',     icon: 'catReal' },
+      { id: 'stylised',  name: 'Stylised', el: '#catPrimitive', icon: 'catToy' }
     ]
   }
 };
@@ -2125,8 +2136,10 @@ function setSmoothMove(on) {
    ========================================================================= */
 function buildOverlay() {
   // model dropdowns, one per slot
+  // objects only; the cat and the figures have their own section, since they
+  // are neither furnishing nor architecture
   const mHost = document.querySelector('#modelSelects');
-  Object.keys(MODELS).forEach(function (slot) {
+  ['sofa', 'plant', 'tv'].forEach(function (slot) {
     const row = document.createElement('div');
     row.className = 'mrow';
     const lab = document.createElement('label');
@@ -2193,12 +2206,35 @@ function buildOverlay() {
   // decor toggles
   const decorBtns = document.querySelector('#decorBtns');
   [['rug', 'Rug'], ['plant', 'Plant'], ['art', 'Wall art'],
-   ['cat', 'Cat'], ['human', 'People'], ['range', 'Range']].forEach(function (d) {
+   ['range', 'Range']].forEach(function (d) {
     const b = document.createElement('button');
     b.textContent = d[1];
     b.dataset.decor = d[0];
     b.onclick = function () { setDecor(d[0], !state[d[0]]); syncUI(); };
     decorBtns.appendChild(b);
+  });
+
+  /* Life — the same one-row choice the VR panel makes: off, or which one.
+     Both panels are built from MODELS, so they cannot drift apart. */
+  const lifeHost = document.querySelector('#lifeBtns');
+  [{ slot: 'people', key: 'human' }, { slot: 'cat', key: 'cat' }].forEach(function (s) {
+    const row = document.createElement('div');
+    row.className = 'btns';
+    row.style.marginBottom = '6px';
+    const lab = document.createElement('span');
+    lab.className = 'lifeLabel';
+    lab.textContent = MODELS[s.slot].label;
+    row.appendChild(lab);
+    [{ id: null, name: 'Off' }].concat(MODELS[s.slot].variants).forEach(function (v) {
+      const b = document.createElement('button');
+      b.textContent = v.name;
+      b.dataset.life = s.slot;
+      b.dataset.lifeKey = s.key;
+      b.dataset.lifeValue = v.id === null ? '' : v.id;
+      b.onclick = function () { pickLife(s, v.id); };
+      row.appendChild(b);
+    });
+    lifeHost.appendChild(row);
   });
 
   // lighting presets + the lamp switch
@@ -2281,6 +2317,13 @@ function syncOverlay() {
   });
   document.querySelectorAll('#decorBtns button').forEach(function (b) {
     b.classList.toggle('on', !!state[b.dataset.decor]);
+  });
+  document.querySelectorAll('#lifeBtns button').forEach(function (b) {
+    const on = b.dataset.lifeValue === ''
+      ? !state[b.dataset.lifeKey]
+      : (!!state[b.dataset.lifeKey] &&
+         state.models[b.dataset.life] === b.dataset.lifeValue);
+    b.classList.toggle('on', on);
   });
   document.querySelectorAll('#moveBtns button').forEach(function (b) {
     b.classList.toggle('on', (b.dataset.smooth === 'true') === smoothMoveEnabled);
@@ -2512,7 +2555,106 @@ const ICONS = {
       g.beginPath(); g.arc(p[0], p[1], 5, 0, 6.3); g.fill();
     });
   },
-  dot: function (g) { g.beginPath(); g.arc(48, 48, 26, 0, 6.3); g.stroke(); }
+  dot: function (g) { g.beginPath(); g.arc(48, 48, 26, 0, 6.3); g.stroke(); },
+
+  /* ---- one per model variant ----
+     Drawn from the model each stands for, so a row of options can be read
+     without labels: a boxy three-seater is not a tufted one, and a flat
+     bonsai canopy is not a tall houseplant. */
+  /* The two sofas are told apart by silhouette, not by detail: this one is
+     square and stands on legs, the other is rounded and skirted. Interior
+     lines vanish at row size; an outline does not. */
+  sofaBox: function (g) {
+    g.strokeRect(14, 30, 68, 20);
+    g.beginPath();
+    g.moveTo(14, 42); g.lineTo(14, 70); g.lineTo(82, 70); g.lineTo(82, 42); g.stroke();
+    g.beginPath(); g.moveTo(28, 56); g.lineTo(68, 56); g.stroke();
+    g.beginPath();
+    g.moveTo(22, 70); g.lineTo(22, 82); g.moveTo(74, 70); g.lineTo(74, 82); g.stroke();
+  },
+  sofaTufted: function (g) {
+    g.beginPath();
+    g.moveTo(10, 76); g.lineTo(10, 46); g.quadraticCurveTo(10, 26, 32, 26);
+    g.lineTo(64, 26); g.quadraticCurveTo(86, 26, 86, 46); g.lineTo(86, 76);
+    g.closePath(); g.stroke();
+    g.beginPath(); g.moveTo(10, 58); g.quadraticCurveTo(48, 68, 86, 58); g.stroke();
+    [[33, 42], [48, 39], [63, 42]].forEach(function (p) {
+      g.beginPath(); g.arc(p[0], p[1], 3.5, 0, 6.3); g.fill();
+    });
+  },
+  /* Bonsai against houseplant, again by silhouette: a wide flat canopy on a
+     bent trunk over a shallow dish, against tall leaves rising out of a
+     deep pot. */
+  bonsai: function (g) {
+    g.beginPath();
+    g.moveTo(30, 72); g.lineTo(35, 84); g.lineTo(61, 84); g.lineTo(66, 72);
+    g.closePath(); g.stroke();
+    g.beginPath(); g.moveTo(48, 72); g.quadraticCurveTo(36, 58, 54, 48); g.stroke();
+    g.beginPath(); g.ellipse(58, 32, 26, 10, 0, 0, 6.3); g.stroke();
+    g.beginPath(); g.ellipse(24, 50, 16, 8, 0, 0, 6.3); g.stroke();
+  },
+  houseplant: function (g) {
+    g.beginPath();
+    g.moveTo(34, 60); g.lineTo(38, 86); g.lineTo(58, 86); g.lineTo(62, 60);
+    g.closePath(); g.stroke();
+    g.beginPath(); g.moveTo(48, 60); g.quadraticCurveTo(46, 34, 52, 12); g.stroke();
+    g.beginPath(); g.moveTo(48, 60); g.quadraticCurveTo(28, 42, 22, 22); g.stroke();
+    g.beginPath(); g.moveTo(48, 60); g.quadraticCurveTo(68, 44, 76, 26); g.stroke();
+  },
+  tvStand: function (g) {
+    roundPath(g, 10, 16, 76, 42, 5); g.stroke();
+    g.beginPath();
+    g.moveTo(48, 58); g.lineTo(48, 74); g.moveTo(28, 78); g.lineTo(68, 78); g.stroke();
+  },
+  // hangs from a rail with nothing under it; the stand version has a base
+  // and no rail, so the two differ in silhouette rather than in detail
+  tvWall: function (g) {
+    g.beginPath(); g.moveTo(34, 16); g.lineTo(62, 16); g.stroke();
+    g.beginPath(); g.moveTo(48, 16); g.lineTo(48, 30); g.stroke();
+    roundPath(g, 12, 30, 72, 42, 4); g.stroke();
+  },
+  woman: function (g) {
+    g.beginPath(); g.arc(48, 26, 12, 0, 6.3); g.stroke();
+    g.beginPath();
+    g.moveTo(48, 40); g.lineTo(32, 84); g.lineTo(64, 84); g.closePath(); g.stroke();
+  },
+  man: function (g) {
+    g.beginPath(); g.arc(48, 26, 12, 0, 6.3); g.stroke();
+    g.beginPath();
+    g.moveTo(32, 84); g.lineTo(32, 54); g.quadraticCurveTo(32, 42, 48, 42);
+    g.quadraticCurveTo(64, 42, 64, 54); g.lineTo(64, 84); g.stroke();
+  },
+  both: function (g) {
+    g.beginPath(); g.arc(31, 30, 9, 0, 6.3); g.stroke();
+    g.beginPath();
+    g.moveTo(31, 41); g.lineTo(20, 84); g.lineTo(42, 84); g.closePath(); g.stroke();
+    g.beginPath(); g.arc(66, 30, 9, 0, 6.3); g.stroke();
+    g.beginPath();
+    g.moveTo(55, 84); g.lineTo(55, 52); g.quadraticCurveTo(55, 42, 66, 42);
+    g.quadraticCurveTo(77, 42, 77, 52); g.lineTo(77, 84); g.stroke();
+  },
+  catReal: function (g) {
+    g.beginPath(); g.ellipse(44, 56, 26, 13, 0, 0, 6.3); g.stroke();
+    g.beginPath(); g.arc(76, 44, 12, 0, 6.3); g.stroke();
+    g.beginPath(); g.moveTo(69, 35); g.lineTo(70, 26); g.lineTo(78, 33); g.stroke();
+    g.beginPath();
+    g.moveTo(32, 68); g.lineTo(32, 82); g.moveTo(56, 68); g.lineTo(56, 82); g.stroke();
+    g.beginPath(); g.moveTo(19, 52); g.quadraticCurveTo(6, 40, 15, 26); g.stroke();
+  },
+  catToy: function (g) {
+    g.beginPath(); g.arc(46, 50, 25, 0, 6.3); g.stroke();
+    g.beginPath(); g.moveTo(29, 32); g.lineTo(26, 12); g.lineTo(43, 22); g.stroke();
+    g.beginPath(); g.moveTo(63, 32); g.lineTo(66, 12); g.lineTo(49, 22); g.stroke();
+    [[38, 46], [54, 46]].forEach(function (p) {
+      g.beginPath(); g.arc(p[0], p[1], 3.5, 0, 6.3); g.fill();
+    });
+    g.beginPath(); g.moveTo(69, 62); g.quadraticCurveTo(86, 68, 80, 86); g.stroke();
+  },
+  // the standard power glyph: this is a thing being switched off, not removed
+  off: function (g) {
+    g.beginPath(); g.arc(48, 54, 22, -1.05, Math.PI + 1.05); g.stroke();
+    g.beginPath(); g.moveTo(48, 20); g.lineTo(48, 48); g.stroke();
+  }
 };
 
 const PanelTex = {
@@ -2587,6 +2729,33 @@ function mkTile(parent, o) {
   });
 }
 
+/* An option shown as a picture rather than a word. The icon plane is not
+   `.clickable`, so it never intercepts the laser — the tile behind it takes
+   every press. */
+function mkIconOption(parent, o) {
+  const bg = mkTile(parent, {
+    x: o.x, y: o.y, w: o.w || 0.18, h: o.h || 0.18,
+    color: '#2b3242', clickable: true, r: 20
+  });
+  mkPlane(parent, {
+    w: (o.w || 0.18) * 0.74, h: (o.h || 0.18) * 0.74, x: o.x, y: o.y,
+    z: (o.z || 0.006) + 0.012, color: '#dfe6f2', tex: PanelTex.icon(o.icon)
+  });
+  return bg;
+}
+
+/* One row, one choice: off, or which one. Picking a variant switches the
+   slot on as well, because choosing the cat you want and then finding it
+   absent is not a state worth being able to reach. */
+function pickLife(s, id) {
+  if (id === null) { setDecor(s.key, false); }
+  else {
+    if (!state[s.key]) { setDecor(s.key, true); }
+    setModel(s.slot, id);
+  }
+  syncUI();
+}
+
 /* Icon, name and the rule under the row. Returns nothing — every row draws
    its own options into the same strip afterwards. */
 function mkRowFrame(group, y, icon, label, detail, last) {
@@ -2647,14 +2816,18 @@ function buildVrPanel() {
     vrButtons.push({ el: bg, kind: 'package', value: id });
   });
 
-  /* --- tabs --- */
+  /* --- tabs ---
+     Six now: the cat and the figures moved out of Decor into Life. They are
+     not furnishings and they are not architecture — they are the things in
+     the room that are alive, and a visitor looking for the cat was never
+     going to look under "decor". */
   [['room', 'Room'], ['furniture', 'Living'], ['bedroom', 'Bedroom'],
-   ['decor', 'Decor'], ['models', 'Models']].forEach(function (t, i) {
-    const x = -0.76 + i * 0.38;
+   ['decor', 'Decor'], ['models', 'Models'], ['life', 'Life']].forEach(function (t, i) {
+    const x = -0.80 + i * 0.32;
     const bg = mkTile(body, {
-      x: x, y: 0.47, w: 0.35, h: 0.15, color: '#2b3242', clickable: true, r: 16
+      x: x, y: 0.47, w: 0.30, h: 0.15, color: '#2b3242', clickable: true, r: 16
     });
-    mkText(body, t[1], { x: x, y: 0.47, z: 0.016, width: 0.95 });
+    mkText(body, t[1], { x: x, y: 0.47, z: 0.016, width: 0.82 });
     bg.addEventListener('click', function () { setVrTab(t[0]); });
     vrButtons.push({ el: bg, kind: 'tab', value: t[0] });
   });
@@ -2703,34 +2876,61 @@ function buildVrPanel() {
     });
   });
 
-  /* --- models tab: same anatomy, but the options carry names instead of
-         colours, so they are wider and there are fewer of them --- */
+  /* --- models tab ---
+         The options are icons, not words, and each icon is drawn from the
+         model it stands for. A thumbnail says which sofa you are about to
+         get; "Koltuk Loaded" does not. The name is still one press away, on
+         the chevron's page. --- */
   const mGroup = document.createElement('a-entity');
   body.appendChild(mGroup);
   vrTabs.models = mGroup;
 
-  const MODEL_ICON = {
+  const OBJECT_SLOTS = ['sofa', 'plant', 'tv'];
+  const SLOT_ICON = {
     sofa: 'sofa', plant: 'plant', people: 'people', tv: 'tv', cat: 'cat'
   };
-  Object.keys(MODELS).forEach(function (slot, r) {
+  OBJECT_SLOTS.forEach(function (slot, r) {
     const y = ROW.tops[r];
     const vars = MODELS[slot].variants;
-    mkRowFrame(mGroup, y, MODEL_ICON[slot] || 'dot', MODELS[slot].label, {
+    mkRowFrame(mGroup, y, SLOT_ICON[slot], MODELS[slot].label, {
       title: MODELS[slot].label, items: vars, slot: slot
-    }, r === Object.keys(MODELS).length - 1);
-    const span = 1.02;
-    const w = Math.min(0.48, span / vars.length - 0.04);
-    const step = w + 0.04;
+    }, r === OBJECT_SLOTS.length - 1);
     vars.forEach(function (v, i) {
-      const x = ROW.strip - 0.02 + (step * i) + (w / 2);
-      const bg = mkTile(mGroup, {
-        x: x, y: y, w: w, h: 0.16, color: '#2b3242', clickable: true, r: 16
+      const bg = mkIconOption(mGroup, {
+        x: ROW.strip - 0.09 + i * 0.21, y: y, icon: v.icon
       });
-      mkText(mGroup, v.name, { x: x, y: y, z: 0.016, width: 1.15 });
       bg.addEventListener('click', function () { setModel(slot, v.id); syncUI(); });
       vrButtons.push({ el: bg, kind: 'model', slot: slot, value: v.id });
     });
   });
+
+  /* --- life tab ---
+         The cat and the figures were split across two tabs: switched on in
+         Decor, chosen in Models. They are neither decor nor architecture, so
+         they get their own tab — and their two controls become one row, read
+         as a single choice: off, or which one. That also removes a state
+         nobody wanted, where a slot was "on" while its variant lived
+         somewhere else entirely. --- */
+  const lGroup = document.createElement('a-entity');
+  body.appendChild(lGroup);
+  vrTabs.life = lGroup;
+
+  [{ slot: 'people', key: 'human' }, { slot: 'cat', key: 'cat' }]
+    .forEach(function (s, r) {
+      const y = ROW.tops[r];
+      const vars = MODELS[s.slot].variants;
+      const items = [{ id: null, name: 'Off', icon: 'off' }].concat(vars);
+      mkRowFrame(lGroup, y, SLOT_ICON[s.slot], MODELS[s.slot].label, {
+        title: MODELS[s.slot].label, items: items, life: s
+      }, r === 1);
+      items.forEach(function (v, i) {
+        const bg = mkIconOption(lGroup, {
+          x: ROW.strip - 0.09 + i * 0.21, y: y, icon: v.icon
+        });
+        bg.addEventListener('click', function () { pickLife(s, v.id); });
+        vrButtons.push({ el: bg, kind: 'life', slot: s.slot, key: s.key, value: v.id });
+      });
+    });
 
   /* --- decor tab --- */
   const dGroup = document.createElement('a-entity');
@@ -2748,9 +2948,10 @@ function buildVrPanel() {
     vrButtons.push({ el: bg, kind: 'chair', value: c[0] });
   });
 
+  // the cat and the figures used to sit in this row; they live in Life now
   mkRowFrame(dGroup, ROW.tops[1], 'decor', 'Decor', null);
-  [['rug', 'Rug'], ['plant', 'Plant'], ['art', 'Art'], ['cat', 'Cat'],
-   ['human', 'People'], ['range', 'Range']].forEach(function (t, i) {
+  [['rug', 'Rug'], ['plant', 'Plant'], ['art', 'Art'],
+   ['range', 'Range']].forEach(function (t, i) {
     const x = ROW.strip + i * ROW.step;
     const bg = mkTile(dGroup, {
       x: x, y: ROW.tops[1], w: 0.175, h: 0.16, color: '#2b3242', clickable: true, r: 16
@@ -2857,25 +3058,35 @@ function openDetail(d) {
   d.items.forEach(function (it, i) {
     const x = -0.58 + (i % 3) * 0.58;
     const y = 0.02 - Math.floor(i / 3) * 0.40;
-    const on = d.slot ? state.models[d.slot] === it.id : state[d.kind] === it.id;
-    const ring = mkTile(vrDetail, {
+    const on = d.life
+      ? (it.id === null ? !state[d.life.key]
+                        : (!!state[d.life.key] && state.models[d.life.slot] === it.id))
+      : (d.slot ? state.models[d.slot] === it.id : state[d.kind] === it.id);
+    mkTile(vrDetail, {
       x: x, y: y, w: 0.40, h: 0.28, z: 0.07, r: 22,
       color: on ? '#4a9eff' : '#252c3c'
     });
     const face = mkTile(vrDetail, {
       x: x, y: y, w: 0.34, h: 0.22, z: 0.085, r: 18,
-      color: it.hex || '#2b3242', clickable: true
+      color: it.hex || '#20263a', clickable: true
     });
-    if (!it.hex) { mkText(vrDetail, it.name, { x: x, y: y, z: 0.10, width: 1.15 }); }
-    mkText(vrDetail, it.hex ? it.name : '', {
+    // a model shows its own picture here; a colour is its own picture
+    if (it.icon) {
+      mkPlane(vrDetail, {
+        w: 0.19, h: 0.19, x: x, y: y, z: 0.10, color: '#dfe6f2',
+        tex: PanelTex.icon(it.icon)
+      });
+    }
+    // and every option is named, which is the whole point of this page
+    mkText(vrDetail, it.name, {
       x: x, y: y - 0.185, z: 0.07, width: 1.15, color: '#aeb7c8'
     });
     face.addEventListener('click', function () {
-      if (d.slot) { setModel(d.slot, it.id); } else { d.fn(it.id); }
-      syncUI();
+      if (d.life) { pickLife(d.life, it.id); }
+      else if (d.slot) { setModel(d.slot, it.id); syncUI(); }
+      else { d.fn(it.id); syncUI(); }
       openDetail(d);            // redraw so the selection ring follows
     });
-    void ring;
   });
 
   vrDetail.object3D.position.z = 0;
@@ -2906,6 +3117,12 @@ function syncVrPanel() {
     else if (b.kind === 'package') { on = state.package === b.value; }
     else if (b.kind === 'chair') { on = state.chair === b.value; }
     else if (b.kind === 'lighting') { on = state.lighting === b.value; }
+    // a Life row is one radio group: Off, or whichever variant is showing
+    else if (b.kind === 'life') {
+      on = b.value === null
+        ? !state[b.key]
+        : (!!state[b.key] && state.models[b.slot] === b.value);
+    }
     else { on = !!state[b.value]; }
     paint(b.el, on ? '#2a6df4' : '#2b3242');
   });
