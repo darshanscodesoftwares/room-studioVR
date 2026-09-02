@@ -35,6 +35,35 @@ reparenting the DOM, which would re-initialise every dynamically built control,
 and only a real headset pulls it off the wall — desktop fullscreen also fires
 enter-vr and must not.
 
+### How the VR panel is laid out
+
+Every control is a **row**, read left to right: an icon, the category's name,
+that category's options in a strip, and a chevron where there is more to show.
+Rows share the same columns, so the eye runs down the panel rather than hunting
+across it, and a rule between them separates one category from the next — not
+under the last one, since a list ends at its last item.
+
+This replaced a grid whose labels sat centred *above* each band of swatches,
+which cost a line of height per row and left the eye no column to follow. The
+same board now carries more in less space.
+
+The chevron opens that one category full-panel, every option at four times the
+area with **its name under it**. That is the only way a colour can have a name
+in a headset: there is nothing to hover over. Picking there applies immediately
+and leaves the page open, so a buyer can walk the palette without going in and
+out. A tab press is also a way out of it.
+
+The board, its rounded tiles and every row icon are **canvas textures drawn at
+runtime**, the same way the room's materials are: no downloads, and rounded
+corners need an alpha channel that a flat colour cannot give. They are drawn
+white so the material colour tints them, so one rounded square serves every
+swatch on the panel.
+
+One trap that comes with that: A-Frame's material component rebuilds its map
+from `src` on **every** update, so `setAttribute('material', 'color', …)` on a
+selected swatch would silently strip the rounded corners off it. Selection
+colours are written straight to `material.color` instead.
+
 Both locomotion styles ship together on purpose: the desktop panel can switch
 smooth walking off mid-session, so smooth and teleport can be compared with the
 same build during a buyer test.

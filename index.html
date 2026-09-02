@@ -1815,6 +1815,24 @@ const SURFACE = {
   tableWood:   { roughness: 0.28, metalness: 0.04 }
 };
 
+/* The app sometimes has to re-apply a value the state already holds — the
+   duvet colour has to land a second time once the bedroom model's materials
+   are swapped in, for instance. That is the app catching up with itself, not
+   a choice the visitor made, so it must not blank the finish-package badge
+   and must not reach the telemetry as a selection.
+
+   Without this the badge went dark a second after every load: the bedroom
+   finished loading, re-applied its own duvet colour, and every package
+   button in both panels went unselected while the room sat there in exactly
+   the Studio package. */
+let reapplying = false;
+function reapply(fn) {
+  const wasLogging = logging;
+  reapplying = true;
+  logging = false;
+  try { fn(); } finally { reapplying = false; logging = wasLogging; }
+}
+
 /* ---------- scene mutators ----------
    These stay stable when primitives are later swapped for <a-gltf-model>;
    only the selectors change. */
@@ -1824,7 +1842,7 @@ function setWallColor(id) {
   document.querySelectorAll('.wall').forEach(function (el) {
     applyFinish(el, entry, SURFACE.wall);
   });
-  state.package = null;
+  if (!reapplying) { state.package = null; }
   logEvent('finish', { kind: 'wall', id: id });
 }
 
@@ -1834,7 +1852,7 @@ function setAccentWall(id) {
   document.querySelectorAll('.accent-surface').forEach(function (el) {
     applyFinish(el, entry, { roughness: 0.9, metalness: 0 });
   });
-  state.package = null;
+  if (!reapplying) { state.package = null; }
   logEvent('finish', { kind: 'accentWall', id: id });
 }
 
@@ -1845,7 +1863,7 @@ function setCurtain(id) {
     // silk sheen: low roughness so the folds catch the window light
     applyFinish(el, entry, { roughness: 0.42, metalness: 0 });
   });
-  state.package = null;
+  if (!reapplying) { state.package = null; }
   logEvent('finish', { kind: 'curtain', id: id });
 }
 
@@ -1860,7 +1878,7 @@ function setDuvet(id) {
       }
     });
   }
-  state.package = null;
+  if (!reapplying) { state.package = null; }
   logEvent('finish', { kind: 'duvet', id: id });
 }
 
@@ -1869,7 +1887,7 @@ function setCeilingColor(id) {
   document.querySelectorAll('.ceiling-surface').forEach(function (el) {
     applyFinish(el, entryOf('ceiling', id), SURFACE.ceiling);
   });
-  state.package = null;
+  if (!reapplying) { state.package = null; }
   logEvent('finish', { kind: 'ceiling', id: id });
 }
 
@@ -1878,7 +1896,7 @@ function setFloorColor(id) {
   document.querySelectorAll('.floor-surface').forEach(function (el) {
     applyFinish(el, entryOf('floor', id), SURFACE.floor);
   });
-  state.package = null;
+  if (!reapplying) { state.package = null; }
   logEvent('finish', { kind: 'floor', id: id });
 }
 
@@ -1889,7 +1907,7 @@ function setSofaColor(id) {
     applyFinish(el, entry, SURFACE.sofa);
   });
   skinSofa2();
-  state.package = null;
+  if (!reapplying) { state.package = null; }
   logEvent('finish', { kind: 'sofa', id: id });
 }
 
@@ -1901,7 +1919,7 @@ function setChairFabric(id) {
   document.querySelectorAll('#chair .chair-fabric').forEach(function (el) {
     applyFinish(el, entry, SURFACE.chairFabric);
   });
-  state.package = null;
+  if (!reapplying) { state.package = null; }
   logEvent('finish', { kind: 'chairFabric', id: id });
 }
 
@@ -1910,7 +1928,7 @@ function setRugColor(id) {
   document.querySelectorAll('.rug-surface').forEach(function (el) {
     applyFinish(el, entryOf('rugColor', id), SURFACE.rugColor);
   });
-  state.package = null;
+  if (!reapplying) { state.package = null; }
   logEvent('finish', { kind: 'rugColor', id: id });
 }
 
@@ -1918,7 +1936,7 @@ function setTableWood(id) {
   state.tableWood = id;
   applyFinish(document.querySelector('#table .table-top'),
               entryOf('tableWood', id), SURFACE.tableWood);
-  state.package = null;
+  if (!reapplying) { state.package = null; }
   logEvent('finish', { kind: 'tableWood', id: id });
 }
 
@@ -1926,7 +1944,7 @@ function setChairStyle(style) {
   state.chair = style;
   document.querySelector('#chairModern').setAttribute('visible', style === 'modern');
   document.querySelector('#chairArm').setAttribute('visible', style === 'armchair');
-  state.package = null;
+  if (!reapplying) { state.package = null; }
   logEvent('chair', { id: style });
 }
 
@@ -1947,7 +1965,7 @@ function setDecor(key, on) {
       el.setAttribute('visible', on);
     });
   }
-  state.package = null;
+  if (!reapplying) { state.package = null; }
   logEvent('decor', { id: key, on: on });
 }
 
@@ -2308,6 +2326,8 @@ const vrTabs = {};
 let activeTab = 'room';
 const vrButtons = [];
 let vrLightCycleText = null;   // the always-visible time-of-day button's label
+let vrDetail = null;           // the reusable full-panel page a chevron opens
+let detailOpen = null;
 
 function mkPlane(parent, opts) {
   const el = document.createElement('a-plane');
@@ -2315,21 +2335,287 @@ function mkPlane(parent, opts) {
   el.setAttribute('height', opts.h);
   el.setAttribute('position', opts.x + ' ' + opts.y + ' ' + (opts.z || 0));
   el.setAttribute('material', 'color: ' + opts.color + '; shader: flat; opacity: ' +
-    (opts.opacity === undefined ? 1 : opts.opacity));
+    (opts.opacity === undefined ? 1 : opts.opacity) +
+    (opts.tex ? '; transparent: true' : ''));
   if (opts.clickable) { el.classList.add('clickable'); }
   parent.appendChild(el);
+  if (opts.tex) { applyTex(el, opts.tex); }
   return el;
 }
 
 function mkText(parent, value, opts) {
   const el = document.createElement('a-text');
+  const align = opts.align || 'center';
   el.setAttribute('value', value);
-  el.setAttribute('align', 'center');
+  el.setAttribute('align', align);
+  // A-Frame centres a text block on its entity whatever `align` says; only
+  // `anchor` actually moves it, which is why a left-aligned label needs both
+  el.setAttribute('anchor', align);
   el.setAttribute('color', opts.color || '#ffffff');
   el.setAttribute('width', opts.width || 1.5);
   el.setAttribute('position', opts.x + ' ' + opts.y + ' ' + (opts.z || 0.012));
   parent.appendChild(el);
   return el;
+}
+
+/* Paint a plane without going through setAttribute('material', ...).
+   The material component rebuilds its map from `src` on every update, and
+   these planes carry a canvas texture assigned directly — so updating the
+   colour the A-Frame way would silently wipe the rounded corners off every
+   swatch the moment it was selected. */
+function paint(el, hex) {
+  const m = el.getObject3D('mesh');
+  if (m && m.material) { m.material.color.set(hex); }
+  else { el.setAttribute('material', 'color', hex); }
+}
+
+function applyTex(el, tex) {
+  const set = function () {
+    const m = el.getObject3D('mesh');
+    if (!m || !m.material) { return; }
+    m.material.map = tex;
+    m.material.transparent = true;
+    m.material.needsUpdate = true;
+  };
+  if (el.getObject3D('mesh')) { set(); } else { el.addEventListener('loaded', set); }
+}
+
+/* ---------- panel skin ----------
+   The board, its tiles and the row icons are canvas textures drawn at
+   runtime, exactly as the room's own materials are: nothing to download and
+   nothing that can 404 mid-demo. They are drawn white so the material colour
+   tints them, which means one rounded square serves every swatch on the
+   panel and one icon sheet serves every row. */
+function roundPath(g, x, y, w, h, r) {
+  g.beginPath();
+  g.moveTo(x + r, y);
+  g.lineTo(x + w - r, y);      g.quadraticCurveTo(x + w, y, x + w, y + r);
+  g.lineTo(x + w, y + h - r);  g.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  g.lineTo(x + r, y + h);      g.quadraticCurveTo(x, y + h, x, y + h - r);
+  g.lineTo(x, y + r);          g.quadraticCurveTo(x, y, x + r, y);
+  g.closePath();
+}
+
+/* Line glyphs, one per category. Drawn rather than downloaded for the same
+   reason the textures are, and kept to a single stroke weight so a row of
+   them reads as one set rather than as clip art. */
+const ICONS = {
+  wall: function (g) {
+    g.strokeRect(16, 18, 42, 20);
+    g.beginPath();
+    g.moveTo(58, 28); g.lineTo(74, 28); g.lineTo(74, 52);
+    g.lineTo(48, 52); g.lineTo(48, 80); g.stroke();
+  },
+  ceiling: function (g) {
+    g.beginPath(); g.moveTo(48, 12); g.lineTo(48, 38); g.stroke();
+    g.beginPath();
+    g.moveTo(26, 64); g.lineTo(38, 38); g.lineTo(58, 38); g.lineTo(70, 64);
+    g.closePath(); g.stroke();
+  },
+  floor: function (g) {
+    g.strokeRect(14, 14, 30, 30); g.strokeRect(52, 14, 30, 30);
+    g.strokeRect(14, 52, 30, 30); g.strokeRect(52, 52, 30, 30);
+  },
+  rug: function (g) {
+    roundPath(g, 12, 26, 72, 44, 10); g.stroke();
+    g.beginPath();
+    g.moveTo(24, 48); g.quadraticCurveTo(36, 34, 48, 48);
+    g.quadraticCurveTo(60, 62, 72, 48); g.stroke();
+  },
+  sofa: function (g) {
+    g.beginPath();
+    g.moveTo(14, 68); g.lineTo(14, 40); g.quadraticCurveTo(14, 32, 22, 32);
+    g.lineTo(74, 32); g.quadraticCurveTo(82, 32, 82, 40); g.lineTo(82, 68); g.stroke();
+    g.beginPath(); g.moveTo(14, 52); g.lineTo(82, 52); g.stroke();
+    g.beginPath();
+    g.moveTo(24, 68); g.lineTo(24, 80); g.moveTo(72, 68); g.lineTo(72, 80); g.stroke();
+  },
+  chair: function (g) {
+    g.beginPath();
+    g.moveTo(28, 76); g.lineTo(28, 22); g.quadraticCurveTo(28, 16, 34, 16);
+    g.lineTo(62, 16); g.quadraticCurveTo(68, 16, 68, 22); g.lineTo(68, 52); g.stroke();
+    g.beginPath(); g.moveTo(28, 52); g.lineTo(76, 52); g.lineTo(76, 76); g.stroke();
+  },
+  table: function (g) {
+    g.beginPath(); g.moveTo(12, 36); g.lineTo(84, 36); g.stroke();
+    g.beginPath();
+    g.moveTo(24, 36); g.lineTo(24, 80); g.moveTo(72, 36); g.lineTo(72, 80); g.stroke();
+  },
+  bed: function (g) {
+    g.beginPath();
+    g.moveTo(12, 76); g.lineTo(12, 42); g.lineTo(84, 42); g.lineTo(84, 76); g.stroke();
+    g.beginPath(); g.moveTo(12, 58); g.lineTo(84, 58); g.stroke();
+    roundPath(g, 20, 26, 28, 16, 5); g.stroke();
+  },
+  accent: function (g) {
+    g.strokeRect(12, 16, 32, 64);
+    roundPath(g, 52, 16, 32, 64, 4); g.fill();
+  },
+  curtain: function (g) {
+    g.beginPath(); g.moveTo(10, 18); g.lineTo(86, 18); g.stroke();
+    [22, 38, 58, 74].forEach(function (x, i) {
+      const bend = i < 2 ? -10 : 10;
+      g.beginPath();
+      g.moveTo(x, 24);
+      g.quadraticCurveTo(x + bend, 52, x + (i < 2 ? 4 : -4), 82);
+      g.stroke();
+    });
+  },
+  plant: function (g) {
+    g.beginPath();
+    g.moveTo(32, 58); g.lineTo(38, 84); g.lineTo(58, 84); g.lineTo(64, 58);
+    g.closePath(); g.stroke();
+    g.beginPath(); g.moveTo(48, 58); g.lineTo(48, 28); g.stroke();
+    g.beginPath(); g.ellipse(34, 34, 15, 9, -0.7, 0, 6.3); g.stroke();
+    g.beginPath(); g.ellipse(62, 34, 15, 9, 0.7, 0, 6.3); g.stroke();
+  },
+  people: function (g) {
+    g.beginPath(); g.arc(48, 30, 14, 0, 6.3); g.stroke();
+    g.beginPath();
+    g.moveTo(20, 82); g.quadraticCurveTo(24, 52, 48, 52);
+    g.quadraticCurveTo(72, 52, 76, 82); g.stroke();
+  },
+  tv: function (g) {
+    roundPath(g, 12, 20, 72, 44, 5); g.stroke();
+    g.beginPath();
+    g.moveTo(48, 64); g.lineTo(48, 76); g.moveTo(32, 78); g.lineTo(64, 78); g.stroke();
+  },
+  cat: function (g) {
+    g.beginPath(); g.moveTo(26, 44); g.lineTo(30, 18); g.lineTo(46, 32); g.stroke();
+    g.beginPath(); g.moveTo(70, 44); g.lineTo(66, 18); g.lineTo(50, 32); g.stroke();
+    g.beginPath(); g.arc(48, 54, 24, -0.55, Math.PI + 0.55); g.stroke();
+  },
+  decor: function (g) {
+    g.beginPath();
+    g.moveTo(48, 10); g.quadraticCurveTo(54, 42, 86, 48);
+    g.quadraticCurveTo(54, 54, 48, 86); g.quadraticCurveTo(42, 54, 10, 48);
+    g.quadraticCurveTo(42, 42, 48, 10); g.fill();
+  },
+  time: function (g) {
+    g.beginPath(); g.arc(48, 48, 17, 0, 6.3); g.stroke();
+    for (let i = 0; i < 8; i++) {
+      const a = i * Math.PI / 4;
+      g.beginPath();
+      g.moveTo(48 + Math.cos(a) * 26, 48 + Math.sin(a) * 26);
+      g.lineTo(48 + Math.cos(a) * 36, 48 + Math.sin(a) * 36);
+      g.stroke();
+    }
+  },
+  lamp: function (g) {
+    g.beginPath(); g.arc(48, 40, 20, 0, 6.3); g.stroke();
+    g.beginPath();
+    g.moveTo(37, 66); g.lineTo(59, 66); g.moveTo(40, 76); g.lineTo(56, 76); g.stroke();
+  },
+  finish: function (g) {
+    g.beginPath(); g.arc(48, 48, 30, 0, 6.3); g.stroke();
+    [[36, 38], [58, 36], [64, 56], [40, 60]].forEach(function (p) {
+      g.beginPath(); g.arc(p[0], p[1], 5, 0, 6.3); g.fill();
+    });
+  },
+  dot: function (g) { g.beginPath(); g.arc(48, 48, 26, 0, 6.3); g.stroke(); }
+};
+
+const PanelTex = {
+  cache: {},
+  make: function (key, w, h, draw) {
+    if (this.cache[key]) { return this.cache[key]; }
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    draw(c.getContext('2d'), w, h);
+    const t = new THREE.CanvasTexture(c);
+    if (THREE.SRGBColorSpace) { t.colorSpace = THREE.SRGBColorSpace; }
+    t.anisotropy = 4;
+    this.cache[key] = t;
+    return t;
+  },
+  /* One rounded white square, tinted per swatch. `r` is in texture pixels;
+     a tile and the ring behind it use different radii so the ring reads as a
+     border rather than as a second tile. */
+  tile: function (r) {
+    return this.make('t' + r, 128, 128, function (g, w, h) {
+      g.fillStyle = '#ffffff';
+      roundPath(g, 3, 3, w - 6, h - 6, r);
+      g.fill();
+    });
+  },
+  board: function () {
+    return this.make('board', 512, 424, function (g, w, h) {
+      g.fillStyle = 'rgba(255,255,255,0.97)';
+      roundPath(g, 6, 6, w - 12, h - 12, 26);
+      g.fill();
+      // a hairline edge, which is what stops a flat dark rectangle reading
+      // as a hole cut in the room rather than as a panel floating in it
+      g.strokeStyle = 'rgba(255,255,255,0.35)';
+      g.lineWidth = 3;
+      roundPath(g, 6, 6, w - 12, h - 12, 26);
+      g.stroke();
+    });
+  },
+  icon: function (name) {
+    return this.make('i' + name, 96, 96, function (g) {
+      g.strokeStyle = '#ffffff';
+      g.fillStyle = '#ffffff';
+      g.lineWidth = 7;
+      g.lineCap = 'round';
+      g.lineJoin = 'round';
+      (ICONS[name] || ICONS.dot)(g);
+    });
+  }
+};
+
+/* ---------- panel layout ----------
+   One row per category, read left to right: icon, name, that category's
+   options in a strip, and a chevron where there is more to show. Every row
+   shares the same columns, so the eye runs down the panel instead of hunting
+   across it, and a row can be added without re-thinking the grid. */
+const ROW = {
+  pitch: 0.21,
+  icon: -0.88,
+  label: -0.79,
+  strip: -0.30,     // centre of the first option
+  step: 0.185,
+  tile: 0.16,
+  chev: 0.85,
+  tops: [0.30, 0.09, -0.12, -0.33, -0.54]
+};
+
+function mkTile(parent, o) {
+  return mkPlane(parent, {
+    w: o.w || o.s, h: o.h || o.s, x: o.x, y: o.y, z: o.z || 0.006,
+    color: o.color, clickable: o.clickable,
+    tex: PanelTex.tile(o.r === undefined ? 22 : o.r)
+  });
+}
+
+/* Icon, name and the rule under the row. Returns nothing — every row draws
+   its own options into the same strip afterwards. */
+function mkRowFrame(group, y, icon, label, detail, last) {
+  mkPlane(group, {
+    w: 0.135, h: 0.135, x: ROW.icon, y: y, z: 0.008,
+    color: '#93a4c6', tex: PanelTex.icon(icon)
+  });
+  mkText(group, label, {
+    x: ROW.label, y: y, z: 0.014, width: 1.35, align: 'left', color: '#e2e7f0'
+  });
+  // no rule under the last row: a list ends at its last item, and a trailing
+  // line reads as a row that failed to load
+  if (!last) {
+    mkPlane(group, {
+      w: 1.92, h: 0.004, x: 0, y: y - ROW.pitch / 2, z: 0.004,
+      color: '#39415a', opacity: 0.85
+    });
+  }
+  if (detail) {
+    // the glyph is the affordance; the hit area behind it is invisible but
+    // still catches the laser, and a boxed button here would compete with
+    // the swatches for attention
+    const hit = mkPlane(group, {
+      w: 0.20, h: 0.19, x: ROW.chev, y: y, z: 0.006,
+      color: '#252c3c', opacity: 0, clickable: true
+    });
+    mkText(group, '>', { x: ROW.chev, y: y, z: 0.016, width: 1.1, color: '#8695b0' });
+    hit.addEventListener('click', function () { openDetail(detail); });
+  }
 }
 
 function buildVrPanel() {
@@ -2341,61 +2627,57 @@ function buildVrPanel() {
   body.setAttribute('id', 'vrPanelBody');
   panel.appendChild(body);
 
-  // backing board
-  mkPlane(body, { w: 1.8, h: 1.66, x: 0, y: 0, z: 0, color: '#161a22', opacity: 0.94 });
+  // backing board — rounded and hairlined rather than a plain dark rectangle
+  mkPlane(body, {
+    w: 2.0, h: 1.66, x: 0, y: 0, z: 0, color: '#161a22', opacity: 0.9,
+    tex: PanelTex.board()
+  });
 
-  /* --- finish packages --- */
-  mkText(body, 'Finish package', { x: 0, y: 0.80, width: 1.2, color: '#8fb4ff' });
+  /* --- finish package, as a row like any other --- */
+  mkRowFrame(body, 0.66, 'finish', 'Finish', null);
   const pkgIds = Object.keys(PACKAGES);
   pkgIds.forEach(function (id, i) {
-    const x = -0.56 + i * 0.56;
-    const bg = mkPlane(body, {
-      w: 0.5, h: 0.16, x: x, y: 0.67, z: 0.01,
-      color: '#2b3242', clickable: true
+    // right edge lands on the chevron column, so the row reads as one band
+    const x = -0.19 + i * 0.42;
+    const bg = mkTile(body, {
+      x: x, y: 0.66, w: 0.38, h: 0.16, color: '#2b3242', clickable: true, r: 16
     });
-    mkText(body, PACKAGES[id].name, { x: x, y: 0.67, z: 0.022, width: 1.3 });
+    mkText(body, PACKAGES[id].name, { x: x, y: 0.66, z: 0.016, width: 1.2 });
     bg.addEventListener('click', function () { applyPackage(id); });
     vrButtons.push({ el: bg, kind: 'package', value: id });
   });
 
-  /* --- tabs ---
-     Six palettes will not fit on one reachable panel, so they are split
-     across two pages rather than shrinking the tiles: a tile the customer
-     cannot reliably hit with a laser is worse than a second tab. */
-  [['room', 'Room'], ['furniture', 'Furniture'], ['bedroom', 'Bedroom'],
+  /* --- tabs --- */
+  [['room', 'Room'], ['furniture', 'Living'], ['bedroom', 'Bedroom'],
    ['decor', 'Decor'], ['models', 'Models']].forEach(function (t, i) {
-    const x = -0.68 + i * 0.34;
-    const bg = mkPlane(body, {
-      w: 0.31, h: 0.15, x: x, y: 0.495, z: 0.01,
-      color: '#2b3242', clickable: true
+    const x = -0.76 + i * 0.38;
+    const bg = mkTile(body, {
+      x: x, y: 0.47, w: 0.35, h: 0.15, color: '#2b3242', clickable: true, r: 16
     });
-    mkText(body, t[1], { x: x, y: 0.495, z: 0.022, width: 0.9 });
+    mkText(body, t[1], { x: x, y: 0.47, z: 0.016, width: 0.95 });
     bg.addEventListener('click', function () { setVrTab(t[0]); });
     vrButtons.push({ el: bg, kind: 'tab', value: t[0] });
   });
 
-  /* --- swatch rows, three per tab at the same three heights --- */
+  /* --- swatch tabs --- */
   const TABS = {
     room: [
-      { kind: 'wall',        label: 'Walls',    fn: setWallColor },
-      { kind: 'ceiling',     label: 'Ceiling',  fn: setCeilingColor },
-      { kind: 'floor',       label: 'Flooring', fn: setFloorColor },
-      { kind: 'rugColor',    label: 'Rug',      fn: setRugColor }
+      { kind: 'wall',    icon: 'wall',    label: 'Walls',    fn: setWallColor },
+      { kind: 'ceiling', icon: 'ceiling', label: 'Ceiling',  fn: setCeilingColor },
+      { kind: 'floor',   icon: 'floor',   label: 'Flooring', fn: setFloorColor },
+      { kind: 'rugColor', icon: 'rug',    label: 'Rug',      fn: setRugColor }
     ],
     furniture: [
-      { kind: 'sofa',        label: 'Sofa',        fn: setSofaColor },
-      { kind: 'chairFabric', label: 'Chair fabric', fn: setChairFabric },
-      { kind: 'tableWood',   label: 'Table top',   fn: setTableWood }
+      { kind: 'sofa',        icon: 'sofa',  label: 'Sofa',  fn: setSofaColor },
+      { kind: 'chairFabric', icon: 'chair', label: 'Chair', fn: setChairFabric },
+      { kind: 'tableWood',   icon: 'table', label: 'Table', fn: setTableWood }
     ],
     bedroom: [
-      { kind: 'accentWall',  label: 'Accent wall', fn: setAccentWall },
-      { kind: 'curtain',     label: 'Curtains',    fn: setCurtain },
-      { kind: 'duvet',       label: 'Duvet',       fn: setDuvet }
+      { kind: 'accentWall', icon: 'accent',  label: 'Accent',   fn: setAccentWall },
+      { kind: 'curtain',    icon: 'curtain', label: 'Curtains', fn: setCurtain },
+      { kind: 'duvet',      icon: 'bed',     label: 'Duvet',    fn: setDuvet }
     ]
   };
-  // four rows on the room tab now, so the band tightens and the tiles shrink
-  // a little — still 18cm targets, comfortably larger than a laser needs
-  const ROW_Y = [0.24, -0.02, -0.28, -0.54];
 
   Object.keys(TABS).forEach(function (tabId) {
     const group = document.createElement('a-entity');
@@ -2403,17 +2685,17 @@ function buildVrPanel() {
     vrTabs[tabId] = group;
 
     TABS[tabId].forEach(function (row, r) {
-      const y = ROW_Y[r];
-      mkText(group, row.label, { x: 0, y: y + 0.13, width: 1.5, color: '#9aa0ad' });
+      const y = ROW.tops[r];
+      mkRowFrame(group, y, row.icon, row.label, {
+        title: row.label, items: PALETTE[row.kind], fn: row.fn, kind: row.kind
+      }, r === TABS[tabId].length - 1);
       PALETTE[row.kind].forEach(function (c, i) {
-        const x = -0.65 + i * 0.26;
-        // selection ring sits behind the swatch and lights up when active
-        const ring = mkPlane(group, {
-          w: 0.20, h: 0.20, x: x, y: y, z: 0.008, color: '#161a22'
+        const x = ROW.strip + i * ROW.step;
+        const ring = mkTile(group, {
+          x: x, y: y, s: ROW.tile + 0.038, color: '#252c3c', z: 0.006, r: 26
         });
-        const tile = mkPlane(group, {
-          w: 0.17, h: 0.17, x: x, y: y, z: 0.014,
-          color: c.hex, clickable: true
+        const tile = mkTile(group, {
+          x: x, y: y, s: ROW.tile, color: c.hex, z: 0.012, clickable: true
         });
         tile.addEventListener('click', function () { row.fn(c.id); syncUI(); });
         vrTiles[row.kind].push({ ring: ring, id: c.id });
@@ -2421,93 +2703,91 @@ function buildVrPanel() {
     });
   });
 
-  /* --- models tab: one row per slot, buttons sized to fit the variants,
-         because a laser needs a big target more than the panel needs
-         symmetry --- */
+  /* --- models tab: same anatomy, but the options carry names instead of
+         colours, so they are wider and there are fewer of them --- */
   const mGroup = document.createElement('a-entity');
   body.appendChild(mGroup);
   vrTabs.models = mGroup;
 
-  // four slots will not fit on the three swatch rows, so the models tab uses
-  // its own tighter spacing
-  const MODEL_ROW_Y = [0.262, 0.052, -0.158, -0.368, -0.578];
+  const MODEL_ICON = {
+    sofa: 'sofa', plant: 'plant', people: 'people', tv: 'tv', cat: 'cat'
+  };
   Object.keys(MODELS).forEach(function (slot, r) {
-    const y = MODEL_ROW_Y[r];
+    const y = ROW.tops[r];
     const vars = MODELS[slot].variants;
-    mkText(mGroup, MODELS[slot].label,
-      { x: 0, y: y + 0.108, width: 1.6, color: '#9aa0ad' });
-
-    const w = Math.min(0.8, 1.68 / vars.length - 0.06);
-    const step = w + 0.06;
+    mkRowFrame(mGroup, y, MODEL_ICON[slot] || 'dot', MODELS[slot].label, {
+      title: MODELS[slot].label, items: vars, slot: slot
+    }, r === Object.keys(MODELS).length - 1);
+    const span = 1.02;
+    const w = Math.min(0.48, span / vars.length - 0.04);
+    const step = w + 0.04;
     vars.forEach(function (v, i) {
-      const x = -(step * (vars.length - 1)) / 2 + i * step;
-      const bg = mkPlane(mGroup, {
-        w: w, h: 0.13, x: x, y: y, z: 0.01,
-        color: '#2b3242', clickable: true
+      const x = ROW.strip - 0.02 + (step * i) + (w / 2);
+      const bg = mkTile(mGroup, {
+        x: x, y: y, w: w, h: 0.16, color: '#2b3242', clickable: true, r: 16
       });
-      mkText(mGroup, v.name, { x: x, y: y, z: 0.022, width: 1.45 });
+      mkText(mGroup, v.name, { x: x, y: y, z: 0.016, width: 1.15 });
       bg.addEventListener('click', function () { setModel(slot, v.id); syncUI(); });
       vrButtons.push({ el: bg, kind: 'model', slot: slot, value: v.id });
     });
   });
 
-  /* --- decor tab ---
-     These used to hang below every tab, which is what made the board tall:
-     their height was paid on the Room tab, the Models tab, everywhere. In
-     their own tab they cost nothing anywhere else. */
+  /* --- decor tab --- */
   const dGroup = document.createElement('a-entity');
   body.appendChild(dGroup);
   vrTabs.decor = dGroup;
 
-  mkText(dGroup, 'Chair & decor', { x: 0, y: 0.385, width: 1.5, color: '#9aa0ad' });
-  const toggles = [
-    { kind: 'chair', value: 'armchair', label: 'Armchair' },
-    { kind: 'decor', value: 'rug',      label: 'Rug' },
-    { kind: 'decor', value: 'plant',    label: 'Plant' },
-    { kind: 'decor', value: 'art',      label: 'Art' },
-    { kind: 'decor', value: 'cat',      label: 'Cat' },
-    { kind: 'decor', value: 'human',    label: 'People' },
-    { kind: 'decor', value: 'range',    label: 'Range' }
-  ];
-  toggles.forEach(function (t, i) {
-    const x = -0.75 + i * 0.25;
-    const bg = mkPlane(dGroup, {
-      w: 0.23, h: 0.18, x: x, y: 0.26, z: 0.01,
-      color: '#2b3242', clickable: true
+  mkRowFrame(dGroup, ROW.tops[0], 'chair', 'Chair', null);
+  [['armchair', 'Armchair'], ['modern', 'Modern']].forEach(function (c, i) {
+    const x = ROW.strip + 0.19 + i * 0.46;
+    const bg = mkTile(dGroup, {
+      x: x, y: ROW.tops[0], w: 0.42, h: 0.16, color: '#2b3242', clickable: true, r: 16
     });
-    mkText(dGroup, t.label, { x: x, y: 0.26, z: 0.022, width: 0.95 });
-    bg.addEventListener('click', function () {
-      if (t.kind === 'chair') {
-        setChairStyle(state.chair === 'armchair' ? 'modern' : 'armchair');
-      } else {
-        setDecor(t.value, !state[t.value]);
-      }
-      syncUI();
-    });
-    vrButtons.push({ el: bg, kind: t.kind, value: t.value });
+    mkText(dGroup, c[1], { x: x, y: ROW.tops[0], z: 0.016, width: 1.15 });
+    bg.addEventListener('click', function () { setChairStyle(c[0]); syncUI(); });
+    vrButtons.push({ el: bg, kind: 'chair', value: c[0] });
   });
 
-  /* --- lighting --- */
-  mkText(dGroup, 'Lighting', { x: 0, y: 0.09, width: 1.1, color: '#9aa0ad' });
-  const lightIds = Object.keys(LIGHTING);
-  lightIds.forEach(function (id, i) {
-    const x = -0.6 + i * 0.4;
-    const bg = mkPlane(dGroup, {
-      w: 0.36, h: 0.18, x: x, y: -0.04, z: 0.01,
-      color: '#2b3242', clickable: true
+  mkRowFrame(dGroup, ROW.tops[1], 'decor', 'Decor', null);
+  [['rug', 'Rug'], ['plant', 'Plant'], ['art', 'Art'], ['cat', 'Cat'],
+   ['human', 'People'], ['range', 'Range']].forEach(function (t, i) {
+    const x = ROW.strip + i * ROW.step;
+    const bg = mkTile(dGroup, {
+      x: x, y: ROW.tops[1], w: 0.175, h: 0.16, color: '#2b3242', clickable: true, r: 16
     });
-    mkText(dGroup, LIGHTING[id].name, { x: x, y: -0.04, z: 0.022, width: 1.35 });
+    mkText(dGroup, t[1], { x: x, y: ROW.tops[1], z: 0.016, width: 0.78 });
+    bg.addEventListener('click', function () { setDecor(t[0], !state[t[0]]); syncUI(); });
+    vrButtons.push({ el: bg, kind: 'decor', value: t[0] });
+  });
+
+  mkRowFrame(dGroup, ROW.tops[2], 'time', 'Time', null);
+  Object.keys(LIGHTING).forEach(function (id, i) {
+    const x = ROW.strip + 0.13 + i * 0.34;
+    const bg = mkTile(dGroup, {
+      x: x, y: ROW.tops[2], w: 0.31, h: 0.16, color: '#2b3242', clickable: true, r: 16
+    });
+    mkText(dGroup, LIGHTING[id].name, { x: x, y: ROW.tops[2], z: 0.016, width: 1.1 });
     bg.addEventListener('click', function () { setLighting(id); syncUI(); });
     vrButtons.push({ el: bg, kind: 'lighting', value: id });
   });
-  const lampX = -0.6 + lightIds.length * 0.4;
-  const lampBg = mkPlane(dGroup, {
-    w: 0.36, h: 0.18, x: lampX, y: -0.04, z: 0.01,
-    color: '#2b3242', clickable: true
+
+  mkRowFrame(dGroup, ROW.tops[3], 'lamp', 'Lamp', null, true);
+  const lampBg = mkTile(dGroup, {
+    x: ROW.strip + 0.13, y: ROW.tops[3], w: 0.31, h: 0.16,
+    color: '#2b3242', clickable: true, r: 16
   });
-  mkText(dGroup, 'Lamp', { x: lampX, y: -0.04, z: 0.022, width: 1.35 });
+  mkText(dGroup, 'Floor lamp', { x: ROW.strip + 0.13, y: ROW.tops[3], z: 0.016, width: 1.0 });
   lampBg.addEventListener('click', function () { setLamp(!state.lamp); syncUI(); });
   vrButtons.push({ el: lampBg, kind: 'lamp', value: 'lamp' });
+
+  /* --- the detail page a chevron opens ---
+     One reusable group, rebuilt on demand. A row can only show a strip of
+     unlabelled swatches; this is where a colour gets a name, which in a
+     headset is the only way to have one — there is nothing to hover. */
+  vrDetail = document.createElement('a-entity');
+  vrDetail.setAttribute('id', 'vrDetail');
+  body.appendChild(vrDetail);
+  vrDetail.object3D.position.z = -999;
 
   /* --- handle ---
      Stays visible when the body is folded away, at chest height on the edge
@@ -2517,11 +2797,11 @@ function buildVrPanel() {
   handleBg.setAttribute('id', 'vrPanelHandle');
   handleBg.setAttribute('radius', 0.085);
   handleBg.setAttribute('segments', 24);
-  handleBg.setAttribute('position', '1.0 0 0.01');
+  handleBg.setAttribute('position', '1.1 0 0.01');
   handleBg.setAttribute('material', 'color: #2a6df4; shader: flat');
   handleBg.classList.add('clickable');
   panel.appendChild(handleBg);
-  const handleTxt = mkText(panel, '>>', { x: 1.0, y: 0.0, z: 0.022, width: 1.6 });
+  const handleTxt = mkText(panel, '>>', { x: 1.1, y: 0.0, z: 0.022, width: 1.6 });
   handleTxt.setAttribute('id', 'vrPanelHandleText');
   handleBg.addEventListener('click', function () {
     setVrPanelVisible(!vrPanelShown);
@@ -2534,19 +2814,17 @@ function buildVrPanel() {
      button that cycles, showing the preset it is currently on, which costs
      no extra height at all: the reset bar simply gives up the width. The
      three separate buttons stay on the Decor tab for picking one directly. */
-  const resetBg = mkPlane(body, {
-    w: 1.02, h: 0.18, x: -0.38, y: -0.735, z: 0.01,
-    color: '#3a2b2b', clickable: true
+  const resetBg = mkTile(body, {
+    w: 1.18, h: 0.18, x: -0.36, y: -0.735, color: '#3a2b2b', clickable: true, r: 18
   });
-  mkText(body, 'RESET TO DEFAULT', { x: -0.38, y: -0.735, z: 0.022, width: 1.5 });
+  mkText(body, 'RESET TO DEFAULT', { x: -0.36, y: -0.735, z: 0.016, width: 1.5 });
   resetBg.addEventListener('click', function () { resetRoom(); });
 
-  const cycleBg = mkPlane(body, {
-    w: 0.62, h: 0.18, x: 0.53, y: -0.735, z: 0.01,
-    color: '#2b3242', clickable: true
+  const cycleBg = mkTile(body, {
+    w: 0.66, h: 0.18, x: 0.61, y: -0.735, color: '#2b3242', clickable: true, r: 18
   });
-  vrLightCycleText = mkText(cycleBg, LIGHTING[state.lighting].name + ' >',
-    { x: 0, y: 0, z: 0.012, width: 1.3 });
+  vrLightCycleText = mkText(body, LIGHTING[state.lighting].name + ' >',
+    { x: 0.61, y: -0.735, z: 0.016, width: 1.3 });
   cycleBg.addEventListener('click', function () {
     const ids = Object.keys(LIGHTING);
     const next = ids[(ids.indexOf(state.lighting) + 1) % ids.length];
@@ -2555,14 +2833,70 @@ function buildVrPanel() {
   });
 }
 
+/* Open one category full-panel, with every option at four times the area
+   and its name under it. Closing restores whichever tab was open. */
+function openDetail(d) {
+  if (!vrDetail) { return; }
+  detailOpen = d;
+  while (vrDetail.firstChild) { vrDetail.removeChild(vrDetail.firstChild); }
+
+  mkPlane(vrDetail, {
+    w: 1.94, h: 1.06, x: 0, y: -0.14, z: 0.05, color: '#151922',
+    tex: PanelTex.tile(14)
+  });
+  mkText(vrDetail, d.title, {
+    x: -0.88, y: 0.30, z: 0.07, width: 1.7, align: 'left', color: '#e2e7f0'
+  });
+  const back = mkTile(vrDetail, {
+    x: 0.72, y: 0.30, w: 0.42, h: 0.16, z: 0.07,
+    color: '#2b3242', clickable: true, r: 16
+  });
+  mkText(vrDetail, '< Back', { x: 0.72, y: 0.30, z: 0.085, width: 1.15 });
+  back.addEventListener('click', closeDetail);
+
+  d.items.forEach(function (it, i) {
+    const x = -0.58 + (i % 3) * 0.58;
+    const y = 0.02 - Math.floor(i / 3) * 0.40;
+    const on = d.slot ? state.models[d.slot] === it.id : state[d.kind] === it.id;
+    const ring = mkTile(vrDetail, {
+      x: x, y: y, w: 0.40, h: 0.28, z: 0.07, r: 22,
+      color: on ? '#4a9eff' : '#252c3c'
+    });
+    const face = mkTile(vrDetail, {
+      x: x, y: y, w: 0.34, h: 0.22, z: 0.085, r: 18,
+      color: it.hex || '#2b3242', clickable: true
+    });
+    if (!it.hex) { mkText(vrDetail, it.name, { x: x, y: y, z: 0.10, width: 1.15 }); }
+    mkText(vrDetail, it.hex ? it.name : '', {
+      x: x, y: y - 0.185, z: 0.07, width: 1.15, color: '#aeb7c8'
+    });
+    face.addEventListener('click', function () {
+      if (d.slot) { setModel(d.slot, it.id); } else { d.fn(it.id); }
+      syncUI();
+      openDetail(d);            // redraw so the selection ring follows
+    });
+    void ring;
+  });
+
+  vrDetail.object3D.position.z = 0;
+  Object.keys(vrTabs).forEach(function (k) { vrTabs[k].object3D.position.z = -999; });
+}
+
+function closeDetail() {
+  detailOpen = null;
+  if (vrDetail) { vrDetail.object3D.position.z = -999; }
+  setVrTab(activeTab);
+}
+
 function syncVrPanel() {
   if (vrLightCycleText) {
     vrLightCycleText.setAttribute('value', LIGHTING[state.lighting].name + ' >');
   }
+  // paint(), not setAttribute: these planes carry a canvas texture and the
+  // material component would drop it on every update
   Object.keys(vrTiles).forEach(function (kind) {
     vrTiles[kind].forEach(function (t) {
-      t.ring.setAttribute('material', 'color',
-        state[kind] === t.id ? '#ffffff' : '#161a22');
+      paint(t.ring, state[kind] === t.id ? '#4a9eff' : '#252c3c');
     });
   });
   vrButtons.forEach(function (b) {
@@ -2573,7 +2907,7 @@ function syncVrPanel() {
     else if (b.kind === 'chair') { on = state.chair === b.value; }
     else if (b.kind === 'lighting') { on = state.lighting === b.value; }
     else { on = !!state[b.value]; }
-    b.el.setAttribute('material', 'color', on ? '#2a6df4' : '#2b3242');
+    paint(b.el, on ? '#2a6df4' : '#2b3242');
   });
 }
 
@@ -2643,6 +2977,8 @@ function setVrPanelVisible(on) {
 
 function setVrTab(id) {
   activeTab = id;
+  // picking a tab is also a way out of a detail page
+  if (detailOpen) { detailOpen = null; vrDetail.object3D.position.z = -999; }
   Object.keys(vrTabs).forEach(function (k) {
     const on = (k === id);
     vrTabs[k].setAttribute('visible', on);
@@ -4592,7 +4928,8 @@ function boot() {
 
   whenModelReady(document.querySelector('#bedroomSet'), function () {
     skinBedroom();
-    setDuvet(state.duvet);                 // colour lands after the material swap
+    // colour lands after the material swap; the app catching up, not a choice
+    reapply(function () { setDuvet(state.duvet); });
     // receive but do not cast: the duvet alone is 44k triangles and was
     // being re-rendered into the shadow map every frame, for a shadow the
     // bedroom's soft window light never really shows
