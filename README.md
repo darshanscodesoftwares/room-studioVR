@@ -23,7 +23,7 @@ open the resulting URL in the headset browser and tap the VR button. Keep
 | --- | --- |
 | Left trigger (or grip) | Teleport — hold to aim the arc, release to move |
 | Left thumbstick | Smooth walk (can be switched off) |
-| Right thumbstick | Snap turn, 30° |
+| Right thumbstick | Smooth turn (snap in comfort mode) |
 | Right trigger | Click the floating panel |
 | Y or B button | Summon / dismiss the customiser on the left controller |
 
@@ -117,6 +117,26 @@ colours are written straight to `material.color` instead.
 Both locomotion styles ship together on purpose: the desktop panel can switch
 smooth walking off mid-session, so smooth and teleport can be compared with the
 same build during a buyer test.
+
+### Turning
+
+The right stick turns **smoothly**: it sets a rate and the rig turns every frame
+while it is held, so a visitor can line up on a wall or a sofa at their own
+speed instead of being dealt the world in 30° cards. The rate curve is
+deliberately not linear — raised to a power, a nudge crawls and only the rim of
+the stick turns at full speed, which is what makes it possible to stop *on*
+something rather than past it.
+
+It turns about **the visitor's head, not the rig's origin**. In roomscale those
+are different points: the headset can be a metre from where the rig sits, and
+rotating the rig alone swings the visitor around that other point like a
+fairground ride. The rig is counter-translated so the camera's world position
+does not move, which also leaves the walkable-region checks alone — as far as
+they are concerned nobody moved.
+
+Snap is kept for the comfort setting. Smooth turning is the commonest trigger
+for sim sickness and a buyer demo cannot afford to make somebody ill, so
+**Teleport only** governs turning too: one switch, both kinds of motion.
 
 ## Customisation
 

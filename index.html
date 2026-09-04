@@ -142,7 +142,7 @@
   <p class="note">
     Desktop: drag to look, WASD to walk.<br>
     VR: left trigger = teleport arc, right trigger = click panel,
-    left stick = smooth walk, right stick = snap turn.
+    left stick = smooth walk, right stick = smooth turn.
   </p>
   <p class="note"><button id="hideUi">Hide panel</button></p>
 </div>
@@ -891,11 +891,11 @@
               thumbstick-locomotion="rig: #rig; speed: 2.2"
               teleport-lite="rig: #rig"></a-entity>
 
-    <!-- right hand: UI laser + snap turn -->
+    <!-- right hand: UI laser + stick turn -->
     <a-entity id="handRight"
               laser-controls="hand: right"
               raycaster="objects: .clickable; far: 12; lineColor: #4cc9f0"
-              snap-turn="rig: #rig"></a-entity>
+              stick-turn="rig: #rig"></a-entity>
   </a-entity>
 
   <!-- desktop mouse cursor for the in-VR panel -->
@@ -2124,6 +2124,12 @@ function setSmoothMove(on) {
   const hand = document.querySelector('#handLeft');
   if (hand.components['thumbstick-locomotion']) {
     hand.setAttribute('thumbstick-locomotion', 'enabled', on);
+  }
+  // turning follows the same switch: smooth turn is the commonest cause of
+  // sim sickness, so comfort mode has to take it away along with the walking
+  const right = document.querySelector('#handRight');
+  if (right && right.components['stick-turn']) {
+    right.setAttribute('stick-turn', 'smooth', on);
   }
   logEvent('moveMode', { smooth: on });
   syncUI();
@@ -4923,21 +4929,75 @@ AFRAME.registerComponent('thumbstick-locomotion', {
   }
 });
 
-/* Snap turn on the right thumbstick — cheaper on comfort than smooth turning. */
-AFRAME.registerComponent('snap-turn', {
-  schema: { rig: { type: 'selector' }, degrees: { default: 30 } },
+/* Turning on the right thumbstick.
+
+   Smooth by default: the stick sets a rate and the rig turns every frame
+   while it is held, so a visitor can line up on a wall or a sofa at whatever
+   speed they like instead of being dealt the world in 30-degree cards.
+
+   The rate curve is deliberately not linear. Raised to a power, a small
+   nudge crawls and only the rim of the stick turns at full speed, which is
+   what makes it possible to stop on something rather than past it.
+
+   Snap is kept for the comfort setting, because smooth turning is the single
+   most common trigger for sim sickness and a buyer demo cannot afford to
+   make somebody ill. `Teleport only` therefore governs turning too: one
+   switch, both kinds of motion. */
+AFRAME.registerComponent('stick-turn', {
+  schema: {
+    rig: { type: 'selector' },
+    smooth: { default: true },
+    speed: { default: 120 },       // degrees per second at full deflection
+    curve: { default: 1.6 },       // >1 gives fine control near centre
+    dead: { default: 0.18 },
+    degrees: { default: 30 }       // snap step, when smooth is off
+  },
 
   init: function () {
     const self = this;
+    this.x = 0;
     this.ready = true;
     this.el.addEventListener('thumbstickmoved', function (e) {
       const x = e.detail.x || 0;
+      self.x = x;
+      if (self.data.smooth) { return; }
+      // snap: one step per push, re-armed only when the stick comes back
       if (Math.abs(x) < 0.35) { self.ready = true; return; }
-      if (!self.ready || !self.data.rig) { return; }
+      if (!self.ready) { return; }
       self.ready = false;
-      const dir = x > 0 ? -1 : 1;
-      self.data.rig.object3D.rotation.y += dir * THREE.MathUtils.degToRad(self.data.degrees);
+      self.turn(-Math.sign(x) * THREE.MathUtils.degToRad(self.data.degrees));
     });
+  },
+
+  tick: function (t, dt) {
+    if (!this.data.smooth) { return; }
+    const mag = Math.abs(this.x);
+    if (mag < this.data.dead) { return; }
+    const t01 = (mag - this.data.dead) / (1 - this.data.dead);
+    const rate = Math.pow(Math.min(1, t01), this.data.curve) * this.data.speed;
+    this.turn(-Math.sign(this.x) * THREE.MathUtils.degToRad(rate) * (dt || 16) / 1000);
+  },
+
+  /* Turn about the visitor's own head, not about the rig's origin.
+
+     In roomscale the two are not the same point: the headset can be a metre
+     from where the rig sits, and rotating the rig alone swings the visitor
+     around that other point like a fairground ride. Counter-translating so
+     the camera's world position is unchanged also leaves the walkable-region
+     checks alone, since as far as they are concerned nobody moved. */
+  turn: function (a) {
+    if (!this.data.rig || !a) { return; }
+    const rig = this.data.rig.object3D;
+    const cam = this.cam || (this.cam = document.querySelector('#cam'));
+    const th = rig.rotation.y;
+    rig.rotation.y = th + a;
+    if (!cam || !cam.object3D) { return; }
+    const lx = cam.object3D.position.x, lz = cam.object3D.position.z;
+    if (!lx && !lz) { return; }
+    const c0 = Math.cos(th), s0 = Math.sin(th);
+    const c1 = Math.cos(th + a), s1 = Math.sin(th + a);
+    rig.position.x += (lx * c0 + lz * s0) - (lx * c1 + lz * s1);
+    rig.position.z += (-lx * s0 + lz * c0) - (-lx * s1 + lz * c1);
   }
 });
 
