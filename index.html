@@ -5320,6 +5320,27 @@ function boot() {
   scene.addEventListener('enter-vr', function () { logEvent('enterVR', null); });
   scene.addEventListener('exit-vr', function () { logEvent('exitVR', null); });
 
+  /* Phones can lose the GL context when a VR session ends or the tab is
+     backgrounded, and the browser may restore a frozen page from its
+     back/forward cache with a dead canvas: panel visible, nothing behind it.
+     Either way the only reliable recovery is a fresh load. The counter stops
+     a device that cannot hold a context at all from reloading forever. */
+  function freshLoad() {
+    let n = 0;
+    try { n = +sessionStorage.getItem('rsReloads') || 0; sessionStorage.setItem('rsReloads', n + 1); } catch (e) {}
+    if (n < 3) { location.reload(); }
+  }
+  window.addEventListener('pageshow', function (e) { if (e.persisted) { freshLoad(); } });
+  const hookCanvas = function () {
+    const c = scene.canvas;
+    if (!c) { return; }
+    c.addEventListener('webglcontextlost', function (e) { e.preventDefault(); setTimeout(freshLoad, 300); });
+  };
+  if (scene.canvas) { hookCanvas(); } else { scene.addEventListener('render-target-loaded', hookCanvas); }
+  window.addEventListener('load', function () {
+    setTimeout(function () { try { sessionStorage.removeItem('rsReloads'); } catch (e) {} }, 5000);
+  });
+
   // the readout is time-based, so it ticks rather than waiting for events
   renderTelemetry();
   setInterval(function () {
