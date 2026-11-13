@@ -18,6 +18,11 @@
     border: 1px solid rgba(255,255,255,0.12); border-radius: 10px;
     padding: 12px 14px 14px; backdrop-filter: blur(6px);
   }
+  #closeUi {
+    position: sticky; top: 0; float: right; z-index: 2; margin: -4px -6px 0 0;
+    width: 34px; height: 34px; padding: 0; font-size: 20px; line-height: 1;
+    background: rgba(20,22,28,0.95);
+  }
   #ui h1 { font-size: 14px; margin: 0 0 2px; letter-spacing: .02em; }
   #ui .sub { font-size: 11px; color: #9aa0ad; margin: 0 0 12px; }
   #ui h2 {
@@ -69,6 +74,7 @@
 <button id="toggleUi">Show panel</button>
 
 <div id="ui">
+  <button id="closeUi" aria-label="Close panel">&times;</button>
   <h1>Room Studio</h1>
   <p class="sub">Interior preview &middot; desktop controls</p>
 
@@ -2298,9 +2304,13 @@ function buildOverlay() {
 
   const ui = document.querySelector('#ui');
   const toggle = document.querySelector('#toggleUi');
-  document.querySelector('#hideUi').onclick = function () {
+  const hideUi = function () {
     ui.style.display = 'none'; toggle.style.display = 'block';
   };
+  document.querySelector('#hideUi').onclick = hideUi;
+  document.querySelector('#closeUi').onclick = hideUi;
+  // phones: start with the panel closed so the room is visible
+  if (window.matchMedia('(max-width: 700px)').matches) hideUi();
   toggle.onclick = function () {
     ui.style.display = 'block'; toggle.style.display = 'none';
   };
