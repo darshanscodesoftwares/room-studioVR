@@ -67,6 +67,15 @@
   #toggleUi {
     position: fixed; top: 12px; left: 12px; z-index: 11; display: none;
   }
+  @media (max-width: 700px) {
+    #ui { width: 220px; max-height: 45vh; max-height: 45dvh; padding: 8px 10px 10px; }
+    #ui h2 { margin: 10px 0 4px; }
+    /* keep VR reachable but out of the way */
+    .a-enter-vr { right: 6px !important; bottom: 6px !important; }
+    .a-enter-vr-button {
+      transform: scale(0.55); transform-origin: bottom right; opacity: 0.3;
+    }
+  }
 </style>
 </head>
 <body>
