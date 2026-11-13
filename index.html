@@ -67,6 +67,14 @@
   #toggleUi {
     position: fixed; top: 12px; left: 12px; z-index: 11; display: none;
   }
+  #dpad { display: none; position: fixed; left: 12px; bottom: 12px; z-index: 9;
+    width: 132px; height: 132px; touch-action: none; user-select: none; -webkit-user-select: none; }
+  #dpad button { position: absolute; width: 44px; height: 44px; padding: 0; font-size: 18px;
+    background: rgba(20,22,28,0.55); border-color: rgba(255,255,255,0.25);
+    touch-action: none; -webkit-touch-callout: none; }
+  #dpad [data-d="f"] { left: 44px; top: 0; } #dpad [data-d="b"] { left: 44px; top: 88px; }
+  #dpad [data-d="l"] { left: 0; top: 44px; } #dpad [data-d="r"] { left: 88px; top: 44px; }
+  #dpad.show { display: block; }
   @media (max-width: 700px) {
     #ui { width: 220px; max-height: 45vh; max-height: 45dvh; padding: 8px 10px 10px; }
     #ui h2 { margin: 10px 0 4px; }
@@ -81,6 +89,8 @@
 <body>
 
 <button id="toggleUi">Show panel</button>
+
+<div id="dpad"><button data-d="f">&#9650;</button><button data-d="l">&#9664;</button><button data-d="r">&#9654;</button><button data-d="b">&#9660;</button></div>
 
 <div id="ui">
   <button id="closeUi" aria-label="Close panel">&times;</button>
@@ -5328,6 +5338,50 @@ function boot() {
   const scene = document.querySelector('a-scene');
   scene.addEventListener('enter-vr', function () { logEvent('enterVR', null); });
   scene.addEventListener('exit-vr', function () { logEvent('exitVR', null); });
+
+
+  /* On-screen d-pad for touch devices: walks the rig along the camera's
+     heading and goes through the same clampToRoom as the thumbstick, so it
+     cannot leave the walkable area. Hidden in VR (the headset has sticks). */
+  (function () {
+    const dpad = document.querySelector('#dpad');
+    // any touch screen, including a phone browser in "desktop site" mode
+    if (navigator.maxTouchPoints > 0 || 'ontouchstart' in window) { dpad.classList.add('show'); }
+    const rig = document.querySelector('#rig');
+    const held = {};
+    const SPEED = 1.6;                       // m/s
+    const fwd = new THREE.Vector3();
+    let last = performance.now();
+    dpad.querySelectorAll('button').forEach(function (b) {
+      const d = b.dataset.d;
+      const on = function (e) { e.preventDefault(); held[d] = true; };
+      const off = function (e) { e.preventDefault(); held[d] = false; };
+      b.addEventListener('pointerdown', on);
+      b.addEventListener('pointerup', off);
+      b.addEventListener('pointercancel', off);
+      b.addEventListener('pointerleave', off);
+      b.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    });
+    scene.addEventListener('enter-vr', function () { dpad.style.visibility = 'hidden'; });
+    scene.addEventListener('exit-vr', function () { dpad.style.visibility = ''; });
+    (function step(now) {
+      const dt = Math.min((now - last) / 1000, 0.1); last = now;
+      const f = (held.f ? 1 : 0) - (held.b ? 1 : 0);
+      const r = (held.r ? 1 : 0) - (held.l ? 1 : 0);
+      if ((f || r) && scene.camera) {
+        scene.camera.getWorldDirection(fwd);
+        fwd.y = 0;
+        if (fwd.lengthSq() > 1e-6) {
+          fwd.normalize();
+          const p = rig.object3D.position, px = p.x, pz = p.z;
+          p.x += (fwd.x * f - fwd.z * r) * SPEED * dt;
+          p.z += (fwd.z * f + fwd.x * r) * SPEED * dt;
+          clampToRoom(rig, px, pz);
+        }
+      }
+      requestAnimationFrame(step);
+    })(last);
+  })();
 
   /* Phones can lose the GL context when a VR session ends or the tab is
      backgrounded, and the browser may restore a frozen page from its
